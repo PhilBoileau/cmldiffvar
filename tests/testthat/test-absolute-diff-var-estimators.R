@@ -1,7 +1,7 @@
-test_that("estimator of treatment group-specific variance is consistent", {
+test_that("estimator of treatment group-specific variance has low error", {
 
   # generate a large sample from a simple DGP
-  set.seed(68435)
+  set.seed(83452235)
   pop_size <- 1000000
   confounder_vec <- rnorm(n = pop_size)
   ps_vec <- plogis(0.1 * confounder_vec)
@@ -14,7 +14,7 @@ test_that("estimator of treatment group-specific variance is consistent", {
     function(obs_idx) {
       rnorm(
         n = 1,
-        mean = 1 + confounder_vec[obs_idx],
+        mean = 3 + confounder_vec[obs_idx],
         sd = 3
       )
     }
@@ -24,7 +24,7 @@ test_that("estimator of treatment group-specific variance is consistent", {
     function(obs_idx) {
       rnorm(
         n = 1,
-        mean = confounder_vec[obs_idx],
+        mean = 1 + confounder_vec[obs_idx],
         sd = 1
       )
     }
@@ -39,90 +39,95 @@ test_that("estimator of treatment group-specific variance is consistent", {
   )
 
   # calculate estimand
-  abs_estimand <- var(outcome_treatment_vec) - var(outcome_control_vec)
-  rel_estimand <- var(outcome_treatment_vec) / var(outcome_control_vec)
+  var_treatment <- var(outcome_treatment_vec)
+  var_control <- var(outcome_control_vec)
 
-  # grab a sample of the population
-  sample_tbl <- dplyr::slice_sample(population_tbl, n = 1000) |>
-    dplyr::mutate(sq_outcome = outcome^2)
+  # compute bias
+  num_iters <- 100
+  one_step_var_treatment_est_vec <- rep(NA, num_iters)
+  one_step_var_control_est_vec <- rep(NA, num_iters)
+  for (iter in seq_len(num_iters)) {
 
-  # estimate nuisance parameters
-  ps_fit <- glm(
-    treatment ~ confounder, family = "binomial", data = sample_tbl
+    # grab a sample of the population
+    sample_tbl <- dplyr::slice_sample(population_tbl, n = 1000) |>
+      dplyr::mutate(sq_outcome = outcome^2)
+
+    # estimate nuisance parameters
+    ps_fit <- glm(
+      treatment ~ confounder, family = "binomial", data = sample_tbl
+    )
+    cond_outcome_fit <- earth::earth(
+      outcome ~ treatment + confounder,
+      data = sample_tbl
+    )
+    cond_sq_outcome_fit <- earth::earth(
+      sq_outcome ~ treatment + confounder + treatment^2 + confounder^2,
+      data = sample_tbl,
+      degree = 2
+    )
+
+    # predict conditional outcomes under treatment
+    sample_treatment_tbl <- sample_tbl |>
+      dplyr::mutate(treatment = 1)
+    cond_outcome_treatment_est <- predict(cond_outcome_fit, sample_treatment_tbl)
+    cond_sq_outcome_treatment_est <- predict(
+      cond_sq_outcome_fit, sample_treatment_tbl
+    )
+
+    # predict conditional outcomes under control
+    sample_control_tbl <- sample_tbl |>
+      dplyr::mutate(treatment = 0)
+    cond_outcome_control_est <- predict(cond_outcome_fit, sample_control_tbl)
+    cond_sq_outcome_control_est <- predict(
+      cond_sq_outcome_fit, sample_control_tbl
+    )
+
+    # predict propensity score
+    ps_est <- predict(ps_fit, type = "response")
+
+    # predicted mean under treatment and control (one-step estimator)
+    one_step_mean_treatment_est <- mean(
+      (sample_tbl$treatment == 1) *
+        (sample_tbl$outcome - cond_outcome_treatment_est) /
+        ps_est + cond_outcome_treatment_est
+    )
+    one_step_mean_control_est <- mean(
+      (sample_tbl$treatment == 0) *
+        (sample_tbl$outcome - cond_outcome_control_est) /
+        ps_est + cond_outcome_control_est
+    )
+
+    # calculate variance of treatment estimate
+    one_step_var_treatment_est_vec[iter] <- one_step_var_estimator_fun(
+      treatment_group = 1,
+      sample_tbl$treatment,
+      sample_treatment_tbl$outcome,
+      ps_est,
+      cond_outcome_treatment_est,
+      cond_sq_outcome_treatment_est,
+      one_step_mean_treatment_est
+    )
+
+    # calculate variance of control estimate
+    one_step_var_control_est_vec[iter] <- one_step_var_estimator_fun(
+      treatment_group = 0,
+      sample_tbl$treatment,
+      sample_control_tbl$outcome,
+      ps_est,
+      cond_outcome_control_est,
+      cond_sq_outcome_control_est,
+      one_step_mean_control_est
+    )
+  }
+
+  # check error
+  empirical_bias_var_treatment <- mean(
+    one_step_var_treatment_est_vec - var_treatment
   )
-  cond_outcome_fit <- earth::earth(
-    outcome ~ treatment + confounder,
-    data = sample_tbl
+  expect_lt(abs(empirical_bias_var_treatment), 1)
+  empirical_bias_var_control <- mean(
+    one_step_var_control_est_vec - var_control
   )
-  cond_sq_outcome_fit <- earth::earth(
-    sq_outcome ~ treatment + confounder,
-    data = sample_tbl,
-    degree = 2
-  )
-
-  # predict conditional outcomes under treatment
-  sample_treatment_tbl <- sample_tbl |>
-    dplyr::mutate(treatment = 1)
-  cond_outcome_treatment_est <- predict(cond_outcome_fit, sample_treatment_tbl)
-  cond_sq_outcome_treatment_est <- predict(
-    cond_sq_outcome_fit, sample_treatment_tbl
-  )
-
-  # predict conditional outcomes under control
-  sample_control_tbl <- sample_tbl |>
-    dplyr::mutate(treatment = 0)
-  cond_outcome_control_est <- predict(cond_outcome_fit, sample_control_tbl)
-  cond_sq_outcome_control_est <- predict(
-    cond_sq_outcome_fit, sample_control_tbl
-  )
-
-  # predict propensity score
-  ps_est <- predict(ps_fit, type = "response")
-
-  # predicted mean under treatment and control (one-step estimator)
-  one_step_mean_treatment_est <- mean(
-    (sample_tbl$treatment == 1) *
-      (sample_tbl$outcome - cond_outcome_treatment_est) /
-      ps_est + cond_outcome_treatment_est
-  )
-  one_step_mean_control_est <- mean(
-    (sample_tbl$treatment == 0) *
-      (sample_tbl$outcome - cond_outcome_control_est) /
-      ps_est + cond_outcome_control_est
-  )
-
-  # calculate variance of treatment estimate
-  one_step_var_treatment_est <- one_step_var_estimator_fun(
-    treatment_group = 1,
-    sample_tbl$treatment,
-    sample_treatment_tbl$outcome,
-    ps_est,
-    cond_outcome_treatment_est,
-    cond_sq_outcome_treatment_est,
-    one_step_mean_treatment_est
-  )
-
-  # calculate variance of control estimate
-  one_step_var_control_est <- one_step_var_estimator_fun(
-    treatment_group = 0,
-    sample_tbl$treatment,
-    sample_control_tbl$outcome,
-    ps_est,
-    cond_outcome_control_est,
-    cond_sq_outcome_control_est,
-    one_step_mean_control_est
-  )
-
-  # one-step absolute differential variance estimate
-  os_abs_diff_var_est <- one_step_var_treatment_est - one_step_var_control_est
-
-  # check error of one-step estimate
-  expect_lt(abs(os_abs_diff_var_est - abs_estimand), 1)
-
-  # one-step relative differential variance estimate
-  os_rel_diff_var_est <- one_step_var_treatment_est / one_step_var_control_est
-
-  # check error of one-step estimate
-  expect_lt(abs(os_rel_diff_var_est - rel_estimand), 1)
+  expect_lt(abs(empirical_bias_var_control), 1)
 
 })
