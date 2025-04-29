@@ -33,12 +33,13 @@ one_step_var_estimator_fun <- function(
 ) {
 
   os_var_est <- mean(
-    (treatment_group == treatment_vec) *
+    (treatment_vec == treatment_group) *
       (outcome_vec^2 - 2 * outcome_vec * mean_est +
         2 * cond_exp_outcome_est_vec * mean_est - cond_exp_sq_outcome_est_vec) /
       ((treatment_group == 1) * ps_est_vec +
         (treatment_group == 0) * (1 - ps_est_vec)) +
-    cond_exp_sq_outcome_est_vec - 2 * outcome_vec * mean_est + mean_est^2
+    cond_exp_sq_outcome_est_vec - 2 * cond_exp_outcome_est_vec * mean_est +
+      mean_est^2
   )
 
 }
