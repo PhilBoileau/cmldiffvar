@@ -1,4 +1,4 @@
-test_that("estimator of treatment group-specific variance has low error", {
+test_that("estimator of treatment group-specific variance is consistent", {
 
   # generate a large sample from a simple DGP
   set.seed(83452235)
