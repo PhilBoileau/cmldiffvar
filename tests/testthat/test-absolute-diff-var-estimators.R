@@ -46,6 +46,8 @@ test_that("estimator of treatment group-specific variance is consistent", {
   num_iters <- 100
   one_step_var_treatment_est_vec <- rep(NA, num_iters)
   one_step_var_control_est_vec <- rep(NA, num_iters)
+  tml_var_treatment_est_vec <- rep(NA, num_iters)
+  tml_var_control_est_vec <- rep(NA, num_iters)
   for (iter in seq_len(num_iters)) {
 
     # grab a sample of the population
@@ -69,7 +71,10 @@ test_that("estimator of treatment group-specific variance is consistent", {
     # predict conditional outcomes under treatment
     sample_treatment_tbl <- sample_tbl |>
       dplyr::mutate(treatment = 1)
-    cond_outcome_treatment_est <- predict(cond_outcome_fit, sample_treatment_tbl)
+    cond_outcome_treatment_est <- predict(
+      cond_outcome_fit,
+      sample_treatment_tbl
+    )
     cond_sq_outcome_treatment_est <- predict(
       cond_sq_outcome_fit, sample_treatment_tbl
     )
@@ -97,7 +102,7 @@ test_that("estimator of treatment group-specific variance is consistent", {
         ps_est + cond_outcome_control_est
     )
 
-    # calculate variance of treatment estimate
+    # calculate variance of treatment one-step estimate
     one_step_var_treatment_est_vec[iter] <- one_step_var_estimator_fun(
       treatment_group = 1,
       sample_tbl$treatment,
@@ -108,7 +113,17 @@ test_that("estimator of treatment group-specific variance is consistent", {
       one_step_mean_treatment_est
     )
 
-    # calculate variance of control estimate
+    # calculate variance of treatment TML estimate
+    tml_var_treatment_est_vec[iter] <- tml_var_estimator_fun(
+      treatment_group = 1,
+      treatment_vec = sample_tbl$treatment,
+      outcome_vec = sample_treatment_tbl$outcome,
+      ps_est_vec = ps_est,
+      cond_exp_outcome_est_vec = cond_outcome_treatment_est,
+      cond_exp_sq_outcome_est_vec = cond_sq_outcome_treatment_est
+    )
+
+    # calculate variance of control one-step estimate
     one_step_var_control_est_vec[iter] <- one_step_var_estimator_fun(
       treatment_group = 0,
       sample_tbl$treatment,
@@ -118,16 +133,38 @@ test_that("estimator of treatment group-specific variance is consistent", {
       cond_sq_outcome_control_est,
       one_step_mean_control_est
     )
+
+    # calculate variance of control TML estimate
+    tml_var_control_est_vec[iter] <- tml_var_estimator_fun(
+      treatment_group = 0,
+      sample_tbl$treatment,
+      sample_control_tbl$outcome,
+      ps_est,
+      cond_outcome_control_est,
+      cond_sq_outcome_control_est
+    )
+
   }
 
-  # check error
-  empirical_bias_var_treatment <- mean(
+  # check one-step estimator empirical bias
+  os_empirical_bias_var_treatment <- mean(
     one_step_var_treatment_est_vec - var_treatment
   )
-  expect_lt(abs(empirical_bias_var_treatment), 1)
-  empirical_bias_var_control <- mean(
+  expect_lt(abs(os_empirical_bias_var_treatment), 1)
+  os_empirical_bias_var_control <- mean(
     one_step_var_control_est_vec - var_control
   )
-  expect_lt(abs(empirical_bias_var_control), 1)
+  expect_lt(abs(os_empirical_bias_var_control), 1)
+
+  # check TML estimator empirical bias
+  tml_empirical_bias_var_treatment <- mean(
+    tml_var_treatment_est_vec - var_treatment
+  )
+  expect_lt(abs(tml_empirical_bias_var_treatment), 1)
+  tml_empirical_bias_var_control <- mean(
+    tml_var_control_est_vec - var_control
+  )
+  expect_lt(abs(tml_empirical_bias_var_control), 1)
+
 
 })
