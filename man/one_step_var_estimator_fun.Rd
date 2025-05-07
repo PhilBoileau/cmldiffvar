@@ -43,7 +43,7 @@ mean of the designated \code{treatment_group}.}
 A \code{numeric} estimate of the \code{treatment_group}-specific variance.
 }
 \description{
-\code{one_step_var_estimator_fun()} estimates of the
-treatment-group-specific variance using a one-step estimator.
+\code{one_step_var_estimator_fun()} estimates of the group-specific
+variance using a one-step estimator.
 }
 \keyword{internal}
