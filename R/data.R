@@ -5,7 +5,7 @@
 #' package are tested.
 #'
 #' @format ## `toy_population_tbl`
-#' A [tibble::tibble] with 1,000,000 rows and five columns:
+#' A [tibble] with 1,000,000 rows and five columns:
 #' \describe{
 #' \item{confounder}{Confounding variable of the treatment--outcome
 #' relationship} \item{treatment}{A binary treatment assignment indicator}

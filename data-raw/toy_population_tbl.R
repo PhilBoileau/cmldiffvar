@@ -10,7 +10,7 @@ pop_size <- 1000000
 confounder_vec <- rnorm(n = pop_size)
 
 # generate the propensity score
-ps_vec <- plogis(0.1 * confounder_vec)
+ps_vec <- plogis(confounder_vec)
 
 # generate treatment assignment based on propensity score
 treatment_vec <- sapply(
