@@ -1,3 +1,23 @@
+#' Generate Counterfactual Dataset
+#'
+#' `generate_counterfactural_tbl_fun()` generates a counterfactual version of
+#' `clean_tbl`.
+#'
+#' @inheritParams estimate_propensity_score_fun
+#' @inheritParams one_step_var_estimator_fun
+#' @param propensity_score_sl_fit A [SuperLearner::SuperLearner] object
+#'   corresponding to the estimated propensity score.
+#' @param cond_exp_outcome_sl_fit A [SuperLearner::SuperLearner] object
+#'   corresponding to the estimated conditional expected outcome.
+#' @param cond_exp_sq_outcome_sl_fit A [SuperLearner::SuperLearner] object
+#'   corresponding to the estimated conditional expexted squared outcome.
+#'
+#' @keywords internal
+#'
+#' @returns A counterfactual  [tibble], with the additional of propensity score,
+#'   conditional expected outcome, and conditional expected square outcome
+#'   estimates.
+#'
 generate_counterfactural_tbl_fun <- function(
   clean_tbl,
   treatment_group,
