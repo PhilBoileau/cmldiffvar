@@ -1,4 +1,4 @@
-test_that("estimators of treatment group-specific variance is consistent", {
+test_that("estimators of treatment group-specific variance are consistent", {
 
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
