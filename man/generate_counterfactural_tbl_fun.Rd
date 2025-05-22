@@ -34,7 +34,7 @@ corresponding to the estimated propensity score.}
 corresponding to the estimated conditional expected outcome.}
 
 \item{cond_exp_sq_outcome_sl_fit}{A \link[SuperLearner:SuperLearner]{SuperLearner::SuperLearner} object
-corresponding to the estimated conditional expexted squared outcome.}
+corresponding to the estimated conditional expected squared outcome.}
 }
 \value{
 A counterfactual  \link{tibble}, with the additional of propensity score,

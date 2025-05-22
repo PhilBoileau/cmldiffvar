@@ -10,7 +10,7 @@
 #' @param cond_exp_outcome_sl_fit A [SuperLearner::SuperLearner] object
 #'   corresponding to the estimated conditional expected outcome.
 #' @param cond_exp_sq_outcome_sl_fit A [SuperLearner::SuperLearner] object
-#'   corresponding to the estimated conditional expexted squared outcome.
+#'   corresponding to the estimated conditional expected squared outcome.
 #'
 #' @keywords internal
 #'
