@@ -1,3 +1,14 @@
+#' One-Step Group-Specific Mean Estimator
+#'
+#' `one_step_mean_estimator_fun()` estimates the group-specific mean using a
+#' one-step estimation approach.
+#'
+#' @inheritParams one_step_var_estimator_fun
+#'
+#' @returns A `numeric` estimate of the `treatment_group`-specific mean.
+#'
+#' @keywords internal
+#'
 one_step_mean_estimator_fun <- function(
     treatment_group,
     treatment_vec,
