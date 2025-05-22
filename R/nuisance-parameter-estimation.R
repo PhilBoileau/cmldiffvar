@@ -1,8 +1,8 @@
 #' SuperLearned Propensity Score
 #'
 #' `estimate_propensity_score_fun()` estimates the propensity score using a
-#' cross-validated SuperLearner estimator implemented in the
-#' [SuperLearner::CV.SuperLearner()] function.
+#' SuperLearner estimator implemented in the [SuperLearner::SuperLearner()]
+#' function.
 #'
 #' @param clean_tbl A pre-processed [tibble] that is ready for nuisance
 #'   parameter estimation.
@@ -17,8 +17,8 @@
 #'
 #' @keywords internal
 #'
-#' @returns A [SuperLearner::CV.SuperLearner] class object containing the
-#'   estimated propensity score.
+#' @returns A [SuperLearner::SuperLearner] class object containing the estimated
+#'   propensity score.
 #'
 estimate_propensity_score_fun <- function(
   clean_tbl,
@@ -51,8 +51,8 @@ estimate_propensity_score_fun <- function(
 #' SuperLearned Conditional Expected Outcome
 #'
 #' `estimate_cond_exp_outcome_fun()` estimates the conditional expected outcome
-#' using a cross-validated SuperLearner estimator implemented in the
-#' [SuperLearner::CV.SuperLearner()] function.
+#' using a SuperLearner estimator implemented in the
+#' [SuperLearner::SuperLearner()] function.
 #'
 #' @inheritParams estimate_propensity_score_fun
 #' @param outcome_var_name A `character` providing the column name of the
@@ -62,7 +62,7 @@ estimate_propensity_score_fun <- function(
 #'
 #' @keywords internal
 #'
-#' @returns A [SuperLearner::CV.SuperLearner] class object containing the
+#' @returns A [SuperLearner::SuperLearner] class object containing the
 #'   estimated conditional expected outcome.
 estimate_cond_exp_outcome_fun <- function(
     clean_tbl,
@@ -96,8 +96,8 @@ estimate_cond_exp_outcome_fun <- function(
 #' SuperLearned Conditional Expected Outcome
 #'
 #' `estimate_cond_exp_sq_outcome_fun()` estimates the conditional expected
-#' squared outcome using a cross-validated SuperLearner estimator implemented in
-#' the [SuperLearner::CV.SuperLearner()] function.
+#' squared outcome using a SuperLearner estimator implemented in the
+#' [SuperLearner::SuperLearner()] function.
 #'
 #' @inheritParams estimate_cond_exp_outcome_fun
 #' @param cond_exp_sq_outcome_library A `character` vector of candidate learners
@@ -105,7 +105,7 @@ estimate_cond_exp_outcome_fun <- function(
 #'
 #' @keywords internal
 #'
-#' @returns A [SuperLearner::CV.SuperLearner] class object containing the
+#' @returns A [SuperLearner::SuperLearner] class object containing the
 #'   estimated conditional expected squared outcome.
 #'
 estimate_cond_exp_sq_outcome_fun <- function(
