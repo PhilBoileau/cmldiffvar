@@ -81,6 +81,81 @@ test_that("counterfactual table generator produces counterfactual tables", {
 
 })
 
+test_that("group-specific one-step mean estimator is consistent", {
+
+  # load required libraries
+  library(dplyr)
+  library(SuperLearner)
+
+  # set seed for reproducibility
+  set.seed(723424)
+
+  # calculate estimands
+  mean_treatment <- mean(toy_population_tbl$potential_outcome_treatment)
+
+  # compute bias
+  num_iters <- 100
+  os_est_vec <- sapply(
+    seq_len(num_iters),
+    function(iter) {
+
+      # grab a sample of the population
+      sample_tbl <- slice_sample(toy_population_tbl, n = 1000) |>
+        mutate(sq_outcome = outcome^2)
+
+      # fit nuisance parameter estimators
+      ps_sl_fit <- estimate_propensity_score_fun(
+        sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        propensity_score_library = c("SL.glm", "SL.mean"),
+        num_folds = 5
+      )
+      cond_exp_outcome_fit <- estimate_cond_exp_outcome_fun(
+        sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        outcome_var_name = "outcome",
+        cond_exp_outcome_library = c("SL.glm", "SL.mean"),
+        num_folds = 5
+      )
+      cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
+        sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        outcome_var_name = "outcome",
+        cond_exp_sq_outcome_library = c("SL.glm", "SL.earth"),
+        num_folds = 5
+      )
+
+      # create the counterfactual dataset for the treatment group
+      sample_treatment_tbl <- generate_counterfactural_tbl_fun(
+        sample_tbl,
+        treatment_group = 1,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        ps_sl_fit,
+        cond_exp_outcome_fit,
+        cond_exp_sq_outcome_fit
+      )
+
+      # one-step estimate
+      one_step_mean_estimator_fun(
+        treatment_group = 1,
+        sample_treatment_tbl$treatment,
+        sample_treatment_tbl$outcome,
+        sample_treatment_tbl$pred_propensity_score,
+        sample_treatment_tbl$pred_cond_exp_outcome
+      )
+    }
+  )
+
+  # expect negligible bias in large sample sizes
+  # that is < 5% relative bias (0.05 * estimand = 0.15)
+  expect_lt(abs(mean(os_est_vec - mean_treatment)), 0.15)
+
+})
+
 test_that("differential variance estimators are consistent", {
 
   # load required libraries
