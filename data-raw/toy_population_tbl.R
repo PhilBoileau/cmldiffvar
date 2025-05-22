@@ -50,7 +50,9 @@ outcome_obs_vec <- treatment_vec * outcome_treatment_vec +
 toy_population_tbl <- dplyr::tibble(
   confounder = confounder_vec,
   treatment = treatment_vec,
-  outcome = outcome_obs_vec
+  outcome = outcome_obs_vec,
+  potential_outcome_treatment = outcome_treatment_vec,
+  potential_outcome_control = outcome_control_vec
 )
 
 # add population data to package
