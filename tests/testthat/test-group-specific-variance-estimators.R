@@ -1,46 +1,8 @@
 test_that("estimators of treatment group-specific variance is consistent", {
 
-  # generate a large sample from a simple DGP
-  set.seed(83452235)
-  pop_size <- 1000000
-  confounder_vec <- rnorm(n = pop_size)
-  ps_vec <- plogis(0.1 * confounder_vec)
-  treatment_vec <- sapply(
-    ps_vec,
-    function(ps_ind) {rbinom(n = 1, size = 1, prob = ps_ind)}
-  )
-  outcome_treatment_vec <- sapply(
-    seq_len(pop_size),
-    function(obs_idx) {
-      rnorm(
-        n = 1,
-        mean = 3 + confounder_vec[obs_idx],
-        sd = 3
-      )
-    }
-  )
-  outcome_control_vec <- sapply(
-    seq_len(pop_size),
-    function(obs_idx) {
-      rnorm(
-        n = 1,
-        mean = 1 + confounder_vec[obs_idx],
-        sd = 1
-      )
-    }
-  )
-  outcome_obs_vec <- treatment_vec * outcome_treatment_vec +
-    (1 - treatment_vec) * outcome_control_vec
-
-  population_tbl <- dplyr::tibble(
-    confounder = confounder_vec,
-    treatment = treatment_vec,
-    outcome = outcome_obs_vec
-  )
-
   # calculate estimand
-  var_treatment <- var(outcome_treatment_vec)
-  var_control <- var(outcome_control_vec)
+  var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
+  var_control <- var(toy_population_tbl$potential_outcome_control)
 
   # compute bias
   num_iters <- 100
@@ -51,7 +13,7 @@ test_that("estimators of treatment group-specific variance is consistent", {
   for (iter in seq_len(num_iters)) {
 
     # grab a sample of the population
-    sample_tbl <- dplyr::slice_sample(population_tbl, n = 1000) |>
+    sample_tbl <- dplyr::slice_sample(toy_population_tbl, n = 1000) |>
       dplyr::mutate(sq_outcome = outcome^2)
 
     # estimate nuisance parameters
