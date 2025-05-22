@@ -80,6 +80,18 @@ generate_counterfactural_tbl_fun <- function(
 }
 
 
+#' One-Step Estimator of Differential Variance
+#'
+#' `one_step_diff_var_estimator_fun()` estimates the differential variance using
+#' a one-step estimator.
+#'
+#' @inheritParams generate_counterfactural_tbl_fun
+#' @inheritParams estimate_cond_exp_outcome_fun
+#'
+#' @returns A `numeric` estimate of the difference in treatment group variances.
+#'
+#' @keywords internal
+#'
 one_step_diff_var_estimator_fun <- function(
   clean_tbl,
   confounder_var_names,
@@ -152,7 +164,17 @@ one_step_diff_var_estimator_fun <- function(
   return(os_diff_var_est)
 }
 
-
+#' Targeted Minimum Loss-Based Estimator Estimator of Differential Variance
+#'
+#' `tml_diff_var_estimator_fun()` estimates the differential variance using
+#' a targeted minimum loss-based estimator.
+#'
+#' @inheritParams one_step_diff_var_estimator_fun
+#'
+#' @inherit one_step_diff_var_estimator_fun return
+#'
+#' @keywords internal
+#'
 tml_diff_var_estimator_fun <- function(
   clean_tbl,
   confounder_var_names,
