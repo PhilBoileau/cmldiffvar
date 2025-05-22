@@ -33,12 +33,12 @@ used by the SuperLearner estimator.}
 cross-validated SuperLearner estimator.}
 }
 \value{
-A \link[SuperLearner:CV.SuperLearner]{SuperLearner::CV.SuperLearner} class object containing the
+A \link[SuperLearner:SuperLearner]{SuperLearner::SuperLearner} class object containing the
 estimated conditional expected outcome.
 }
 \description{
 \code{estimate_cond_exp_outcome_fun()} estimates the conditional expected outcome
-using a cross-validated SuperLearner estimator implemented in the
-\code{\link[SuperLearner:CV.SuperLearner]{SuperLearner::CV.SuperLearner()}} function.
+using a SuperLearner estimator implemented in the
+\code{\link[SuperLearner:SuperLearner]{SuperLearner::SuperLearner()}} function.
 }
 \keyword{internal}

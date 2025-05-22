@@ -29,12 +29,12 @@ used by the SuperLearner estimator.}
 cross-validated SuperLearner estimator.}
 }
 \value{
-A \link[SuperLearner:CV.SuperLearner]{SuperLearner::CV.SuperLearner} class object containing the
-estimated propensity score.
+A \link[SuperLearner:SuperLearner]{SuperLearner::SuperLearner} class object containing the estimated
+propensity score.
 }
 \description{
 \code{estimate_propensity_score_fun()} estimates the propensity score using a
-cross-validated SuperLearner estimator implemented in the
-\code{\link[SuperLearner:CV.SuperLearner]{SuperLearner::CV.SuperLearner()}} function.
+SuperLearner estimator implemented in the \code{\link[SuperLearner:SuperLearner]{SuperLearner::SuperLearner()}}
+function.
 }
 \keyword{internal}
