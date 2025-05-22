@@ -35,6 +35,6 @@ A \code{numeric} estimate of the \code{treatment_group}-specific mean.
 }
 \description{
 \code{one_step_mean_estimator_fun()} estimates the group-specific mean using a
-one-step estimation approach.
+one-step estimator.
 }
 \keyword{internal}

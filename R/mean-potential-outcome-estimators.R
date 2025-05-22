@@ -1,7 +1,7 @@
 #' One-Step Group-Specific Mean Estimator
 #'
 #' `one_step_mean_estimator_fun()` estimates the group-specific mean using a
-#' one-step estimation approach.
+#' one-step estimator.
 #'
 #' @inheritParams one_step_var_estimator_fun
 #'

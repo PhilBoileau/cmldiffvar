@@ -2,7 +2,7 @@
 % Please edit documentation in R/group-specific-variance-estimators.R
 \name{tml_var_estimator_fun}
 \alias{tml_var_estimator_fun}
-\title{Targeted Maximum Likelihood Estimator of Group-Specific Variance}
+\title{Targeted Minimum Loss-Based Estimator of Group-Specific Variance}
 \usage{
 tml_var_estimator_fun(
   treatment_group,
@@ -40,6 +40,6 @@ A \code{numeric} estimate of the \code{treatment_group}-specific variance.
 }
 \description{
 \code{tml_var_estimator_fun()} estimates of the group-specific
-variance using a targeted maximum likelihood estimator.
+variance using a targeted minimum loss-based estimator.
 }
 \keyword{internal}

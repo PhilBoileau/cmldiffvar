@@ -59,14 +59,12 @@ one_step_var_estimator_fun <- function(
 }
 
 
-#' Targeted Maximum Likelihood Estimator of Group-Specific Variance
+#' Targeted Minimum Loss-Based Estimator of Group-Specific Variance
 #'
 #' @description `tml_var_estimator_fun()` estimates of the group-specific
-#'   variance using a targeted maximum likelihood estimator.
+#'   variance using a targeted minimum loss-based estimator.
 #'
 #' @inheritParams one_step_var_estimator_fun
-#'
-#' @returns A `numeric` estimate of the `treatment_group`-specific variance.
 #'
 #' @inherit one_step_var_estimator_fun return
 #'
