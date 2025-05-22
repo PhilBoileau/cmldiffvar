@@ -30,7 +30,10 @@ generate_counterfactural_tbl_fun <- function(
 
   # create counterfactual dataset: all units assigned to treatment_group
   clean_counterfactual_tbl <- clean_tbl |>
-    dplyr::mutate(!!treatment_var_name := treatment_group)
+    dplyr::mutate(
+      !!treatment_var_name := treatment_group,
+      counterfactual_treatment = treatment_group
+    )
 
   # predict nuisance parameters under counterfactual scenarios
   pred_propensity_score <- predict(
@@ -68,6 +71,138 @@ generate_counterfactural_tbl_fun <- function(
       pred_cond_exp_sq_outcome = pred_cond_exp_sq_outcome
     )
 
+  # add back true treatment assignment vector for record keeping
+  clean_counterfactual_tbl[[treatment_var_name]] <-
+    clean_tbl[[treatment_var_name]]
+
   return(clean_counterfactual_tbl)
 
+}
+
+
+one_step_diff_var_estimator_fun <- function(
+  clean_tbl,
+  confounder_var_names,
+  treatment_var_name,
+  outcome_var_name,
+  propensity_score_sl_fit,
+  cond_exp_outcome_sl_fit,
+  cond_exp_sq_outcome_sl_fit
+) {
+
+  # generate the counterfactual datasets
+  clean_treatment_tbl <- generate_counterfactural_tbl_fun(
+    clean_tbl,
+    treatment_group = 1,
+    confounder_var_names,
+    treatment_var_name,
+    propensity_score_sl_fit,
+    cond_exp_outcome_sl_fit,
+    cond_exp_sq_outcome_sl_fit
+  )
+  clean_control_tbl <- generate_counterfactural_tbl_fun(
+    clean_tbl,
+    treatment_group = 0,
+    confounder_var_names,
+    treatment_var_name,
+    propensity_score_sl_fit,
+    cond_exp_outcome_sl_fit,
+    cond_exp_sq_outcome_sl_fit
+  )
+
+  # estimate group-specific means
+  treatment_group_mean_est <- one_step_mean_estimator_fun(
+    treatment_group = 1,
+    treatment_vec = clean_treatment_tbl[[treatment_var_name]],
+    outcome_vec = clean_treatment_tbl[[outcome_var_name]],
+    ps_est_vec = clean_treatment_tbl$pred_propensity_score,
+    cond_exp_outcome_est_vec = clean_treatment_tbl$pred_cond_exp_outcome
+  )
+  control_group_mean_est <- one_step_mean_estimator_fun(
+    treatment_group = 0,
+    treatment_vec = clean_control_tbl[[treatment_var_name]],
+    outcome_vec = clean_control_tbl[[outcome_var_name]],
+    ps_est_vec = clean_control_tbl$pred_propensity_score,
+    cond_exp_outcome_est_vec = clean_control_tbl$pred_cond_exp_outcome
+  )
+
+  # estimate group-specific variances
+  treatment_group_var_est <- one_step_var_estimator_fun(
+    treatment_group = 1,
+    treatment_vec = clean_treatment_tbl[[treatment_var_name]],
+    outcome_vec = clean_treatment_tbl[[outcome_var_name]],
+    ps_est_vec = clean_treatment_tbl$pred_propensity_score,
+    cond_exp_outcome_est_vec = clean_treatment_tbl$pred_cond_exp_outcome,
+    cond_exp_sq_outcome_est_vec = clean_treatment_tbl$pred_cond_exp_sq_outcome,
+    mean_est = treatment_group_mean_est
+  )
+  control_group_var_est <- one_step_var_estimator_fun(
+    treatment_group = 0,
+    treatment_vec = clean_control_tbl[[treatment_var_name]],
+    outcome_vec = clean_control_tbl[[outcome_var_name]],
+    ps_est_vec = clean_control_tbl$pred_propensity_score,
+    cond_exp_outcome_est_vec = clean_control_tbl$pred_cond_exp_outcome,
+    cond_exp_sq_outcome_est_vec = clean_control_tbl$pred_cond_exp_sq_outcome,
+    mean_est = control_group_mean_est
+  )
+
+  # estimate differential variance
+  os_diff_var_est <- treatment_group_var_est - control_group_var_est
+
+  return(os_diff_var_est)
+}
+
+
+tml_diff_var_estimator_fun <- function(
+  clean_tbl,
+  confounder_var_names,
+  treatment_var_name,
+  outcome_var_name,
+  propensity_score_sl_fit,
+  cond_exp_outcome_sl_fit,
+  cond_exp_sq_outcome_sl_fit
+) {
+
+  # generate the counterfactual datasets
+  clean_treatment_tbl <- generate_counterfactural_tbl_fun(
+    clean_tbl,
+    treatment_group = 1,
+    confounder_var_names,
+    treatment_var_name,
+    propensity_score_sl_fit,
+    cond_exp_outcome_sl_fit,
+    cond_exp_sq_outcome_sl_fit
+  )
+  clean_control_tbl <- generate_counterfactural_tbl_fun(
+    clean_tbl,
+    treatment_group = 0,
+    confounder_var_names,
+    treatment_var_name,
+    propensity_score_sl_fit,
+    cond_exp_outcome_sl_fit,
+    cond_exp_sq_outcome_sl_fit
+  )
+
+  # estimate group-specific variances
+  treatment_group_var_est <- tml_var_estimator_fun(
+    treatment_group = 1,
+    treatment_vec = clean_treatment_tbl[[treatment_var_name]],
+    outcome_vec = clean_treatment_tbl[[outcome_var_name]],
+    ps_est_vec = clean_treatment_tbl$pred_propensity_score,
+    cond_exp_outcome_est_vec = clean_treatment_tbl$pred_cond_exp_outcome,
+    cond_exp_sq_outcome_est_vec = clean_treatment_tbl$pred_cond_exp_sq_outcome
+  )
+  control_group_var_est <- tml_var_estimator_fun(
+    treatment_group = 0,
+    treatment_vec = clean_control_tbl[[treatment_var_name]],
+    outcome_vec = clean_control_tbl[[outcome_var_name]],
+    ps_est_vec = clean_control_tbl$pred_propensity_score,
+    cond_exp_outcome_est_vec = clean_control_tbl$pred_cond_exp_outcome,
+    cond_exp_sq_outcome_est_vec = clean_control_tbl$pred_cond_exp_sq_outcome
+  )
+
+  # estimate differential variance
+  tml_diff_var_est <- treatment_group_var_est - control_group_var_est
+
+  return(tml_diff_var_est)
 }
