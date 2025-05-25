@@ -39,7 +39,7 @@ estimate_propensity_score_fun <- function(
   propensity_score_sl_fit <- SuperLearner::SuperLearner(
     Y = treatment_vec,
     X = confounders_tbl,
-    family = binomial(),
+    family = stats::binomial(),
     SL.library = propensity_score_library,
     cvControl = list("V" = num_folds)
   )
@@ -84,7 +84,7 @@ estimate_cond_exp_outcome_fun <- function(
   cond_exp_outcome_sl_fit <- SuperLearner::SuperLearner(
     Y = outcome_vec,
     X = confounders_and_treatment_tbl,
-    family = gaussian(),
+    family = stats::gaussian(),
     SL.library = cond_exp_outcome_library,
     cvControl = list("V" = num_folds)
   )
@@ -128,7 +128,7 @@ estimate_cond_exp_sq_outcome_fun <- function(
   cond_exp_sq_outcome_sl_fit <- SuperLearner::SuperLearner(
     Y = sq_outcome_vec,
     X = confounders_and_treatment_tbl,
-    family = gaussian(),
+    family = stats::gaussian(),
     SL.library = cond_exp_sq_outcome_library,
     cvControl = list("V" = num_folds)
   )

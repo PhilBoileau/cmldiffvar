@@ -119,17 +119,17 @@ tml_var_estimator_fun <- function(
 
   # tilt the conditional expected outcome estimator
   # NOTE: Make sure offset terms aren't NaN
-  logit_bounded_cond_exp_outcome_est_vec <-stats::qlogis(
+  logit_bounded_cond_exp_outcome_est_vec <- stats::qlogis(
     bound_away_from_0_and_1_fun(bounded_cond_exp_outcome_est_vec)
   )
   tilted_bounded_cond_exp_outcome_fit <- suppressWarnings(
-    glm(
+    stats::glm(
       bounded_outcome_vec ~ -1 + clever_covariate,
       family = "binomial",
       offset = logit_bounded_cond_exp_outcome_est_vec
     )
   )
-  tilted_bounded_cond_exp_outcome_est_vec <- predict(
+  tilted_bounded_cond_exp_outcome_est_vec <- stats::predict.glm(
     tilted_bounded_cond_exp_outcome_fit,
     type = "response"
   )
@@ -139,17 +139,17 @@ tml_var_estimator_fun <- function(
 
   # tilt the conditional expected squared outcome estimator
   # NOTE: Make sure offset terms aren't NaN
-  logit_bounded_cond_exp_sq_outcome_est_vec <-stats::qlogis(
+  logit_bounded_cond_exp_sq_outcome_est_vec <- stats::qlogis(
     bound_away_from_0_and_1_fun(bounded_cond_exp_sq_outcome_est_vec)
   )
   tilted_bounded_cond_exp_sq_outcome_fit <- suppressWarnings(
-    glm(
+    stats::glm(
       bounded_sq_outcome_vec ~ -1 + clever_covariate,
       family = "binomial",
       offset = logit_bounded_cond_exp_sq_outcome_est_vec
     )
   )
-  tilted_bounded_cond_exp_sq_outcome_est_vec <- predict(
+  tilted_bounded_cond_exp_sq_outcome_est_vec <- stats::predict.glm(
     tilted_bounded_cond_exp_sq_outcome_fit,
     type = "response"
   )

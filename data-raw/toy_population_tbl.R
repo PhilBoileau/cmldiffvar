@@ -4,7 +4,7 @@
 set.seed(83452235)
 
 # set population size
-pop_size <- 1000000
+pop_size <- 100000
 
 # generate the confounder variable
 confounder_vec <- rnorm(n = pop_size)
@@ -56,4 +56,4 @@ toy_population_tbl <- dplyr::tibble(
 )
 
 # add population data to package
-usethis::use_data(toy_population_tbl, overwrite = TRUE)
+usethis::use_data(toy_population_tbl, overwrite = TRUE, compress = "xz")

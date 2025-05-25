@@ -12,6 +12,8 @@
 #' @param cond_exp_sq_outcome_sl_fit A [SuperLearner::SuperLearner] object
 #'   corresponding to the estimated conditional expected squared outcome.
 #'
+#' @importFrom rlang :=
+#'
 #' @keywords internal
 #'
 #' @returns A counterfactual  [tibble], with the additional of propensity score,
@@ -36,13 +38,13 @@ generate_counterfactural_tbl_fun <- function(
     )
 
   # predict nuisance parameters under counterfactual scenarios
-  pred_propensity_score <- predict(
+  pred_propensity_score <- SuperLearner::predict.SuperLearner(
     propensity_score_sl_fit,
     newdata = clean_counterfactual_tbl |>
       dplyr::select(dplyr::all_of(confounder_var_names)),
     onlySL = TRUE
   )$pred
-  pred_cond_exp_outcome <- predict(
+  pred_cond_exp_outcome <- SuperLearner::predict.SuperLearner(
     cond_exp_outcome_sl_fit,
     newdata = clean_counterfactual_tbl |>
       dplyr::select(
@@ -52,7 +54,7 @@ generate_counterfactural_tbl_fun <- function(
       ),
     onlySL = TRUE
   )$pred
-  pred_cond_exp_sq_outcome <- predict(
+  pred_cond_exp_sq_outcome <- SuperLearner::predict.SuperLearner(
     cond_exp_sq_outcome_sl_fit,
     newdata = clean_counterfactual_tbl |>
       dplyr::select(
