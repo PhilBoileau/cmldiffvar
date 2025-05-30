@@ -79,83 +79,36 @@ tml_var_estimator_fun <- function(
   cond_exp_sq_outcome_est_vec
 ) {
 
-  # bound the outcome vector
-  min_outcome_vec <- min(outcome_vec)
-  max_outcome_vec <- max(outcome_vec)
-  bounded_outcome_vec <-
-    (outcome_vec - min_outcome_vec) / (max_outcome_vec - min_outcome_vec)
-
-  # bound the conditional expected outcome estimates, and don't let estimator
-  # extrapolate outside bounds of observed outcome values
-  cond_exp_outcome_est_vec[cond_exp_outcome_est_vec < min_outcome_vec] <-
-    min_outcome_vec
-  cond_exp_outcome_est_vec[cond_exp_outcome_est_vec > max_outcome_vec] <-
-    max_outcome_vec
-  bounded_cond_exp_outcome_est_vec <-
-    (cond_exp_outcome_est_vec - min_outcome_vec) /
-    (max_outcome_vec - min_outcome_vec)
-
-  # bound the conditional expected squared outcome estimates, and don't let
-  # estimator extrapolate outside bounds of observed outcome values
-  sq_outcome_vec <- outcome_vec^2
-  min_sq_outcome_vec <- min(sq_outcome_vec)
-  max_sq_outcome_vec <- max(sq_outcome_vec)
-  bounded_sq_outcome_vec <- (sq_outcome_vec - min_sq_outcome_vec) /
-    (max_sq_outcome_vec - min_sq_outcome_vec)
-  cond_exp_sq_outcome_est_vec[
-    cond_exp_sq_outcome_est_vec < min_sq_outcome_vec
-  ] <- min_sq_outcome_vec
-  cond_exp_sq_outcome_est_vec[
-    cond_exp_sq_outcome_est_vec > max_sq_outcome_vec
-  ] <- max_sq_outcome_vec
-  bounded_cond_exp_sq_outcome_est_vec <-
-    (cond_exp_sq_outcome_est_vec - min_sq_outcome_vec) /
-    (max_sq_outcome_vec - min_sq_outcome_vec)
-
   # define the clever covariate
-  clever_covariate <- (treatment_vec == treatment_group) /
+  clever_covariate <- as.numeric(treatment_vec == treatment_group) /
     ((treatment_group == 1) * ps_est_vec +
        (treatment_group == 0) * (1 - ps_est_vec))
 
-  # tilt the conditional expected outcome estimator
-  # NOTE: Make sure offset terms aren't NaN
-  logit_bounded_cond_exp_outcome_est_vec <- stats::qlogis(
-    bound_away_from_0_and_1_fun(bounded_cond_exp_outcome_est_vec)
+  # linear optimization for tilting conditional expected outcome
+  tilted_cond_exp_outcome_fit <- stats::lm(
+    outcome_vec ~ -1 + clever_covariate + offset(cond_exp_outcome_est_vec)
   )
-  tilted_bounded_cond_exp_outcome_fit <- suppressWarnings(
-    stats::glm(
-      bounded_outcome_vec ~ -1 + clever_covariate,
-      family = "binomial",
-      offset = logit_bounded_cond_exp_outcome_est_vec
-    )
-  )
-  tilted_bounded_cond_exp_outcome_est_vec <- stats::predict.glm(
-    tilted_bounded_cond_exp_outcome_fit,
-    type = "response"
-  )
-  tilted_cond_exp_outcome_est_vec <-
-    tilted_bounded_cond_exp_outcome_est_vec *
-      (max_outcome_vec - min_outcome_vec) + min_outcome_vec
+  tilted_cond_exp_outcome_est_vec <- predict(tilted_cond_exp_outcome_fit)
 
-  # tilt the conditional expected squared outcome estimator
-  # NOTE: Make sure offset terms aren't NaN
-  logit_bounded_cond_exp_sq_outcome_est_vec <- stats::qlogis(
-    bound_away_from_0_and_1_fun(bounded_cond_exp_sq_outcome_est_vec)
+  # linear optimization for tilting conditional expected squared outcome
+  sq_outcome_vec <- outcome_vec^2
+  tilted_cond_exp_sq_outcome_fit <- stats::lm(
+    sq_outcome_vec ~ -1 + clever_covariate + offset(cond_exp_sq_outcome_est_vec)
   )
-  tilted_bounded_cond_exp_sq_outcome_fit <- suppressWarnings(
-    stats::glm(
-      bounded_sq_outcome_vec ~ -1 + clever_covariate,
-      family = "binomial",
-      offset = logit_bounded_cond_exp_sq_outcome_est_vec
+  tilted_cond_exp_sq_outcome_est_vec <- predict(tilted_cond_exp_sq_outcome_fit)
+
+  # check that the score (empirical EIF) is solved
+  score_value <- mean(
+    efficient_influence_function_fun(
+      treatment_group = treatment_group,
+      treatment_vec = treatment_vec,
+      outcome_vec = outcome_vec,
+      ps_est_vec = ps_est_vec,
+      cond_exp_outcome_est_vec = tilted_cond_exp_outcome_est_vec,
+      cond_exp_sq_outcome_est_vec = tilted_cond_exp_sq_outcome_est_vec,
+      mean_est = mean(tilted_cond_exp_outcome_est_vec)
     )
   )
-  tilted_bounded_cond_exp_sq_outcome_est_vec <- stats::predict.glm(
-    tilted_bounded_cond_exp_sq_outcome_fit,
-    type = "response"
-  )
-  tilted_cond_exp_sq_outcome_est_vec <-
-    tilted_bounded_cond_exp_sq_outcome_est_vec *
-      (max_sq_outcome_vec - min_sq_outcome_vec) + min_sq_outcome_vec
 
   # compute the targeted maximum likelihood estimate
   tml_est <- plugin_var_estimator_fun(
