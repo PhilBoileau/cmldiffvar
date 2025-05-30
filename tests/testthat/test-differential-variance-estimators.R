@@ -168,12 +168,15 @@ test_that("differential variance estimators are consistent", {
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
   var_control <- var(toy_population_tbl$potential_outcome_control)
-  estimand <- var_treatment - var_control
+  abs_estimand <- var_treatment - var_control
+  rel_estimand <- var_treatment / var_control
 
   # compute bias
   num_iters <- 100
-  one_step_diff_var_ests <- rep(NA, num_iters)
-  tml_diff_var_ests <- rep(NA, num_iters)
+  abs_one_step_diff_var_ests <- rep(NA, num_iters)
+  abs_tml_diff_var_ests <- rep(NA, num_iters)
+  rel_one_step_diff_var_ests <- rep(NA, num_iters)
+  rel_tml_diff_var_ests <- rep(NA, num_iters)
   for (iter in seq_len(num_iters)) {
 
     # grab a sample of the population
@@ -205,33 +208,64 @@ test_that("differential variance estimators are consistent", {
       num_folds = 5
     )
 
-    # one-step estimate
-    one_step_diff_var_ests[iter] <- one_step_diff_var_estimator_fun(
+    # absolute one-step estimate
+    abs_one_step_diff_var_ests[iter] <- one_step_diff_var_estimator_fun(
       sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
       ps_sl_fit,
       cond_exp_outcome_fit,
-      cond_exp_sq_outcome_fit
+      cond_exp_sq_outcome_fit,
+      type = "absolute"
     )
 
-    # TML estimate
-    tml_diff_var_ests[iter] <- tml_diff_var_estimator_fun(
+    # absolute TML estimate
+    abs_tml_diff_var_ests[iter] <- tml_diff_var_estimator_fun(
       sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
       ps_sl_fit,
       cond_exp_outcome_fit,
-      cond_exp_sq_outcome_fit
+      cond_exp_sq_outcome_fit,
+      type = "absolute"
+    )
+
+    # relative one-step estimate
+    rel_one_step_diff_var_ests[iter] <- one_step_diff_var_estimator_fun(
+      sample_tbl,
+      confounder_var_names = "confounder",
+      treatment_var_name = "treatment",
+      outcome_var_name = "outcome",
+      ps_sl_fit,
+      cond_exp_outcome_fit,
+      cond_exp_sq_outcome_fit,
+      type = "relative"
+    )
+
+    # relative TML estimate
+    rel_tml_diff_var_ests[iter] <- tml_diff_var_estimator_fun(
+      sample_tbl,
+      confounder_var_names = "confounder",
+      treatment_var_name = "treatment",
+      outcome_var_name = "outcome",
+      ps_sl_fit,
+      cond_exp_outcome_fit,
+      cond_exp_sq_outcome_fit,
+      type = "relative"
     )
 
   }
 
-  # expect negligible bias in large sample sizes
+  # expect negligible bias in large sample sizes for absolute estimate
   # that is < 5% relative bias (0.05 * estimand = 0.4)
-  expect_lt(abs(mean(one_step_diff_var_ests - estimand)), 0.4)
-  expect_lt(abs(mean(tml_diff_var_ests - estimand)), 0.4)
+  expect_lt(abs(mean(abs_one_step_diff_var_ests - abs_estimand)), 0.4)
+  expect_lt(abs(mean(abs_tml_diff_var_ests - abs_estimand)), 0.4)
+
+  # expect negligible bias in large sample sizes for relative estimate
+  # that is < 5% relative bias (0.05 * estimand = 0.4)
+  expect_lt(abs(mean(rel_one_step_diff_var_ests - rel_estimand)), 0.25)
+  expect_lt(abs(mean(rel_tml_diff_var_ests - rel_estimand)), 0.25)
 
 })

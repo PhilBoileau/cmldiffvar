@@ -89,6 +89,10 @@ generate_counterfactural_tbl_fun <- function(
 #'
 #' @inheritParams generate_counterfactural_tbl_fun
 #' @inheritParams estimate_cond_exp_outcome_fun
+#' @param type A `character` indicating whether to estimate an absolute or
+#'   relative effect. Set this parameter to `"absolute"` to estimate the
+#'   difference of group-specific variances. Set this parameter to `"relative"`
+#'   to estimate the ratio of the group-specific variances.
 #'
 #' @returns A `numeric` estimate of the difference in treatment group variances.
 #'
@@ -101,7 +105,8 @@ one_step_diff_var_estimator_fun <- function(
   outcome_var_name,
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
-  cond_exp_sq_outcome_sl_fit
+  cond_exp_sq_outcome_sl_fit,
+  type
 ) {
 
   # generate the counterfactual datasets
@@ -161,7 +166,11 @@ one_step_diff_var_estimator_fun <- function(
   )
 
   # estimate differential variance
-  os_diff_var_est <- treatment_group_var_est - control_group_var_est
+  if (type == "absolute") {
+    os_diff_var_est <- treatment_group_var_est - control_group_var_est
+  } else if (type == "relative") {
+    os_diff_var_est <- treatment_group_var_est / control_group_var_est
+  }
 
   return(os_diff_var_est)
 }
@@ -184,7 +193,8 @@ tml_diff_var_estimator_fun <- function(
   outcome_var_name,
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
-  cond_exp_sq_outcome_sl_fit
+  cond_exp_sq_outcome_sl_fit,
+  type
 ) {
 
   # generate the counterfactual datasets
@@ -226,7 +236,11 @@ tml_diff_var_estimator_fun <- function(
   )
 
   # estimate differential variance
-  tml_diff_var_est <- treatment_group_var_est - control_group_var_est
+  if (type == "absolute") {
+    tml_diff_var_est <- treatment_group_var_est - control_group_var_est
+  } else if (type == "relative") {
+    tml_diff_var_est <- treatment_group_var_est / control_group_var_est
+  }
 
   return(tml_diff_var_est)
 }
