@@ -11,7 +11,8 @@ one_step_diff_var_estimator_fun(
   outcome_var_name,
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
-  cond_exp_sq_outcome_sl_fit
+  cond_exp_sq_outcome_sl_fit,
+  type
 )
 }
 \arguments{
@@ -35,6 +36,11 @@ corresponding to the estimated conditional expected outcome.}
 
 \item{cond_exp_sq_outcome_sl_fit}{A \link[SuperLearner:SuperLearner]{SuperLearner::SuperLearner} object
 corresponding to the estimated conditional expected squared outcome.}
+
+\item{type}{A \code{character} indicating whether to estimate an absolute or
+relative effect. Set this parameter to \code{"absolute"} to estimate the
+difference of group-specific variances. Set this parameter to \code{"relative"}
+to estimate the ratio of the group-specific variances.}
 }
 \value{
 A \code{numeric} estimate of the difference in treatment group variances.

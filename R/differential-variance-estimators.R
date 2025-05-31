@@ -244,3 +244,82 @@ tml_diff_var_estimator_fun <- function(
 
   return(tml_diff_var_est)
 }
+
+
+cv_diff_var_estimator_fun <- function(
+  fold,
+  clean_tbl,
+  confounder_var_names,
+  treatment_var_name,
+  outcome_var_name,
+  propensity_score_library,
+  cond_exp_outcome_library,
+  cond_exp_sq_outcome_library,
+  num_nuisance_sl_folds,
+  estimator_type,
+  estimand_type
+) {
+
+  # split the data into training and validation
+  train_tbl <- origami::training(clean_tbl)
+  valid_tbl <- origami::validation(clean_tbl)
+
+  # fit the nuisance parameters on the training data
+  propensity_score_sl_fit <- estimate_propensity_score_fun(
+    train_tbl,
+    confounder_var_names = confounder_var_names,
+    treatment_var_name = treatment_var_name,
+    propensity_score_library = propensity_score_library,
+    num_folds = num_nuisance_sl_folds
+  )
+  cond_exp_outcome_sl_fit <- estimate_cond_exp_outcome_fun(
+    train_tbl,
+    confounder_var_names = confounder_var_names,
+    treatment_var_name = treatment_var_name,
+    outcome_var_name = outcome_var_name,
+    cond_exp_outcome_library = cond_exp_outcome_library,
+    num_folds = num_nuisance_sl_folds
+  )
+  cond_exp_sq_outcome_sl_fit <- estimate_cond_exp_sq_outcome_fun(
+    train_tbl,
+    confounder_var_names = confounder_var_names,
+    treatment_var_name = treatment_var_name,
+    outcome_var_name = outcome_var_name,
+    cond_exp_sq_outcome_library = cond_exp_sq_outcome_library,
+    num_folds = num_nuisance_sl_folds
+  )
+
+  # estimate the differential variances on the validation data
+  if (estimator_type == "one-step") {
+
+    diff_var_est <- one_step_diff_var_estimator_fun(
+      valid_tbl,
+      confounder_var_names = confounder_var_names,
+      treatment_var_name = treatment_var_name,
+      outcome_var_name = outcome_var_name,
+      propensity_score_sl_fit = propensity_score_sl_fit,
+      cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,
+      cond_exp_sq_outcome_sl_fit = cond_exp_sq_outcome_sl_fit,
+      type = estimand_type
+    )
+
+  } else if (estimator_type == "tmle") {
+
+    diff_var_est <- tml_diff_var_estimator_fun(
+      valid_tbl,
+      confounder_var_names = confounder_var_names,
+      treatment_var_name = treatment_var_name,
+      outcome_var_name = outcome_var_name,
+      propensity_score_sl_fit = propensity_score_sl_fit,
+      cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,
+      cond_exp_sq_outcome_sl_fit = cond_exp_sq_outcome_sl_fit,
+      type = estimand_type
+    )
+
+  }
+
+  # return the differential variance estimate and EIF
+  valid_out_ls <- list(diff_var_est = diff_var_est)
+
+  return(valid_out_ls)
+}

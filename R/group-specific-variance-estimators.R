@@ -80,34 +80,28 @@ tml_var_estimator_fun <- function(
 ) {
 
   # define the clever covariate
-  clever_covariate <- as.numeric(treatment_vec == treatment_group) /
+  clever_covariate_num <- as.numeric(treatment_vec == treatment_group)
+  clever_covariate_denom <- 1 /
     ((treatment_group == 1) * ps_est_vec +
        (treatment_group == 0) * (1 - ps_est_vec))
 
   # linear optimization for tilting conditional expected outcome
   tilted_cond_exp_outcome_fit <- stats::lm(
-    outcome_vec ~ -1 + clever_covariate + offset(cond_exp_outcome_est_vec)
+    outcome_vec ~ -1 + clever_covariate_num,
+    offset = cond_exp_outcome_est_vec,
+    weights = clever_covariate_denom
   )
-  tilted_cond_exp_outcome_est_vec <- predict(tilted_cond_exp_outcome_fit)
+  tilted_cond_exp_outcome_est_vec <- stats::predict(tilted_cond_exp_outcome_fit)
 
   # linear optimization for tilting conditional expected squared outcome
   sq_outcome_vec <- outcome_vec^2
   tilted_cond_exp_sq_outcome_fit <- stats::lm(
-    sq_outcome_vec ~ -1 + clever_covariate + offset(cond_exp_sq_outcome_est_vec)
+    sq_outcome_vec ~ -1 + clever_covariate_num,
+    offset = cond_exp_sq_outcome_est_vec,
+    weights = clever_covariate_denom
   )
-  tilted_cond_exp_sq_outcome_est_vec <- predict(tilted_cond_exp_sq_outcome_fit)
-
-  # check that the score (empirical EIF) is solved
-  score_value <- mean(
-    efficient_influence_function_fun(
-      treatment_group = treatment_group,
-      treatment_vec = treatment_vec,
-      outcome_vec = outcome_vec,
-      ps_est_vec = ps_est_vec,
-      cond_exp_outcome_est_vec = tilted_cond_exp_outcome_est_vec,
-      cond_exp_sq_outcome_est_vec = tilted_cond_exp_sq_outcome_est_vec,
-      mean_est = mean(tilted_cond_exp_outcome_est_vec)
-    )
+  tilted_cond_exp_sq_outcome_est_vec <- stats::predict(
+    tilted_cond_exp_sq_outcome_fit
   )
 
   # compute the targeted maximum likelihood estimate

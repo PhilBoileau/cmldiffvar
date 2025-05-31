@@ -204,7 +204,7 @@ test_that("differential variance estimators are consistent", {
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
-      cond_exp_sq_outcome_library = c("SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.earth", "SL.glm"),
       num_folds = 5
     )
 
@@ -267,5 +267,60 @@ test_that("differential variance estimators are consistent", {
   # that is < 5% relative bias (0.05 * estimand = 0.4)
   expect_lt(abs(mean(rel_one_step_diff_var_ests - rel_estimand)), 0.25)
   expect_lt(abs(mean(rel_tml_diff_var_ests - rel_estimand)), 0.25)
+
+})
+
+
+test_that("cross-fitted differential variance estimators are consistent", {
+
+  # load required libraries
+  library(dplyr)
+  library(SuperLearner)
+  library(earth)
+  library(origami)
+
+  set.seed(2484322)
+
+  # calculate estimand
+  var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
+  var_control <- var(toy_population_tbl$potential_outcome_control)
+  abs_estimand <- var_treatment - var_control
+
+  # compute bias
+  num_iters <- 100
+  abs_one_step_diff_var_ests <- rep(NA, num_iters)
+  for (iter in seq_len(num_iters)) {
+
+    # grab a sample of the population
+    sample_tbl <- slice_sample(toy_population_tbl, n = 1000) |>
+      mutate(sq_outcome = outcome^2)
+
+    # split the sample data into folds
+    folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
+
+    # cross-validate the diff var estimator
+    cf_diff_var_ests <- cross_validate(
+      cv_fun = cv_diff_var_estimator_fun,
+      folds = folds,
+      clean_tbl = sample_tbl,
+      confounder_var_names = "confounder",
+      treatment_var_name = "treatment",
+      outcome_var_name = "outcome",
+      propensity_score_library = c("SL.mean", "SL.glm"),
+      cond_exp_outcome_library = c("SL.mean", "SL.glm"),
+      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      num_nuisance_sl_folds = 5,
+      estimator_type = "one-step",
+      estimand_type = "absolute"
+    )
+
+    # absolute one-step estimate
+    abs_one_step_diff_var_ests[iter] <- mean(cf_diff_var_ests$diff_var_est)
+
+  }
+
+  # expect negligible bias in large sample sizes for absolute estimate
+  # that is < 5% relative bias (0.05 * estimand = 0.4)
+  expect_lt(abs(mean(abs_one_step_diff_var_ests - abs_estimand)), 0.4)
 
 })
