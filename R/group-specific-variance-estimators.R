@@ -21,7 +21,9 @@
 #' @param mean_est A `numeric` corresponding to the estimated outcome population
 #'   mean of the designated `treatment_group`.
 #'
-#' @returns A `numeric` estimate of the `treatment_group`-specific variance.
+#' @returns A list containing the `numeric` estimate of the
+#'   `treatment_group`-specific marginal outcome variance and the `numeric`
+#'   efficient influence function vector.
 #'
 #' @keywords internal
 #'
@@ -55,7 +57,13 @@ one_step_var_estimator_fun <- function(
   # compute the one-step estimate
   os_est <- mean(eif_vec) + plugin_var_est
 
-  return(os_est)
+  # return the estimate and the EIF
+  result_ls <- list(
+    estimate = os_est,
+    eif = eif_vec
+  )
+
+  return(result_ls)
 }
 
 
@@ -110,7 +118,24 @@ tml_var_estimator_fun <- function(
     cond_exp_sq_outcome_est_vec = tilted_cond_exp_sq_outcome_est_vec
   )
 
-  return(tml_est)
+  # compute the EIF
+  eif_vec <- efficient_influence_function_fun(
+    treatment_group,
+    treatment_vec,
+    outcome_vec,
+    ps_est_vec,
+    tilted_cond_exp_outcome_est_vec,
+    tilted_cond_exp_sq_outcome_est_vec,
+    mean(tilted_cond_exp_outcome_est_vec)
+  )
+
+  # return the estimate and the EIF
+  result_ls <- list(
+    estimate = tml_est,
+    eif = eif_vec
+  )
+
+  return(result_ls)
 
 }
 
