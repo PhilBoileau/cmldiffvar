@@ -12,8 +12,8 @@
 #'   treatment assignment indicator stored in `clean_tbl`.
 #' @param propensity_score_library A `character` vector of candidate learners
 #'   used by the SuperLearner estimator.
-#' @param num_folds A `numeric` indicating the number of folds to use in
-#'   cross-validated SuperLearner estimator.
+#' @param num_nuisance_sl_folds A `numeric` indicating the number of folds to
+#'   use in cross-validated SuperLearner estimator.
 #'
 #' @keywords internal
 #'
@@ -25,7 +25,7 @@ estimate_propensity_score_fun <- function(
   confounder_var_names,
   treatment_var_name,
   propensity_score_library,
-  num_folds
+  num_nuisance_sl_folds
 ) {
 
   # extract dependent and independent variables
@@ -41,7 +41,7 @@ estimate_propensity_score_fun <- function(
     X = confounders_tbl,
     family = stats::binomial(),
     SL.library = propensity_score_library,
-    cvControl = list("V" = num_folds)
+    cvControl = list("V" = num_nuisance_sl_folds)
   )
 
   return(propensity_score_sl_fit)
@@ -70,7 +70,7 @@ estimate_cond_exp_outcome_fun <- function(
     treatment_var_name,
     outcome_var_name,
     cond_exp_outcome_library,
-    num_folds
+    num_nuisance_sl_folds
 ) {
 
   # extract dependent and independent variables
@@ -86,7 +86,7 @@ estimate_cond_exp_outcome_fun <- function(
     X = confounders_and_treatment_tbl,
     family = stats::gaussian(),
     SL.library = cond_exp_outcome_library,
-    cvControl = list("V" = num_folds)
+    cvControl = list("V" = num_nuisance_sl_folds)
   )
 
   return(cond_exp_outcome_sl_fit)
@@ -114,7 +114,7 @@ estimate_cond_exp_sq_outcome_fun <- function(
     treatment_var_name,
     outcome_var_name,
     cond_exp_sq_outcome_library,
-    num_folds
+    num_nuisance_sl_folds
 ) {
 
   # extract dependent and independent variables
@@ -130,7 +130,7 @@ estimate_cond_exp_sq_outcome_fun <- function(
     X = confounders_and_treatment_tbl,
     family = stats::gaussian(),
     SL.library = cond_exp_sq_outcome_library,
-    cvControl = list("V" = num_folds)
+    cvControl = list("V" = num_nuisance_sl_folds)
   )
 
   return(cond_exp_sq_outcome_sl_fit)

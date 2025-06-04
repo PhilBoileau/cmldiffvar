@@ -89,8 +89,8 @@ generate_counterfactural_tbl_fun <- function(
 #'
 #' @inheritParams generate_counterfactural_tbl_fun
 #' @inheritParams estimate_cond_exp_outcome_fun
-#' @param type A `character` indicating whether to estimate an absolute or
-#'   relative effect. Set this parameter to `"absolute"` to estimate the
+#' @param estimand_type A `character` indicating whether to estimate an absolute
+#'   or relative effect. Set this parameter to `"absolute"` to estimate the
 #'   difference of group-specific variances. Set this parameter to `"relative"`
 #'   to estimate the ratio of the group-specific variances.
 #'
@@ -106,7 +106,7 @@ one_step_diff_var_estimator_fun <- function(
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
   cond_exp_sq_outcome_sl_fit,
-  type
+  estimand_type
 ) {
 
   # generate the counterfactual datasets
@@ -166,9 +166,9 @@ one_step_diff_var_estimator_fun <- function(
   )
 
   # estimate differential variance
-  if (type == "absolute") {
+  if (estimand_type == "absolute") {
     os_diff_var_est <- treatment_group_var_est - control_group_var_est
-  } else if (type == "relative") {
+  } else if (estimand_type == "relative") {
     os_diff_var_est <- treatment_group_var_est / control_group_var_est
   }
 
@@ -194,7 +194,7 @@ tml_diff_var_estimator_fun <- function(
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
   cond_exp_sq_outcome_sl_fit,
-  type
+  estimand_type
 ) {
 
   # generate the counterfactual datasets
@@ -236,9 +236,9 @@ tml_diff_var_estimator_fun <- function(
   )
 
   # estimate differential variance
-  if (type == "absolute") {
+  if (estimand_type == "absolute") {
     tml_diff_var_est <- treatment_group_var_est - control_group_var_est
-  } else if (type == "relative") {
+  } else if (estimand_type == "relative") {
     tml_diff_var_est <- treatment_group_var_est / control_group_var_est
   }
 
@@ -246,7 +246,26 @@ tml_diff_var_estimator_fun <- function(
 }
 
 
-cv_diff_var_estimator_fun <- function(
+#' Cross-Fitted Differential Variance Estimation
+#'
+#' `cf_diff_var_estimator_fun()` produces a cross-fitted estimate of the select
+#' differential variance estimand, using either a one-step or targeted maximum
+#' likelihood estimator.
+#'
+#' @param fold A [fold][origami::make_folds] object indicating which
+#'   observations in `clean_tbl` are members of the training and validation
+#'   sets.
+#' @inheritParams one_step_diff_var_estimator_fun
+#' @inheritParams estimate_propensity_score_fun
+#' @inheritParams estimate_cond_exp_outcome_fun
+#' @inheritParams estimate_cond_exp_sq_outcome_fun
+#' @param estimator_type A `character` indicating whether to use a one-step or a
+#'   targeted maximum likelihood estimator in the cross-fitting procedure.
+#'
+#' @inherit one_step_diff_var_estimator_fun return
+#'
+#' @keywords internal
+cf_diff_var_estimator_fun <- function(
   fold,
   clean_tbl,
   confounder_var_names,
@@ -264,13 +283,13 @@ cv_diff_var_estimator_fun <- function(
   train_tbl <- origami::training(clean_tbl)
   valid_tbl <- origami::validation(clean_tbl)
 
-  # fit the nuisance parameters on the training data
+  # estimate the nuisance parameters on the training data
   propensity_score_sl_fit <- estimate_propensity_score_fun(
     train_tbl,
     confounder_var_names = confounder_var_names,
     treatment_var_name = treatment_var_name,
     propensity_score_library = propensity_score_library,
-    num_folds = num_nuisance_sl_folds
+    num_nuisance_sl_folds = num_nuisance_sl_folds
   )
   cond_exp_outcome_sl_fit <- estimate_cond_exp_outcome_fun(
     train_tbl,
@@ -278,7 +297,7 @@ cv_diff_var_estimator_fun <- function(
     treatment_var_name = treatment_var_name,
     outcome_var_name = outcome_var_name,
     cond_exp_outcome_library = cond_exp_outcome_library,
-    num_folds = num_nuisance_sl_folds
+    num_nuisance_sl_folds = num_nuisance_sl_folds
   )
   cond_exp_sq_outcome_sl_fit <- estimate_cond_exp_sq_outcome_fun(
     train_tbl,
@@ -286,7 +305,7 @@ cv_diff_var_estimator_fun <- function(
     treatment_var_name = treatment_var_name,
     outcome_var_name = outcome_var_name,
     cond_exp_sq_outcome_library = cond_exp_sq_outcome_library,
-    num_folds = num_nuisance_sl_folds
+    num_nuisance_sl_folds = num_nuisance_sl_folds
   )
 
   # estimate the differential variances on the validation data
@@ -300,7 +319,7 @@ cv_diff_var_estimator_fun <- function(
       propensity_score_sl_fit = propensity_score_sl_fit,
       cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,
       cond_exp_sq_outcome_sl_fit = cond_exp_sq_outcome_sl_fit,
-      type = estimand_type
+      estimand_type = estimand_type
     )
 
   } else if (estimator_type == "tmle") {
@@ -313,7 +332,7 @@ cv_diff_var_estimator_fun <- function(
       propensity_score_sl_fit = propensity_score_sl_fit,
       cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,
       cond_exp_sq_outcome_sl_fit = cond_exp_sq_outcome_sl_fit,
-      type = estimand_type
+      estimand_type = estimand_type
     )
 
   }

@@ -9,7 +9,7 @@ estimate_propensity_score_fun(
   confounder_var_names,
   treatment_var_name,
   propensity_score_library,
-  num_folds
+  num_nuisance_sl_folds
 )
 }
 \arguments{
@@ -25,8 +25,8 @@ treatment assignment indicator stored in \code{clean_tbl}.}
 \item{propensity_score_library}{A \code{character} vector of candidate learners
 used by the SuperLearner estimator.}
 
-\item{num_folds}{A \code{numeric} indicating the number of folds to use in
-cross-validated SuperLearner estimator.}
+\item{num_nuisance_sl_folds}{A \code{numeric} indicating the number of folds to
+use in cross-validated SuperLearner estimator.}
 }
 \value{
 A \link[SuperLearner:SuperLearner]{SuperLearner::SuperLearner} class object containing the estimated

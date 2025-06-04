@@ -16,7 +16,7 @@ test_that("counterfactual table generator produces counterfactual tables", {
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
     propensity_score_library = c("SL.glm", "SL.mean"),
-    num_folds = 5
+    num_nuisance_sl_folds = 5
   )
   cond_exp_outcome_fit <- estimate_cond_exp_outcome_fun(
     sample_tbl,
@@ -24,7 +24,7 @@ test_that("counterfactual table generator produces counterfactual tables", {
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
     cond_exp_outcome_library = c("SL.glm", "SL.mean"),
-    num_folds = 5
+    num_nuisance_sl_folds = 5
   )
   cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
     sample_tbl,
@@ -32,7 +32,7 @@ test_that("counterfactual table generator produces counterfactual tables", {
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
     cond_exp_sq_outcome_library = c("SL.glm", "SL.earth"),
-    num_folds = 5
+    num_nuisance_sl_folds = 5
   )
 
   # construct the counterfactual dataset under the treatment group
@@ -109,7 +109,7 @@ test_that("group-specific one-step mean estimator is consistent", {
         confounder_var_names = "confounder",
         treatment_var_name = "treatment",
         propensity_score_library = c("SL.glm", "SL.mean"),
-        num_folds = 5
+        num_nuisance_sl_folds = 5
       )
       cond_exp_outcome_fit <- estimate_cond_exp_outcome_fun(
         sample_tbl,
@@ -117,7 +117,7 @@ test_that("group-specific one-step mean estimator is consistent", {
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.glm", "SL.mean"),
-        num_folds = 5
+        num_nuisance_sl_folds = 5
       )
       cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
@@ -125,7 +125,7 @@ test_that("group-specific one-step mean estimator is consistent", {
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.glm", "SL.earth"),
-        num_folds = 5
+        num_nuisance_sl_folds = 5
       )
 
       # create the counterfactual dataset for the treatment group
@@ -189,7 +189,7 @@ test_that("differential variance estimators are consistent", {
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_library = c("SL.glm", "SL.mean"),
-      num_folds = 5
+      num_nuisance_sl_folds = 5
     )
     cond_exp_outcome_fit <- estimate_cond_exp_outcome_fun(
       sample_tbl,
@@ -197,7 +197,7 @@ test_that("differential variance estimators are consistent", {
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
       cond_exp_outcome_library = c("SL.glm", "SL.mean"),
-      num_folds = 5
+      num_nuisance_sl_folds = 5
     )
     cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
       sample_tbl,
@@ -205,7 +205,7 @@ test_that("differential variance estimators are consistent", {
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
       cond_exp_sq_outcome_library = c("SL.mean", "SL.earth", "SL.glm"),
-      num_folds = 5
+      num_nuisance_sl_folds = 5
     )
 
     # absolute one-step estimate
@@ -217,7 +217,7 @@ test_that("differential variance estimators are consistent", {
       ps_sl_fit,
       cond_exp_outcome_fit,
       cond_exp_sq_outcome_fit,
-      type = "absolute"
+      estimand_type = "absolute"
     )
 
     # absolute TML estimate
@@ -229,7 +229,7 @@ test_that("differential variance estimators are consistent", {
       ps_sl_fit,
       cond_exp_outcome_fit,
       cond_exp_sq_outcome_fit,
-      type = "absolute"
+      estimand_type = "absolute"
     )
 
     # relative one-step estimate
@@ -241,7 +241,7 @@ test_that("differential variance estimators are consistent", {
       ps_sl_fit,
       cond_exp_outcome_fit,
       cond_exp_sq_outcome_fit,
-      type = "relative"
+      estimand_type = "relative"
     )
 
     # relative TML estimate
@@ -253,7 +253,7 @@ test_that("differential variance estimators are consistent", {
       ps_sl_fit,
       cond_exp_outcome_fit,
       cond_exp_sq_outcome_fit,
-      type = "relative"
+      estimand_type = "relative"
     )
 
   }
@@ -269,7 +269,6 @@ test_that("differential variance estimators are consistent", {
   expect_lt(abs(mean(rel_tml_diff_var_ests - rel_estimand)), 0.25)
 
 })
-
 
 test_that("cross-fitted differential variance estimators are consistent", {
 
@@ -289,6 +288,7 @@ test_that("cross-fitted differential variance estimators are consistent", {
   # compute bias
   num_iters <- 100
   abs_one_step_diff_var_ests <- rep(NA, num_iters)
+  abs_tmle_diff_var_ests <- rep(NA, num_iters)
   for (iter in seq_len(num_iters)) {
 
     # grab a sample of the population
@@ -298,9 +298,9 @@ test_that("cross-fitted differential variance estimators are consistent", {
     # split the sample data into folds
     folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
 
-    # cross-validate the diff var estimator
-    cf_diff_var_ests <- cross_validate(
-      cv_fun = cv_diff_var_estimator_fun,
+    # cross-validate the diff var estimators
+    cf_os_diff_var_ests <- cross_validate(
+      cv_fun = cf_diff_var_estimator_fun,
       folds = folds,
       clean_tbl = sample_tbl,
       confounder_var_names = "confounder",
@@ -313,14 +313,30 @@ test_that("cross-fitted differential variance estimators are consistent", {
       estimator_type = "one-step",
       estimand_type = "absolute"
     )
+    cf_tmle_diff_var_ests <- cross_validate(
+      cv_fun = cf_diff_var_estimator_fun,
+      folds = folds,
+      clean_tbl = sample_tbl,
+      confounder_var_names = "confounder",
+      treatment_var_name = "treatment",
+      outcome_var_name = "outcome",
+      propensity_score_library = c("SL.mean", "SL.glm"),
+      cond_exp_outcome_library = c("SL.mean", "SL.glm"),
+      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      num_nuisance_sl_folds = 5,
+      estimator_type = "tmle",
+      estimand_type = "absolute"
+    )
 
     # absolute one-step estimate
-    abs_one_step_diff_var_ests[iter] <- mean(cf_diff_var_ests$diff_var_est)
+    abs_one_step_diff_var_ests[iter] <- mean(cf_os_diff_var_ests$diff_var_est)
+    abs_tmle_diff_var_ests[iter] <- mean(cf_tmle_diff_var_ests$diff_var_est)
 
   }
 
   # expect negligible bias in large sample sizes for absolute estimate
   # that is < 5% relative bias (0.05 * estimand = 0.4)
   expect_lt(abs(mean(abs_one_step_diff_var_ests - abs_estimand)), 0.4)
+  expect_lt(abs(mean(abs_tmle_diff_var_ests - abs_estimand)), 0.4)
 
 })
