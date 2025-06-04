@@ -218,7 +218,7 @@ test_that("differential variance estimators are consistent", {
       cond_exp_outcome_fit,
       cond_exp_sq_outcome_fit,
       estimand_type = "absolute"
-    )
+    )$estimate
 
     # absolute TML estimate
     abs_tml_diff_var_ests[iter] <- tml_diff_var_estimator_fun(
@@ -230,7 +230,7 @@ test_that("differential variance estimators are consistent", {
       cond_exp_outcome_fit,
       cond_exp_sq_outcome_fit,
       estimand_type = "absolute"
-    )
+    )$estimate
 
     # relative one-step estimate
     rel_one_step_diff_var_ests[iter] <- one_step_diff_var_estimator_fun(
@@ -242,7 +242,7 @@ test_that("differential variance estimators are consistent", {
       cond_exp_outcome_fit,
       cond_exp_sq_outcome_fit,
       estimand_type = "relative"
-    )
+    )$estimate
 
     # relative TML estimate
     rel_tml_diff_var_ests[iter] <- tml_diff_var_estimator_fun(
@@ -254,7 +254,7 @@ test_that("differential variance estimators are consistent", {
       cond_exp_outcome_fit,
       cond_exp_sq_outcome_fit,
       estimand_type = "relative"
-    )
+    )$estimate
 
   }
 
@@ -329,8 +329,8 @@ test_that("cross-fitted differential variance estimators are consistent", {
     )
 
     # absolute one-step estimate
-    abs_one_step_diff_var_ests[iter] <- mean(cf_os_diff_var_ests$diff_var_est)
-    abs_tmle_diff_var_ests[iter] <- mean(cf_tmle_diff_var_ests$diff_var_est)
+    abs_one_step_diff_var_ests[iter] <- mean(cf_os_diff_var_ests$estimates)
+    abs_tmle_diff_var_ests[iter] <- mean(cf_tmle_diff_var_ests$estimates)
 
   }
 
@@ -338,5 +338,41 @@ test_that("cross-fitted differential variance estimators are consistent", {
   # that is < 5% relative bias (0.05 * estimand = 0.4)
   expect_lt(abs(mean(abs_one_step_diff_var_ests - abs_estimand)), 0.4)
   expect_lt(abs(mean(abs_tmle_diff_var_ests - abs_estimand)), 0.4)
+
+})
+
+
+test_that("cross-fitted TMLE approximately solves the EIF", {
+
+  # load required libraries
+  library(dplyr)
+  library(SuperLearner)
+  library(earth)
+  library(origami)
+
+  # grab a sample of the population
+  sample_tbl <- slice_sample(toy_population_tbl, n = 1000) |>
+    mutate(sq_outcome = outcome^2)
+
+  # split the sample data into folds
+  folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
+
+  # compute the eif of the cross-fitted procedure
+  cf_tmle_diff_var_ests <- cross_validate(
+    cv_fun = cf_diff_var_estimator_fun,
+    folds = folds,
+    clean_tbl = sample_tbl,
+    confounder_var_names = "confounder",
+    treatment_var_name = "treatment",
+    outcome_var_name = "outcome",
+    propensity_score_library = c("SL.mean", "SL.glm"),
+    cond_exp_outcome_library = c("SL.mean", "SL.glm"),
+    cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+    num_nuisance_sl_folds = 5,
+    estimator_type = "tmle",
+    estimand_type = "absolute"
+  )
+
+  expect_lt(mean(cf_tmle_diff_var_ests$eif), .Machine$double.eps * 10e3)
 
 })

@@ -145,7 +145,7 @@ one_step_diff_var_estimator_fun <- function(
     cond_exp_outcome_est_vec = clean_control_tbl$pred_cond_exp_outcome
   )
 
-  # estimate group-specific variances
+  # estimate group-specific variances and compute EIFs
   treatment_group_var_est <- one_step_var_estimator_fun(
     treatment_group = 1,
     treatment_vec = clean_treatment_tbl[[treatment_var_name]],
@@ -165,14 +165,30 @@ one_step_diff_var_estimator_fun <- function(
     mean_est = control_group_mean_est
   )
 
-  # estimate differential variance
+  # estimate differential variance and compute EIFs
   if (estimand_type == "absolute") {
-    os_diff_var_est <- treatment_group_var_est - control_group_var_est
+
+    estimate <- treatment_group_var_est$estimate -
+      control_group_var_est$estimate
+    eif <- treatment_group_var_est$eif - control_group_var_est$eif
+
   } else if (estimand_type == "relative") {
-    os_diff_var_est <- treatment_group_var_est / control_group_var_est
+
+    estimate <- treatment_group_var_est$estimate /
+      control_group_var_est$estimate
+    eif <- (treatment_group_var_est$eif / control_group_var_est$estimate) -
+      (treatment_group_var_est$estimate / (control_group_var_est$estimate^2)) *
+        control_group_var_est$eif
+
   }
 
-  return(os_diff_var_est)
+  # prepare list of results
+  results_ls <- list(
+    estimate = estimate,
+    eif = eif
+  )
+
+  return(results_ls)
 }
 
 #' Targeted Minimum Loss-Based Estimator Estimator of Differential Variance
@@ -235,14 +251,30 @@ tml_diff_var_estimator_fun <- function(
     cond_exp_sq_outcome_est_vec = clean_control_tbl$pred_cond_exp_sq_outcome
   )
 
-  # estimate differential variance
+  # estimate differential variance and compute EIFs
   if (estimand_type == "absolute") {
-    tml_diff_var_est <- treatment_group_var_est - control_group_var_est
+
+    estimate <- treatment_group_var_est$estimate -
+      control_group_var_est$estimate
+    eif <- treatment_group_var_est$eif - control_group_var_est$eif
+
   } else if (estimand_type == "relative") {
-    tml_diff_var_est <- treatment_group_var_est / control_group_var_est
+
+    estimate <- treatment_group_var_est$estimate /
+      control_group_var_est$estimate
+    eif <- (treatment_group_var_est$eif / control_group_var_est$estimate) -
+      (treatment_group_var_est$estimate / (control_group_var_est$estimate^2)) *
+      control_group_var_est$eif
+
   }
 
-  return(tml_diff_var_est)
+  # prepare list of results
+  results_ls <- list(
+    estimate = estimate,
+    eif = eif
+  )
+
+  return(results_ls)
 }
 
 
@@ -338,7 +370,10 @@ cf_diff_var_estimator_fun <- function(
   }
 
   # return the differential variance estimate and EIF
-  valid_out_ls <- list(diff_var_est = diff_var_est)
+  valid_out_ls <- list(
+    estimates = diff_var_est$estimate,
+    eif = diff_var_est$eif
+  )
 
   return(valid_out_ls)
 }
