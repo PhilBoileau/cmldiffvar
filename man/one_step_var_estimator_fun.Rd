@@ -40,7 +40,9 @@ expected squared outcome conditional on confounders and treatment equal to
 mean of the designated \code{treatment_group}.}
 }
 \value{
-A \code{numeric} estimate of the \code{treatment_group}-specific variance.
+A list containing the \code{numeric} estimate of the
+\code{treatment_group}-specific marginal outcome variance and the \code{numeric}
+efficient influence function vector.
 }
 \description{
 \code{one_step_var_estimator_fun()} estimates of the group-specific
