@@ -85,7 +85,7 @@
 #'
 #' @returns A one-row [tibble][tibble::tibble] containing the following columns:
 #'  - `estimand`: The scale of the differential variance estimand
-#'  - `estimator_type`: The type of estimator used
+#'  - `estimator`: The type of estimator used
 #'  - `confidence_level`: The pre-specified confidence level
 #'  - `estimate`: The differential variance estimate
 #'  - `se`: The estimator's standard error
@@ -121,18 +121,6 @@ cmldiffvar <- function(
   checkmate::assert_character(confounder_var_names)
   checkmate::assert_character(treatment_var_name)
   checkmate::assert_character(outcome_var_name)
-  checkmate::assert_choice(
-    propensity_score_library,
-    SuperLearner::listWrappers(what = "SL")
-  )
-  checkmate::assert_choice(
-    cond_exp_outcome_library,
-    SuperLearner::listWrappers(what = "SL")
-  )
-  checkmate::assert_choice(
-    cond_exp_sq_outcome_library,
-    SuperLearner::listWrappers(what = "SL")
-  )
   checkmate::assert_int(num_nuisance_sl_folds, lower = 2, upper = 20)
   checkmate::assert_flag(cross_fit)
   checkmate::assert_int(num_cross_fit_folds, lower = 2, upper = 20)
@@ -148,16 +136,13 @@ cmldiffvar <- function(
   clean_tbl_var_names <- c(
     confounder_var_names, treatment_var_name, outcome_var_name
   )
-  checkmate::assert_names(colnames(data_tbl), clean_tbl_var_names)
+  checkmate::assert_names(clean_tbl_var_names, subset.of = colnames(data_tbl))
 
 
   # compute estimates and EIF ----
 
   # only retain relevant columns in data_tbl
-  clean_tbl <- data_tbl |>
-    dplyr::select(
-      dplyr::all_of(confounder_var_names, treatment_var_name, outcome_var_name)
-    )
+  clean_tbl <- data_tbl |> dplyr::select(dplyr::all_of(clean_tbl_var_names))
 
   # estimate the differential variance estimand
   if (!cross_fit) {
@@ -256,7 +241,7 @@ cmldiffvar <- function(
   # compute confidence interval ----
 
   # Wald-type confidence intervals relying on asymptotic linearity
-  se <- sqrt(stats::var(eif) / nrow(clean_tbl))
+  se <- as.numeric(sqrt(stats::var(eif) / nrow(clean_tbl)))
   critical_value <- stats::qnorm(1 - (1 - confidence_level) / 2)
   ci_low <- estimate - critical_value * se
   ci_high <- estimate + critical_value * se
@@ -277,9 +262,13 @@ cmldiffvar <- function(
 
   # assemble and output results ----
 
-  result_ls <- dplyr::tibble(
-      estimand = paste(c(estimand_type, "differential variance")),
-      estimator_type = estimator_type,
+  estimator <- paste0(
+    ifelse(cross_fit, "cross-fit ", ""),
+    estimator_type
+  )
+  dplyr::tibble(
+      estimand = paste(estimand_type, "differential variance"),
+      estimator = estimator,
       confidence_level = confidence_level,
       estimate = estimate,
       se = se,

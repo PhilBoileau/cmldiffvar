@@ -72,7 +72,7 @@ procedure, if used, should be parallelized. Defaults to \code{FALSE}.}
 A one-row \link[tibble:tibble]{tibble} containing the following columns:
 \itemize{
 \item \code{estimand}: The scale of the differential variance estimand
-\item \code{estimator_type}: The type of estimator used
+\item \code{estimator}: The type of estimator used
 \item \code{confidence_level}: The pre-specified confidence level
 \item \code{estimate}: The differential variance estimate
 \item \code{se}: The estimator's standard error
