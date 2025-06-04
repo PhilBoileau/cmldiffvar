@@ -102,7 +102,7 @@ cmldiffvar <- function(
   estimator_type = "tmle",
   confidence_level = 0.95,
   confounder_var_names,
-  treatment_var_names,
+  treatment_var_name,
   outcome_var_name,
   propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
   cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
@@ -119,7 +119,7 @@ cmldiffvar <- function(
   checkmate::assert_choice(estimator_type, c("tmle", "one-step"))
   checkmate::assert_number(confidence_level, lower = 0.01, upper = 0.99)
   checkmate::assert_character(confounder_var_names)
-  checkmate::assert_character(treatment_var_names)
+  checkmate::assert_character(treatment_var_name)
   checkmate::assert_character(outcome_var_name)
   checkmate::assert_choice(
     propensity_score_library,
@@ -146,7 +146,7 @@ cmldiffvar <- function(
     min.rows = 50
   )
   clean_tbl_var_names <- c(
-    confounder_var_names, treatment_var_names, outcome_var_name
+    confounder_var_names, treatment_var_name, outcome_var_name
   )
   checkmate::assert_names(colnames(data_tbl), clean_tbl_var_names)
 
@@ -156,7 +156,7 @@ cmldiffvar <- function(
   # only retain relevant columns in data_tbl
   clean_tbl <- data_tbl |>
     dplyr::select(
-      dplyr::all_of(confounder_var_names, treatment_var_names, outcome_var_name)
+      dplyr::all_of(confounder_var_names, treatment_var_name, outcome_var_name)
     )
 
   # estimate the differential variance estimand
@@ -235,7 +235,7 @@ cmldiffvar <- function(
       folds = folds,
       clean_tbl = clean_tbl,
       confounder_var_names = confounder_var_names,
-      treatment_var_name = treatment_var_names,
+      treatment_var_name = treatment_var_name,
       outcome_var_name = outcome_var_name,
       propensity_score_library = propensity_score_library,
       cond_exp_outcome_library = cond_exp_outcome_library,
@@ -256,7 +256,7 @@ cmldiffvar <- function(
   # compute confidence interval ----
 
   # Wald-type confidence intervals relying on asymptotic linearity
-  se <- sqrt(var(eif) / nrow(clean_tbl))
+  se <- sqrt(stats::var(eif) / nrow(clean_tbl))
   critical_value <- stats::qnorm(1 - (1 - confidence_level) / 2)
   ci_low <- estimate - critical_value * se
   ci_high <- estimate + critical_value * se
@@ -267,10 +267,12 @@ cmldiffvar <- function(
   # p-value relying on asymptotic linearity
   if (estimand_type == "absolute") {
     z_score <- estimate / se
-  } else if (estimate_type == "relative") {
+  } else if (estimand_type == "relative") {
     z_score <- (estimate - 1) / se
   }
-  p_value <- 2 * min(pnorm(z_score), pnorm(z_score, lower.tail = FALSE))
+  p_value <- 2 * min(
+    stats::pnorm(z_score), stats::pnorm(z_score, lower.tail = FALSE)
+  )
 
 
   # assemble and output results ----
