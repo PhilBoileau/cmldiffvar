@@ -100,8 +100,7 @@ test_that("group-specific one-step mean estimator is consistent", {
     function(iter) {
 
       # grab a sample of the population
-      sample_tbl <- slice_sample(toy_population_tbl, n = 1000) |>
-        mutate(sq_outcome = outcome^2)
+      sample_tbl <- slice_sample(toy_population_tbl, n = 1000)
 
       # fit nuisance parameter estimators
       ps_sl_fit <- estimate_propensity_score_fun(
@@ -180,8 +179,7 @@ test_that("differential variance estimators are consistent", {
   for (iter in seq_len(num_iters)) {
 
     # grab a sample of the population
-    sample_tbl <- slice_sample(toy_population_tbl, n = 1000) |>
-      mutate(sq_outcome = outcome^2)
+    sample_tbl <- slice_sample(toy_population_tbl, n = 1000)
 
     # fit nuisance parameter estimators
     ps_sl_fit <- estimate_propensity_score_fun(
@@ -280,8 +278,7 @@ test_that("TMLE approximately solves the EIF", {
   set.seed(713452)
 
   # grab a sample of the population
-  sample_tbl <- slice_sample(toy_population_tbl, n = 1000) |>
-    mutate(sq_outcome = outcome^2)
+  sample_tbl <- slice_sample(toy_population_tbl, n = 1000)
 
   # fit nuisance parameter estimators
   ps_sl_fit <- estimate_propensity_score_fun(
@@ -359,8 +356,7 @@ test_that("cross-fitted differential variance estimators are consistent", {
   for (iter in seq_len(num_iters)) {
 
     # grab a sample of the population
-    sample_tbl <- slice_sample(toy_population_tbl, n = 1000) |>
-      mutate(sq_outcome = outcome^2)
+    sample_tbl <- slice_sample(toy_population_tbl, n = 1000)
 
     # split the sample data into folds
     folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
@@ -467,8 +463,7 @@ test_that(
   for (iter in seq_len(num_iters)) {
 
     # grab a sample of the population
-    sample_tbl <- slice_sample(toy_population_tbl, n = 1000) |>
-      mutate(sq_outcome = outcome^2)
+    sample_tbl <- slice_sample(toy_population_tbl, n = 1000)
 
     # split the sample data into folds
     folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
