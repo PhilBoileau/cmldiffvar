@@ -2,6 +2,8 @@ test_that(
   "serial cmldiffvarr estimates diff vars without warnings or errors",
 {
 
+  library(dplyr)
+
   set.seed(2352314)
 
   # sample tibble
@@ -171,6 +173,7 @@ test_that(
 
 test_that("parallelized cmldiffvarr works",{
 
+  library(dplyr)
   library(future)
 
   plan(sequential)
