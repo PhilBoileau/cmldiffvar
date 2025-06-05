@@ -90,7 +90,7 @@ If you encounter any bugs or have any specific feature requests, please
 
 Contributions are very welcome. Interested contributors should consult
 our [contribution
-guidelines](https://github.com/PhilBoileau/cmldiffvar/blob/main/CONTRIBUTING.md)
+guidelines](https://github.com/PhilBoileau/cmldiffvar/blob/main/.github/CONTRIBUTING.md)
 prior to submitting a pull request.
 
 ------------------------------------------------------------------------
