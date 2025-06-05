@@ -1,5 +1,6 @@
 ---
 output: github_document
+bibliography: "inst/REFERENCES.bib"
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -13,44 +14,106 @@ knitr::opts_chunk$set(
 )
 ```
 
-# cmldiffvar
+# R/`cmldiffvar`
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![CRAN status](https://www.r-pkg.org/badges/version/cmldiffvar)](https://CRAN.R-project.org/package=cmldiffvar)
+[![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/license/mit/)
 <!-- badges: end -->
 
-The goal of cmldiffvar is to ...
+
+> Causal Machine Learning Methods for Differential Variance Inference
+
+__Authors:__ [Philippe Boileau](https://pboileau.ca),
+[Hani Zaki](link-to-profile),
+[Mireille Schnizter](https://www.mireilleschnitzer.com)
+
+---
+
+## What's `cmldiffvar`?
+
+`cmldiffvar` implements causal machine learning methods for differential
+variance inference. These methods rely on semiparametric efficiency theory and
+flexible machine learning methods --- namely, Super Learner ensembles --- to
+avoid the need for convenience assumptions about data-generating processes
+[@vanderlaanTargetedLearningCausal2011; @laanSuperLearner2007].
+
+---
 
 ## Installation
 
-You can install the development version of cmldiffvar like so:
+The _development version_ of the package may be installed from GitHub using
+[`remotes`](https://CRAN.R-project.org/package=remotes):
 
-``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+```{r gh-main-installation, eval=FALSE}
+remotes::install_github("PhilBoileau/cmldiffvar")
 ```
+
+---
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
+```{r example, message=FALSE, warning=FALSE}
+# load the required packages
 library(cmldiffvar)
-## basic example code
+library(dplyr)
+library(SuperLearner)
+library(knitr)
+
+# random sample from population data
+sample_tbl <- slice_sample(toy_population_tbl, n = 500)
+
+# estimate absolute differential variance
+sample_tbl |>
+  cmldiffvar(
+    confounder_var_names = "confounder",
+    treatment_var_name = "treatment",
+    outcome_var_name = "outcome"
+  )
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+---
 
-```{r cars}
-summary(cars)
+## Issues
+
+If you encounter any bugs or have any specific feature requests, please [file
+an issue](https://github.com/PhilBoileau/cmldiffvar/issues).
+
+---
+
+## Contributions
+
+Contributions are very welcome. Interested contributors should consult our
+[contribution
+guidelines](https://github.com/PhilBoileau/cmldiffvar/blob/main/CONTRIBUTING.md)
+prior to submitting a pull request.
+
+---
+
+## Citation
+
+Please cite the following paper when using the `cmldiffvar` R software package.
+
+```
+@article{boileau-cmldiffvar,
+  author = {Philippe boileau and Hani Zaki and Mireille Schnizter},
+  journal = {arXiv preprint},
+  title = {Causal Machine Learning Methods for Differential Varance Inference},
+  url = {NA},
+  year = {2025}
+}
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+---
 
-You can also embed plots, for example:
+## Licence
 
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
+&copy; 2025 [Philippe Boileau](https://pboileau.ca)
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+The contents of this repository are distributed under the MIT license. See file
+[`LICENSE.md`](https://github.com/PhilBoileau/cmldiffvar/blob/main/LICENSE.md)
+for details.
+
+---
+
+## References
