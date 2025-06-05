@@ -50,21 +50,27 @@ library(dplyr)
 library(SuperLearner)
 library(knitr)
 
+# set the seed for reproducibility
+set.seed(514)
+
 # random sample from population data
 sample_tbl <- slice_sample(toy_population_tbl, n = 500)
 
 # estimate absolute differential variance
-sample_tbl |>
+dif_var_result_tbl <- sample_tbl |>
   cmldiffvar(
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome"
   )
-#> # A tibble: 1 × 8
-#>   estimand     estimator confidence_level estimate    se ci_low ci_high  p_value
-#>   <chr>        <chr>                <dbl>    <dbl> <dbl>  <dbl>   <dbl>    <dbl>
-#> 1 absolute di… cross-fi…             0.95     8.28 0.998   6.32    10.2 1.10e-16
+
+# print formatted table
+dif_var_result_tbl |> kable(digits = 2)
 ```
+
+| estimand | estimator | confidence_level | estimate | se | ci_low | ci_high | p_value |
+|:---|:---|---:|---:|---:|---:|---:|---:|
+| absolute differential variance | cross-fit tmle | 0.95 | 7.8 | 1.06 | 5.72 | 9.89 | 0 |
 
 ------------------------------------------------------------------------
 

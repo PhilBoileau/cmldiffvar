@@ -60,16 +60,22 @@ library(dplyr)
 library(SuperLearner)
 library(knitr)
 
+# set the seed for reproducibility
+set.seed(514)
+
 # random sample from population data
 sample_tbl <- slice_sample(toy_population_tbl, n = 500)
 
 # estimate absolute differential variance
-sample_tbl |>
+dif_var_result_tbl <- sample_tbl |>
   cmldiffvar(
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome"
   )
+
+# print formatted table
+dif_var_result_tbl |> kable(digits = 2)
 ```
 
 ---
