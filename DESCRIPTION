@@ -1,11 +1,20 @@
 Package: cmldiffvar
 Title: Causal Machine Learning Methods for Differential Variance Inference
 Version: 0.0.1
-Authors@R: 
+Authors@R: c(
     person(
       "Philippe", "Boileau", , "philippe.boileau@mcgill.ca",
       role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4850-2507")
+    ),
+    person(
+      "Hani", "Zaki", , "hani.zaki@umontreal.ca",
+      role = c("ctb"), comment = c(ORCID = "")
+    ),
+    person(
+      "Mireille", "Schnizter", , "mireille.schnitzer@umontreal.ca",
+      role = c("ctb"), comment = c(ORCID = "0000-0001-8049-9646")
     )
+  )
 Description: cmldiffvar implements causal machine learning methods for
   differential variance inference. These methods rely on semiparametric
   efficiency theory and flexible machine learning methods, avoiding the need for
