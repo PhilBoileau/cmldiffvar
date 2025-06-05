@@ -1,8 +1,7 @@
-test_that(
-  "serial cmldiffvarr estimates diff vars without warnings or errors",
-{
+test_that("serial cmldiffvarr estimates diff vars without errors", {
 
   library(dplyr)
+  library(SuperLearner)
 
   set.seed(2352314)
 
@@ -10,7 +9,7 @@ test_that(
   sample_tbl <- slice_sample(toy_population_tbl, n = 500)
 
   # TMLE for absolute diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "absolute",
@@ -30,7 +29,7 @@ test_that(
     )
 
   # TMLE for relative diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "relative",
@@ -50,7 +49,7 @@ test_that(
   )
 
   # cross-fitted TMLE for absolute diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "absolute",
@@ -70,7 +69,7 @@ test_that(
   )
 
   # cross-fitted TMLE for relative diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "relative",
@@ -90,7 +89,7 @@ test_that(
   )
 
   # one-step for absolute diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "absolute",
@@ -110,7 +109,7 @@ test_that(
   )
 
   # one-step for relative diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "relative",
@@ -130,7 +129,7 @@ test_that(
   )
 
   # cross-fitted one-step for absolute diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "absolute",
@@ -150,7 +149,7 @@ test_that(
   )
 
   # cross-fitted one-step for relative diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "relative",
@@ -171,10 +170,11 @@ test_that(
 
 })
 
-test_that("parallelized cmldiffvarr works",{
+test_that("parallelized cmldiffvarr estimates diff vars without errors",{
 
   library(dplyr)
   library(future)
+  library(SuperLearner)
 
   plan(sequential)
 
@@ -184,7 +184,7 @@ test_that("parallelized cmldiffvarr works",{
   sample_tbl <- slice_sample(toy_population_tbl, n = 500)
 
   # TMLE for absolute diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "absolute",
@@ -204,7 +204,7 @@ test_that("parallelized cmldiffvarr works",{
   )
 
   # TMLE for relative diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "relative",
@@ -224,7 +224,7 @@ test_that("parallelized cmldiffvarr works",{
   )
 
   # cross-fitted TMLE for absolute diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "absolute",
@@ -244,7 +244,7 @@ test_that("parallelized cmldiffvarr works",{
   )
 
   # cross-fitted TMLE for relative diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "relative",
@@ -264,7 +264,7 @@ test_that("parallelized cmldiffvarr works",{
   )
 
   # one-step for absolute diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "absolute",
@@ -284,7 +284,7 @@ test_that("parallelized cmldiffvarr works",{
   )
 
   # one-step for relative diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "relative",
@@ -304,7 +304,7 @@ test_that("parallelized cmldiffvarr works",{
   )
 
   # cross-fitted one-step for absolute diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "absolute",
@@ -324,7 +324,7 @@ test_that("parallelized cmldiffvarr works",{
   )
 
   # cross-fitted one-step for relative diff var
-  expect_silent(
+  expect_no_error(
     sample_tbl |>
       cmldiffvar(
         estimand_type = "relative",
