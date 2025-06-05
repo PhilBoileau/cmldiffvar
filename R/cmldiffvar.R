@@ -267,14 +267,14 @@ cmldiffvar <- function(
     estimator_type
   )
   dplyr::tibble(
-      estimand = paste(estimand_type, "differential variance"),
-      estimator = estimator,
-      confidence_level = confidence_level,
-      estimate = estimate,
-      se = se,
-      ci_low = ci_low,
-      ci_high = ci_high,
-      p_value = p_value
+    estimand = paste(estimand_type, "differential variance"),
+    estimator = estimator,
+    confidence_level = confidence_level,
+    estimate = estimate,
+    se = se,
+    ci_low = ci_low,
+    ci_high = ci_high,
+    p_value = p_value
     )
 
 }
