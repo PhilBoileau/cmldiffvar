@@ -1,12 +1,19 @@
 Package: cmldiffvar
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Causal Machine Learning Methods for Differential Variance Inference
+Version: 0.0.1
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person(
+      "Philippe", "Boileau", , "philippe.boileau@mcgill.ca",
+      role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4850-2507")
+    )
+Description: cmldiffvar implements causal machine learning methods for
+  differential variance inference. These methods rely on semiparametric
+  efficiency theory and flexible machine learning methods, avoiding the need for
+  convenience assumptions about data-generating processes.
 License: MIT + file LICENSE
 Suggests: 
     earth,
+    future,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Encoding: UTF-8
@@ -17,7 +24,9 @@ Depends:
 LazyData: true
 LazyDataCompression: xz
 Imports: 
+    checkmate,
     dplyr,
+    origami,
     rlang,
     stats,
     SuperLearner
