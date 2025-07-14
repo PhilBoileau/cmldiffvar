@@ -38,4 +38,5 @@ Imports:
     origami,
     rlang,
     stats,
-    SuperLearner
+    SuperLearner,
+    torch

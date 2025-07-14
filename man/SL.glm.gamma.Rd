@@ -15,10 +15,17 @@ SL.glm.gamma(Y, X, newX, ...)
 }
 \value{
 A list with components:
-\describe{
-\item{pred}{A numeric vector of predictions on \code{newX}.}
-\item{fit}{A list containing the fitted model object.}}
+\itemize{
+\item \code{pred}: A numeric vector of predictions on \code{newX}.
+\item \code{fit}: A list containing the fitted model object.
+}
 }
 \description{
-A SuperLearner wrapper that implements GLM using Gamma family.
+A SuperLearner wrapper that implements GLM using Gamma family
+with an identity link.
+}
+\details{
+The predictor matrix \code{X} is assumed to have a binary
+treatment column as its last column. Thus, we don't consider the last column
+when squared terms are defined.
 }

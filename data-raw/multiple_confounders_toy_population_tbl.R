@@ -6,9 +6,9 @@ set.seed(42)
 # Set population size
 pop_size <- 100000
 
-# Generate multiple confounders (W1, W2, W3)
+# Generate multiple confounders (confounder_1, confounder_2, confounder_3)
 confounders <- matrix(rnorm(pop_size * 3), ncol = 3)
-colnames(confounders) <- c("W1", "W2", "W3")
+colnames(confounders) <- c("confounder_1", "confounder_2", "confounder_3")
 
 # Generate propensity scores
 confounder_score <-
@@ -49,9 +49,9 @@ outcome_obs_vec <- treatment_vec * outcome_treatment_vec +
 
 # Assemble into a tibble
 multiple_confounders_toy_population_tbl <- tibble(
-  W1 = confounders[,1],
-  W2 = confounders[,2],
-  W3 = confounders[,3],
+  confounder_1 = confounders[,1],
+  confounder_2 = confounders[,2],
+  confounder_3 = confounders[,3],
   treatment = treatment_vec,
   outcome = outcome_obs_vec,
   potential_outcome_treatment = outcome_treatment_vec,

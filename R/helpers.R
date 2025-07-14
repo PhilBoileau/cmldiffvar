@@ -1,7 +1,7 @@
 #' Valid starting value searcher
 #'
-#' Automatically look for valid starting values for glm Gamma, since Gamma
-#' assumes Xβ > 0.
+#' Automatically look for valid starting values for Gamma GLMs, since Gamma
+#' assumes that \eqn{X\beta > 0}.
 #'
 #' @param formula A `formula` object describing the fit.
 #' @param data The data used for the formula.

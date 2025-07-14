@@ -21,6 +21,6 @@ which it found valid starting values, default is FALSE.}
 \code{start_vals} containing valid starting values.
 }
 \description{
-Automatically look for valid starting values for glm Gamma, since Gamma
-assumes Xβ > 0.
+Automatically look for valid starting values for Gamma GLMs, since Gamma
+assumes that \eqn{X\beta > 0}.
 }

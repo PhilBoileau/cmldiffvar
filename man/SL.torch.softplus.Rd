@@ -2,9 +2,18 @@
 % Please edit documentation in R/wrappers.R
 \name{SL.torch.softplus}
 \alias{SL.torch.softplus}
-\title{SuperLearner wrapper for neural network}
+\title{SuperLearner wrapper for neural network using torch}
 \usage{
-SL.torch.softplus(Y, X, newX, ...)
+SL.torch.softplus(
+  Y,
+  X,
+  newX,
+  n_hidden = 10,
+  learning_rate = 0.01,
+  loss_fn = torch::nn_mse_loss(),
+  epochs = 100,
+  ...
+)
 }
 \arguments{
 \item{Y}{A numeric \code{vector} of outcome values.}
@@ -12,14 +21,25 @@ SL.torch.softplus(Y, X, newX, ...)
 \item{X}{A numeric \code{matrix} or \code{data.frame} of covariates and treatment.}
 
 \item{newX}{A numeric \code{matrix} or \code{data.frame} of predictors.}
+
+\item{n_hidden}{Number of hidden units in the hidden layer, default is 10.}
+
+\item{learning_rate}{Learning rate for the Adam optimizer, default is 0.01.}
+
+\item{loss_fn}{The loss function used during training, default is MSE.}
+
+\item{epochs}{The number of epochs for training, default is 100.}
 }
 \value{
 A list with components:
-\describe{
-\item{pred}{A numeric vector of predictions on \code{newX}.}
-\item{fit}{A list containing the fitted model object.}}
+\itemize{
+\item \code{pred}: A numeric vector of predictions on \code{newX}.
+\item \code{fit}: A list containing the fitted model object.
+}
 }
 \description{
-A SuperLearner wrapper that implements a neural network using torch and using
-a softplus activation to encourage strictly positive predictons.
+A SuperLearner wrapper that implements a neural network using torch, with a
+softplus activation to encourage strictly positive predictions. By default,
+the neural network uses a single hidden layer with 10 hidden units, an Adam
+optimizer with a learning rate of 0.01, an MSE loss function, and 100 epochs.
 }
