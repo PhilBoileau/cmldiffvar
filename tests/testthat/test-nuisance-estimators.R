@@ -101,7 +101,7 @@ test_that("conditional expected outcome estimator wrapper learns from data", {
         num_nuisance_sl_folds = 5
       )
 
-      # compute negative log likelihood risks
+      # compute mean squared errors
       cond_exp_outcome_sl_correct_fit_risk <- mean(
         (sample_tbl$outcome - cond_exp_outcome_correct_fit$SL.predict)^2
       )
@@ -168,7 +168,7 @@ test_that("conditional expected outcome^2 estimator wrapper learns from data", {
         num_nuisance_sl_folds = 5
       )
 
-      # compute negative log likelihood risks
+      # compute mean squared errors
       cond_exp_sq_outcome_sl_correct_fit_risk <- mean(
         (sample_tbl$outcome^2 - cond_exp_sq_outcome_correct_fit$SL.predict)^2
       )
