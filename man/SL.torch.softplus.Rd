@@ -29,6 +29,8 @@ SL.torch.softplus(
 \item{loss_fn}{The loss function used during training, default is MSE.}
 
 \item{epochs}{The number of epochs for training, default is 100.}
+
+\item{...}{Any additional arguments.}
 }
 \value{
 A list with components:

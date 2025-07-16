@@ -1,3 +1,6 @@
+# Set global variable `self
+utils::globalVariables(c("self"))
+
 #' SuperLearner wrapper for GLM with Gamma family
 #'
 #' @description
@@ -12,6 +15,7 @@
 #' @param Y A numeric `vector` of outcome values.
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
 #' @param newX A numeric `matrix` or `data.frame` of predictors.
+#' @param ... Any additional arguments.
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
 #' * `fit`: A list containing the fitted model object.
@@ -26,7 +30,7 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
   main_terms <- paste(col_names, collapse="+")
   sq_terms <- paste0("I(", col_names[-length(col_names)], "^2)", collapse="+")
   prod_terms <- paste(
-    combn(col_names, 2, function(x) {
+    utils::combn(col_names, 2, function(x) {
       sorted <- sort(x)
       paste0("I(", sorted[1], "*", sorted[2], ")")
     }),
@@ -36,16 +40,16 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
   formula_str <- paste0("Y ~ ", main_terms, "+", prod_terms, "+", sq_terms)
 
   # Define the formula
-  formula <- as.formula(formula_str)
+  formula <- stats::as.formula(formula_str)
 
   # Define the data.frame for training
   data_train <- data.frame(Y = Y, X)
 
   # Make a matrix out of the formula
-  formula_mat <- model.matrix(formula, data = data_train)
+  formula_mat <- stats::model.matrix(formula, data = data_train)
 
   # Create starting values vector
-  start_vals <- setNames(rep(0, ncol(formula_mat)), colnames(formula_mat))
+  start_vals <- stats::setNames(rep(0, ncol(formula_mat)), colnames(formula_mat))
 
   # Set coefficient for treatment and intercept to 1
   start_vals[treatment_col_name] <- 1
@@ -56,13 +60,13 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
     stats::glm(
       formula,
       data = data_train,
-      family = Gamma(link = "identity"),
+      family = stats::Gamma(link = "identity"),
       start = start_vals,
       maxit = 100
     )
 
   # Compute predictions using newX
-  pred <- predict(fit_glm, newdata = newX, type = "response")
+  pred <- stats::predict(fit_glm, newdata = newX, type = "response")
 
   # Wrap and return
   fit = list(model = fit_glm)
@@ -86,6 +90,7 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
 #' @param learning_rate Learning rate for the Adam optimizer, default is 0.01.
 #' @param loss_fn The loss function used during training, default is MSE.
 #' @param epochs The number of epochs for training, default is 100.
+#' @param ... Any additional arguments.
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
 #' * `fit`: A list containing the fitted model object.
@@ -105,11 +110,11 @@ SL.torch.softplus <- function(
   Y_vec <- as.numeric(Y)
 
   # Define predictors and outcome for training in correct format
-  x_train <- torch::torch_tensor(X_mat, dtype = torch_float())
-  y_train <- torch::torch_tensor(Y_vec, dtype = torch_float())$unsqueeze(2)
+  x_train <- torch::torch_tensor(X_mat, dtype = torch::torch_float())
+  y_train <- torch::torch_tensor(Y_vec, dtype = torch::torch_float())$unsqueeze(2)
 
   # Define held out predictors for predictions in correct format
-  x_new <- torch::torch_tensor(newX_mat, dtype = torch_float())
+  x_new <- torch::torch_tensor(newX_mat, dtype = torch::torch_float())
 
   # Get input features
   n_input_features <- ncol(X_mat)
@@ -117,13 +122,13 @@ SL.torch.softplus <- function(
   # Define the neural network with one hidden layer and a softplus activation
   nnet <- torch::nn_module(
     initialize = function() {
-      self$input_layer <- nn_linear(n_input_features, n_hidden)
-      self$outcome_layer <- nn_linear(n_hidden, 1)
+      self$input_layer <- torch::nn_linear(n_input_features, n_hidden)
+      self$outcome_layer <- torch::nn_linear(n_hidden, 1)
     },
     forward = function(x) {
       x |>
         self$input_layer() |>
-        nnf_softplus() |>
+        torch::nnf_softplus() |>
         self$outcome_layer()
     }
   )

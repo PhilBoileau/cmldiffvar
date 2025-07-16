@@ -357,7 +357,6 @@ test_that("SL.glm.gamma wrapper adapts to multiple confounders", {
   # Load required libraries
   library(SuperLearner)
   library(dplyr)
-  library(glm2)
 
   # Set seed for reproducibility
   set.seed(234642)

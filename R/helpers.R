@@ -16,7 +16,7 @@ get_valid_glm_gamma_start <- function(
     verbose = FALSE
 ){
   # Define design matrix
-  X <- model.matrix(formula, data)
+  X <- stats::model.matrix(formula, data)
 
   # Get numver of coefficients
   num_coef <- ncol(X)
@@ -24,7 +24,7 @@ get_valid_glm_gamma_start <- function(
   # Generate good starting values
   attempt <- 1
   while (attempt <= max_tries) {
-    start_vals <- runif(num_coef, min = 0.1, max = 1)
+    start_vals <- stats::runif(num_coef, min = 0.1, max = 1)
 
     pred_vals <- X %*% start_vals
 

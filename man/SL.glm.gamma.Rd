@@ -12,6 +12,8 @@ SL.glm.gamma(Y, X, newX, ...)
 \item{X}{A numeric \code{matrix} or \code{data.frame} of covariates and treatment.}
 
 \item{newX}{A numeric \code{matrix} or \code{data.frame} of predictors.}
+
+\item{...}{Any additional arguments.}
 }
 \value{
 A list with components:
