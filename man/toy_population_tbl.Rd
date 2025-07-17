@@ -7,12 +7,12 @@
 \format{
 \subsection{\code{toy_population_tbl}}{
 
-A \link{tibble} with 1,000,000 rows and five columns:
+A \link{tibble} with 100,000 rows and five columns:
 \describe{
 \item{confounder}{Confounding variable of the treatment--outcome
 relationship} \item{treatment}{A binary treatment assignment indicator}
 \item{outcome}{A continuous outcome variable}
-\item{potential_outcome_treament}{A continuous variable representing the
+\item{potential_outcome_treatment}{A continuous variable representing the
 potential outcome under treatment assignment}
 \item{potential_outcome_control}{A continuous variable representing the
 potential outcome under control assignment} }
