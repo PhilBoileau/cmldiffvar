@@ -50,6 +50,7 @@ outcome_obs_vec <- treatment_vec * outcome_treatment_vec +
 toy_population_tbl <- dplyr::tibble(
   confounder = confounder_vec,
   treatment = treatment_vec,
+  propensity_score = ps_vec,
   outcome = outcome_obs_vec,
   potential_outcome_treatment = outcome_treatment_vec,
   potential_outcome_control = outcome_control_vec

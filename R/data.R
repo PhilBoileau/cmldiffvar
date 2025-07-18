@@ -4,11 +4,13 @@
 #' process. It provides population-level data on which the functions of this
 #' package are tested.
 #'
-#' @format ## `toy_population_tbl`
-#' A [tibble] with 100,000 rows and five columns:
+#' @format ## `toy_population_tbl` A [tibble] with 100,000 rows and five columns:
 #' \describe{
 #' \item{confounder}{Confounding variable of the treatment--outcome
-#' relationship} \item{treatment}{A binary treatment assignment indicator}
+#' relationship}
+#' \item{treatment}{A binary treatment assignment indicator}
+#' \item{propensity_score}{A numeric variable corresponding to the propensity
+#' score}
 #' \item{outcome}{A continuous outcome variable}
 #' \item{potential_outcome_treatment}{A continuous variable representing the
 #' potential outcome under treatment assignment}
