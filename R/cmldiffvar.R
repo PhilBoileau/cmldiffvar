@@ -32,9 +32,10 @@
 #'
 #'   The estimators implemented in `cmldiffvar()` are consistent if *at least*
 #'   one of the following conditions is satisfied: (1) the propensity score is
-#'   consistently estimated, and  (2) the expected outcome conditional on confounders
-#'   and treatment assignment and the expected squared outcome conditional on
-#'   confounders and treatment assignment are consistently estimated.
+#'   consistently estimated, and  (2) the expected outcome conditional on
+#'   confounders and treatment assignment and the expected squared outcome
+#'   conditional on confounders and treatment assignment are consistently
+#'   estimated.
 #'
 #'   The estimators implemented in `cmldiffvar()` are asymptotically linear ---
 #'   meaning their asymptotic sampling distribution is normally distributed
@@ -85,8 +86,6 @@
 #'
 #' @returns A one-row [tibble][tibble::tibble] containing the following columns:
 #'  - `estimand`: The scale of the differential variance estimand
-#'  - `estimator`: The type of estimator used
-#'  - `confidence_level`: The pre-specified confidence level
 #'  - `estimate`: The differential variance estimate
 #'  - `se`: The estimator's standard error
 #'  - `ci_low`: The lower bound of the Wald-type confidence interval
@@ -268,8 +267,6 @@ cmldiffvar <- function(
   )
   dplyr::tibble(
     estimand = paste(estimand_type, "differential variance"),
-    estimator = estimator,
-    confidence_level = confidence_level,
     estimate = estimate,
     se = se,
     ci_low = ci_low,

@@ -72,8 +72,6 @@ procedure, if used, should be parallelized. Defaults to \code{FALSE}.}
 A one-row \link[tibble:tibble]{tibble} containing the following columns:
 \itemize{
 \item \code{estimand}: The scale of the differential variance estimand
-\item \code{estimator}: The type of estimator used
-\item \code{confidence_level}: The pre-specified confidence level
 \item \code{estimate}: The differential variance estimate
 \item \code{se}: The estimator's standard error
 \item \code{ci_low}: The lower bound of the Wald-type confidence interval
@@ -116,9 +114,10 @@ with \link[SuperLearner:SuperLearner]{SuperLearner} estimators.
 
 The estimators implemented in \code{cmldiffvar()} are consistent if \emph{at least}
 one of the following conditions is satisfied: (1) the propensity score is
-consistently estimated, and  (2) the expected outcome conditional on confounders
-and treatment assignment and the expected squared outcome conditional on
-confounders and treatment assignment are consistently estimated.
+consistently estimated, and  (2) the expected outcome conditional on
+confounders and treatment assignment and the expected squared outcome
+conditional on confounders and treatment assignment are consistently
+estimated.
 
 The estimators implemented in \code{cmldiffvar()} are asymptotically linear ---
 meaning their asymptotic sampling distribution is normally distributed
