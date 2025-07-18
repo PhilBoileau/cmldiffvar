@@ -41,6 +41,7 @@ test_that("counterfactual table generator produces counterfactual tables", {
     treatment_group = 1,
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
+    propensity_score_var_name = NULL,
     ps_sl_fit,
     cond_exp_outcome_fit,
     cond_exp_sq_outcome_fit
@@ -133,6 +134,7 @@ test_that("group-specific one-step mean estimator is consistent", {
         treatment_group = 1,
         confounder_var_names = "confounder",
         treatment_var_name = "treatment",
+        propensity_score_var_name = NULL,
         ps_sl_fit,
         cond_exp_outcome_fit,
         cond_exp_sq_outcome_fit

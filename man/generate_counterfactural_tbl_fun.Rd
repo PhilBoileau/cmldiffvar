@@ -9,6 +9,7 @@ generate_counterfactural_tbl_fun(
   treatment_group,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name,
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
   cond_exp_sq_outcome_sl_fit
@@ -26,6 +27,9 @@ of the treatment--outcome confounders stored in \code{clean_tbl}.}
 
 \item{treatment_var_name}{A \code{character} providing the column name of the
 treatment assignment indicator stored in \code{clean_tbl}.}
+
+\item{propensity_score_var_name}{An optional \code{character} providing the column
+name of the treatment assignment indicator stored in \code{data_tbl}.}
 
 \item{propensity_score_sl_fit}{A \link[SuperLearner:SuperLearner]{SuperLearner::SuperLearner} object
 corresponding to the estimated propensity score.}
