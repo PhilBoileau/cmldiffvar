@@ -316,6 +316,7 @@ cf_diff_var_estimator_fun <- function(
   clean_tbl,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name,
   outcome_var_name,
   propensity_score_library,
   cond_exp_outcome_library,
@@ -330,13 +331,17 @@ cf_diff_var_estimator_fun <- function(
   valid_tbl <- origami::validation(clean_tbl)
 
   # estimate the nuisance parameters on the training data
-  propensity_score_sl_fit <- estimate_propensity_score_fun(
-    train_tbl,
-    confounder_var_names = confounder_var_names,
-    treatment_var_name = treatment_var_name,
-    propensity_score_library = propensity_score_library,
-    num_nuisance_sl_folds = num_nuisance_sl_folds
-  )
+  if (is.null(propensity_score_var_name)) {
+    propensity_score_sl_fit <- estimate_propensity_score_fun(
+      train_tbl,
+      confounder_var_names = confounder_var_names,
+      treatment_var_name = treatment_var_name,
+      propensity_score_library = propensity_score_library,
+      num_nuisance_sl_folds = num_nuisance_sl_folds
+    )
+  } else {
+    propensity_score_library <- NULL
+  }
   cond_exp_outcome_sl_fit <- estimate_cond_exp_outcome_fun(
     train_tbl,
     confounder_var_names = confounder_var_names,
@@ -361,6 +366,7 @@ cf_diff_var_estimator_fun <- function(
       valid_tbl,
       confounder_var_names = confounder_var_names,
       treatment_var_name = treatment_var_name,
+      propensity_score_var_name = propensity_score_var_name,
       outcome_var_name = outcome_var_name,
       propensity_score_sl_fit = propensity_score_sl_fit,
       cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,
@@ -374,6 +380,7 @@ cf_diff_var_estimator_fun <- function(
       valid_tbl,
       confounder_var_names = confounder_var_names,
       treatment_var_name = treatment_var_name,
+      propensity_score_var_name = propensity_score_var_name,
       outcome_var_name = outcome_var_name,
       propensity_score_sl_fit = propensity_score_sl_fit,
       cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,
