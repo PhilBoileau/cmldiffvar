@@ -77,22 +77,22 @@ SL.glm.gamma.identity <- function(Y, X, newX, ...) {
   # Wrap and return
   fit = list(model = fit_glm)
   out <- list(pred = pred, fit = fit)
-  class(out$fit) <- "SL.glm.gamma"
-
+  class(out$fit) <- "SL.glm.gamma.identity"
   return(out)
 }
 
 
 #' SuperLearner wrapper for GLM with Gamma family and log link
 #'
-#' @description
-#' A SuperLearner wrapper that implements GLM using Gamma family
-#' with a log link.
+#' @description A SuperLearner wrapper that implements generalized linear models
+#'   using the Gamma family with a log link.
 #'
-#' @details
-#' The predictor matrix `X` is assumed to have a binary
-#' treatment column as its last column. Thus, we don't consider the last column
-#' when squared terms are defined.
+#'
+#' @details The predictor matrix `X` is assumed to have a binary treatment
+#'   column as its last column. Thus, we don't consider the last column when
+#'   squared terms are defined. In addition to the main terms, coefficients for
+#'   the squared covariates are included in the model.
+#'
 #'
 #' @param Y A numeric `vector` of outcome values.
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
@@ -153,7 +153,7 @@ SL.glm.gamma.log <- function(Y, X, newX, ...) {
   # Wrap and return
   fit = list(model = fit_glm)
   out <- list(pred = pred, fit = fit)
-  class(out$fit) <- "SL.glm.gamma"
+  class(out$fit) <- "SL.glm.gamma.log"
   return(out)
 }
 
@@ -268,5 +268,81 @@ SL.torch.softplus <- function(
 SL.xgboost.wrapper <- function(..., ntrees = 100, lower = 1e-4) {
   out <- SL.xgboost(..., ntrees=ntrees)
   out$pred <- pmax(out$pred, lower)
+  class(out$fit) <- "SL.xgboost.wrapper"
+  return(out)
+}
+
+#' SuperLearner wrapper for GAM with Gamma family and log link
+#'
+#' @description
+#' A SuperLearner wrapper that implements GAM using Gamma family
+#' with a log link.
+#'
+#' @details
+#' The predictor matrix `X` is assumed to have a binary
+#' treatment column as its last column. Thus, we don't consider the last column
+#' when squared terms are defined. Smoothness is only applied to non-binary
+#' columns.
+#'
+#' @param Y A numeric `vector` of outcome values.
+#' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
+#' @param newX A numeric `matrix` or `data.frame` of predictors.
+#' @param ... Any additional arguments.
+#' @return A list with components:
+#' * `pred`: A numeric vector of predictions on `newX`.
+#' * `fit`: A list containing the fitted model object.
+SL.gam.gamma.log <- function(Y, X, newX, ...) {
+  # Get column names of predictor matrix X
+  col_names <- colnames(X)
+
+  # Get treatment column
+  treatment_col <- col_names[length(col_names)]
+
+  # Get the rest of the predictors
+  predictors_cols <- col_names[-length(col_names)]
+
+  # Define a is_low_categorical hidden function
+  is_binary <- sapply(X, function(col) {
+    # Check if variable has 2 categories
+    length(unique(col)) == 2
+  })
+
+  # Get numeric and binary predictors
+  binary_cols <- predictors_cols[is_binary]
+  numeric_cols <- predictors_cols[!is_binary]
+
+  # Initialize vector of terms for the formula
+  terms <- c(treatment_col)
+
+  # Get smooth terms and linear terms
+  if (!is.na(numeric_cols))
+    terms <- c(terms, paste0("s(", numeric_cols, ")", collapse = " + "))
+  if (!is.na(binary_cols))
+    terms <- c(terms, linear_terms <- paste(binary_cols, collapse = " + "))
+
+  # Define the full formula as a string
+  formula_str <- paste0("Y ~ ", paste(terms, collapse="+"))
+
+  # Define the formula
+  formula <- stats::as.formula(formula_str)
+
+  # Define the data.frame for training
+  data_train <- data.frame(Y = Y, X)
+
+  # Fit the gam
+  fit_gam <-
+    mgcv::gam(
+      formula,
+      family = stats::Gamma(link = "log"),
+      data = data_train,
+    )
+
+  # Compute predictions using newX
+  pred <- stats::predict(fit_gam, newdata = newX, type = "response")
+
+  # Wrap and return
+  fit = list(model = fit_gam)
+  out <- list(pred = pred, fit = fit)
+  class(out$fit) <- "SL.gam.gamma.log"
   return(out)
 }

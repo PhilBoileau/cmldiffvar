@@ -9,9 +9,9 @@ SL.xgboost.wrapper(..., ntrees = 100, lower = 1e-04)
 \arguments{
 \item{...}{SL.xgboost arguments.}
 
-\item{ntrees}{Number of trees.}
+\item{ntrees}{Number of trees, default is 100.}
 
-\item{lower}{lower bound to clip to, default to 1e-4.}
+\item{lower}{Lower bound to clip predictions to, default is 1e-4.}
 }
 \value{
 A list with components:
