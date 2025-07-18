@@ -252,3 +252,21 @@ SL.torch.softplus <- function(
 
   return(list(pred = preds, fit = fit))
 }
+
+#' SuperLearner wrapper of SL.xgboost that ensures positive predictions
+#'
+#' @description
+#' A SuperLearner wrapper for SL.xgboost that ensures positive predictions. Any
+#' predictions below 1e-4 are clipped to 1e-4.
+#'
+#' @param ... SL.xgboost arguments.
+#' @param ntrees Number of trees, default is 100.
+#' @param lower Lower bound to clip predictions to, default is 1e-4.
+#' @return A list with components:
+#' * `pred`: A numeric vector of predictions.
+#' * `fit`: A list containing the fitted model object.
+SL.xgboost.wrapper <- function(..., ntrees = 100, lower = 1e-4) {
+  out <- SL.xgboost(..., ntrees=ntrees)
+  out$pred <- pmax(out$pred, lower)
+  return(out)
+}

@@ -345,6 +345,51 @@ test_that("conditional expected outcome^2 estimator SL.torch.softplus wrapper
 })
 
 
+test_that("conditional expected outcome^2 estimator SL.xgboost.wrapper wrapper
+          predicts > 0", {
+
+  # Load required libraries
+  library(SuperLearner)
+  library(dplyr)
+  library(xgboost)
+
+  # Set seed for reproducibility
+  set.seed(234642)
+
+  # Compute SL predictions
+  num_iters <- 100
+  pred_tbl <- lapply(
+    seq_len(num_iters),
+    function(iter_idx) {
+
+      # Grab a sample of the population
+      sample_tbl <- slice_sample(toy_population_tbl, n = 100)
+
+      # Estimate propensity score
+      cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
+        sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        outcome_var_name = "outcome",
+        cond_exp_sq_outcome_library = c("SL.xgboost.wrapper"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # Return a tibble row with results
+      return(tibble(
+        "EY2_hat_fit" =
+          cond_exp_sq_outcome_fit$SL.predict,
+        "treatment" = sample_tbl$treatment)
+      )
+    }
+  ) |>
+    bind_rows()
+
+  # Ensure that model predictions are strictly positive
+  expect_true(all(pred_tbl$EY2_hat_fit > 0))
+})
+
+
 test_that("conditional expected outcome^2 estimator SL.glm.gamma wrapper
           has consistent coefficients under the assumption of normally
           distributed outcomes", {
