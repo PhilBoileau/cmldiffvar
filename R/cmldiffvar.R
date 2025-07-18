@@ -32,9 +32,10 @@
 #'
 #'   The estimators implemented in `cmldiffvar()` are consistent if *at least*
 #'   one of the following conditions is satisfied: (1) the propensity score is
-#'   consistently estimated, and  (2) the expected outcome conditional on confounders
-#'   and treatment assignment and the expected squared outcome conditional on
-#'   confounders and treatment assignment are consistently estimated.
+#'   consistently estimated, and  (2) the expected outcome conditional on
+#'   confounders and treatment assignment and the expected squared outcome
+#'   conditional on confounders and treatment assignment are consistently
+#'   estimated.
 #'
 #'   The estimators implemented in `cmldiffvar()` are asymptotically linear ---
 #'   meaning their asymptotic sampling distribution is normally distributed
@@ -43,6 +44,12 @@
 #'   \eqn{o_P(n^{-1/4})}. The confidence intervals, standard errors, and
 #'   p-values reported by `cmldiffvar()` are incorrect if these rate conditions
 #'   are not satisfied.
+#'
+#'   When the data is the product of a randomized study with known propensity
+#'   scores, these propensity scores can be provided to the
+#'   `propensity_score_var_name` parameter. The conditions required of the
+#'   estimators to be consistent and asymptotic linear are automatically
+#'   satisfied when know propensity scores are used.
 #'
 #'   The cross-fitted estimation procedures can be parallelized by setting
 #'   `parallel = TRUE`. Parallelization relies on the [future][future::future]
@@ -61,6 +68,9 @@
 #'   of the treatment--outcome confounders stored in `data_tbl`.
 #' @param treatment_var_name A `character` providing the column name of the
 #'   treatment assignment indicator stored in `data_tbl`.
+#' @param propensity_score_var_name An optional `character` providing the column
+#'   name of the treatment assignment indicator stored in `data_tbl`. Defaults
+#'   to `NULL`. See the Details section for more information.
 #' @param outcome_var_name A `character` providing the column name of the
 #'   outcome variable stored in `data_tbl`.
 #' @param propensity_score_library A `character` vector of candidate learners
@@ -85,8 +95,6 @@
 #'
 #' @returns A one-row [tibble][tibble::tibble] containing the following columns:
 #'  - `estimand`: The scale of the differential variance estimand
-#'  - `estimator`: The type of estimator used
-#'  - `confidence_level`: The pre-specified confidence level
 #'  - `estimate`: The differential variance estimate
 #'  - `se`: The estimator's standard error
 #'  - `ci_low`: The lower bound of the Wald-type confidence interval
@@ -103,6 +111,7 @@ cmldiffvar <- function(
   confidence_level = 0.95,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name = NULL,
   outcome_var_name,
   propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
   cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
@@ -126,35 +135,51 @@ cmldiffvar <- function(
   checkmate::assert_int(num_cross_fit_folds, lower = 2, upper = 20)
   checkmate::assert_flag(parallel)
 
-  # check data table
+  # check dataset contains appropriate variables
+  if (is.null(propensity_score_var_name)) {
+    clean_tbl_var_names <- c(
+      confounder_var_names, treatment_var_name, outcome_var_name
+    )
+  } else {
+    checkmate::assert_character(propensity_score_var_name)
+    checkmate::assert_numeric(
+      data_tbl[[propensity_score_var_name]], lower = 0.001, upper = 0.999
+    )
+    clean_tbl_var_names <- c(
+      confounder_var_names, treatment_var_name, propensity_score_var_name,
+      outcome_var_name
+    )
+  }
+  checkmate::assert_names(clean_tbl_var_names, subset.of = colnames(data_tbl))
+
+  # only retain relevant columns in data_tbl
+  clean_tbl <- data_tbl |> dplyr::select(dplyr::all_of(clean_tbl_var_names))
+
+  # check dataset contains only numerics and factors
   checkmate::assert_data_frame(
-    data_tbl,
+    clean_tbl,
     types = c("numeric", "factor"),
     any.missing = FALSE,
     min.rows = 50
   )
-  clean_tbl_var_names <- c(
-    confounder_var_names, treatment_var_name, outcome_var_name
-  )
-  checkmate::assert_names(clean_tbl_var_names, subset.of = colnames(data_tbl))
-
 
   # compute estimates and EIF ----
-
-  # only retain relevant columns in data_tbl
-  clean_tbl <- data_tbl |> dplyr::select(dplyr::all_of(clean_tbl_var_names))
 
   # estimate the differential variance estimand
   if (!cross_fit) {
 
     # estimate the nuisance parameters
-    propensity_score_sl_fit <- estimate_propensity_score_fun(
-      clean_tbl,
-      confounder_var_names = confounder_var_names,
-      treatment_var_name = treatment_var_name,
-      propensity_score_library = propensity_score_library,
-      num_nuisance_sl_folds = num_nuisance_sl_folds
-    )
+    if (is.null(propensity_score_var_name)) {
+      propensity_score_sl_fit <- estimate_propensity_score_fun(
+        clean_tbl,
+        confounder_var_names = confounder_var_names,
+        treatment_var_name = treatment_var_name,
+        propensity_score_library = propensity_score_library,
+        num_nuisance_sl_folds = num_nuisance_sl_folds
+      )
+    } else {
+      propensity_score_sl_fit <- NULL
+    }
     cond_exp_outcome_sl_fit <- estimate_cond_exp_outcome_fun(
       clean_tbl,
       confounder_var_names = confounder_var_names,
@@ -179,6 +204,7 @@ cmldiffvar <- function(
         clean_tbl,
         confounder_var_names = confounder_var_names,
         treatment_var_name = treatment_var_name,
+        propensity_score_var_name = propensity_score_var_name,
         outcome_var_name = outcome_var_name,
         propensity_score_sl_fit = propensity_score_sl_fit,
         cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,
@@ -192,6 +218,7 @@ cmldiffvar <- function(
         clean_tbl,
         confounder_var_names = confounder_var_names,
         treatment_var_name = treatment_var_name,
+        propensity_score_var_name = propensity_score_var_name,
         outcome_var_name = outcome_var_name,
         propensity_score_sl_fit = propensity_score_sl_fit,
         cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,
@@ -221,6 +248,7 @@ cmldiffvar <- function(
       clean_tbl = clean_tbl,
       confounder_var_names = confounder_var_names,
       treatment_var_name = treatment_var_name,
+      propensity_score_var_name = propensity_score_var_name,
       outcome_var_name = outcome_var_name,
       propensity_score_library = propensity_score_library,
       cond_exp_outcome_library = cond_exp_outcome_library,
@@ -268,8 +296,6 @@ cmldiffvar <- function(
   )
   dplyr::tibble(
     estimand = paste(estimand_type, "differential variance"),
-    estimator = estimator,
-    confidence_level = confidence_level,
     estimate = estimate,
     se = se,
     ci_low = ci_low,

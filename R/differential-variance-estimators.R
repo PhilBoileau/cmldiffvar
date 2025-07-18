@@ -5,6 +5,8 @@
 #'
 #' @inheritParams estimate_propensity_score_fun
 #' @inheritParams one_step_var_estimator_fun
+#' @param propensity_score_var_name An optional `character` providing the column
+#'   name of the treatment assignment indicator stored in `data_tbl`.
 #' @param propensity_score_sl_fit A [SuperLearner::SuperLearner] object
 #'   corresponding to the estimated propensity score.
 #' @param cond_exp_outcome_sl_fit A [SuperLearner::SuperLearner] object
@@ -25,6 +27,7 @@ generate_counterfactural_tbl_fun <- function(
   treatment_group,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name,
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
   cond_exp_sq_outcome_sl_fit
@@ -38,12 +41,17 @@ generate_counterfactural_tbl_fun <- function(
     )
 
   # predict nuisance parameters under counterfactual scenarios
-  pred_propensity_score <- SuperLearner::predict.SuperLearner(
-    propensity_score_sl_fit,
-    newdata = clean_counterfactual_tbl |>
-      dplyr::select(dplyr::all_of(confounder_var_names)),
-    onlySL = TRUE
-  )$pred
+  if (is.null(propensity_score_var_name)) {
+    pred_propensity_score <- SuperLearner::predict.SuperLearner(
+      propensity_score_sl_fit,
+      newdata = clean_counterfactual_tbl |>
+        dplyr::select(dplyr::all_of(confounder_var_names)),
+      onlySL = TRUE
+    )$pred
+  } else {
+    pred_propensity_score <- clean_tbl[[propensity_score_var_name]]
+  }
+
   pred_cond_exp_outcome <- SuperLearner::predict.SuperLearner(
     cond_exp_outcome_sl_fit,
     newdata = clean_counterfactual_tbl |>
@@ -102,6 +110,7 @@ one_step_diff_var_estimator_fun <- function(
   clean_tbl,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name,
   outcome_var_name,
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
@@ -115,6 +124,7 @@ one_step_diff_var_estimator_fun <- function(
     treatment_group = 1,
     confounder_var_names,
     treatment_var_name,
+    propensity_score_var_name,
     propensity_score_sl_fit,
     cond_exp_outcome_sl_fit,
     cond_exp_sq_outcome_sl_fit
@@ -124,6 +134,7 @@ one_step_diff_var_estimator_fun <- function(
     treatment_group = 0,
     confounder_var_names,
     treatment_var_name,
+    propensity_score_var_name,
     propensity_score_sl_fit,
     cond_exp_outcome_sl_fit,
     cond_exp_sq_outcome_sl_fit
@@ -206,6 +217,7 @@ tml_diff_var_estimator_fun <- function(
   clean_tbl,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name,
   outcome_var_name,
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
@@ -219,6 +231,7 @@ tml_diff_var_estimator_fun <- function(
     treatment_group = 1,
     confounder_var_names,
     treatment_var_name,
+    propensity_score_var_name,
     propensity_score_sl_fit,
     cond_exp_outcome_sl_fit,
     cond_exp_sq_outcome_sl_fit
@@ -228,6 +241,7 @@ tml_diff_var_estimator_fun <- function(
     treatment_group = 0,
     confounder_var_names,
     treatment_var_name,
+    propensity_score_var_name,
     propensity_score_sl_fit,
     cond_exp_outcome_sl_fit,
     cond_exp_sq_outcome_sl_fit
@@ -302,6 +316,7 @@ cf_diff_var_estimator_fun <- function(
   clean_tbl,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name,
   outcome_var_name,
   propensity_score_library,
   cond_exp_outcome_library,
@@ -316,13 +331,17 @@ cf_diff_var_estimator_fun <- function(
   valid_tbl <- origami::validation(clean_tbl)
 
   # estimate the nuisance parameters on the training data
-  propensity_score_sl_fit <- estimate_propensity_score_fun(
-    train_tbl,
-    confounder_var_names = confounder_var_names,
-    treatment_var_name = treatment_var_name,
-    propensity_score_library = propensity_score_library,
-    num_nuisance_sl_folds = num_nuisance_sl_folds
-  )
+  if (is.null(propensity_score_var_name)) {
+    propensity_score_sl_fit <- estimate_propensity_score_fun(
+      train_tbl,
+      confounder_var_names = confounder_var_names,
+      treatment_var_name = treatment_var_name,
+      propensity_score_library = propensity_score_library,
+      num_nuisance_sl_folds = num_nuisance_sl_folds
+    )
+  } else {
+    propensity_score_sl_fit <- NULL
+  }
   cond_exp_outcome_sl_fit <- estimate_cond_exp_outcome_fun(
     train_tbl,
     confounder_var_names = confounder_var_names,
@@ -347,6 +366,7 @@ cf_diff_var_estimator_fun <- function(
       valid_tbl,
       confounder_var_names = confounder_var_names,
       treatment_var_name = treatment_var_name,
+      propensity_score_var_name = propensity_score_var_name,
       outcome_var_name = outcome_var_name,
       propensity_score_sl_fit = propensity_score_sl_fit,
       cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,
@@ -360,6 +380,7 @@ cf_diff_var_estimator_fun <- function(
       valid_tbl,
       confounder_var_names = confounder_var_names,
       treatment_var_name = treatment_var_name,
+      propensity_score_var_name = propensity_score_var_name,
       outcome_var_name = outcome_var_name,
       propensity_score_sl_fit = propensity_score_sl_fit,
       cond_exp_outcome_sl_fit = cond_exp_outcome_sl_fit,

@@ -9,6 +9,7 @@ cf_diff_var_estimator_fun(
   clean_tbl,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name,
   outcome_var_name,
   propensity_score_library,
   cond_exp_outcome_library,
@@ -31,6 +32,9 @@ of the treatment--outcome confounders stored in \code{clean_tbl}.}
 
 \item{treatment_var_name}{A \code{character} providing the column name of the
 treatment assignment indicator stored in \code{clean_tbl}.}
+
+\item{propensity_score_var_name}{An optional \code{character} providing the column
+name of the treatment assignment indicator stored in \code{data_tbl}.}
 
 \item{outcome_var_name}{A \code{character} providing the column name of the
 outcome variable stored in \code{clean_tbl}.}

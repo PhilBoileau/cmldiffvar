@@ -11,6 +11,7 @@ cmldiffvar(
   confidence_level = 0.95,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name = NULL,
   outcome_var_name,
   propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
   cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
@@ -39,6 +40,10 @@ of the treatment--outcome confounders stored in \code{data_tbl}.}
 
 \item{treatment_var_name}{A \code{character} providing the column name of the
 treatment assignment indicator stored in \code{data_tbl}.}
+
+\item{propensity_score_var_name}{An optional \code{character} providing the column
+name of the treatment assignment indicator stored in \code{data_tbl}. Defaults
+to \code{NULL}. See the Details section for more information.}
 
 \item{outcome_var_name}{A \code{character} providing the column name of the
 outcome variable stored in \code{data_tbl}.}
@@ -72,8 +77,6 @@ procedure, if used, should be parallelized. Defaults to \code{FALSE}.}
 A one-row \link[tibble:tibble]{tibble} containing the following columns:
 \itemize{
 \item \code{estimand}: The scale of the differential variance estimand
-\item \code{estimator}: The type of estimator used
-\item \code{confidence_level}: The pre-specified confidence level
 \item \code{estimate}: The differential variance estimate
 \item \code{se}: The estimator's standard error
 \item \code{ci_low}: The lower bound of the Wald-type confidence interval
@@ -116,9 +119,10 @@ with \link[SuperLearner:SuperLearner]{SuperLearner} estimators.
 
 The estimators implemented in \code{cmldiffvar()} are consistent if \emph{at least}
 one of the following conditions is satisfied: (1) the propensity score is
-consistently estimated, and  (2) the expected outcome conditional on confounders
-and treatment assignment and the expected squared outcome conditional on
-confounders and treatment assignment are consistently estimated.
+consistently estimated, and  (2) the expected outcome conditional on
+confounders and treatment assignment and the expected squared outcome
+conditional on confounders and treatment assignment are consistently
+estimated.
 
 The estimators implemented in \code{cmldiffvar()} are asymptotically linear ---
 meaning their asymptotic sampling distribution is normally distributed
@@ -127,6 +131,12 @@ parameter estimators are consistently estimated at a rate of
 \eqn{o_P(n^{-1/4})}. The confidence intervals, standard errors, and
 p-values reported by \code{cmldiffvar()} are incorrect if these rate conditions
 are not satisfied.
+
+When the data is the product of a randomized study with known propensity
+scores, these propensity scores can be provided to the
+\code{propensity_score_var_name} parameter. The conditions required of the
+estimators to be consistent and asymptotic linear are automatically
+satisfied when know propensity scores are used.
 
 The cross-fitted estimation procedures can be parallelized by setting
 \code{parallel = TRUE}. Parallelization relies on the \link[future:future]{future}

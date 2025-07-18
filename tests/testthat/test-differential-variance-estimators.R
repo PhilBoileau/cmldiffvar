@@ -41,6 +41,7 @@ test_that("counterfactual table generator produces counterfactual tables", {
     treatment_group = 1,
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
+    propensity_score_var_name = NULL,
     ps_sl_fit,
     cond_exp_outcome_fit,
     cond_exp_sq_outcome_fit
@@ -133,6 +134,7 @@ test_that("group-specific one-step mean estimator is consistent", {
         treatment_group = 1,
         confounder_var_names = "confounder",
         treatment_var_name = "treatment",
+        propensity_score_var_name = NULL,
         ps_sl_fit,
         cond_exp_outcome_fit,
         cond_exp_sq_outcome_fit
@@ -211,6 +213,7 @@ test_that("differential variance estimators are consistent", {
       sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
+      propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
       ps_sl_fit,
       cond_exp_outcome_fit,
@@ -223,6 +226,7 @@ test_that("differential variance estimators are consistent", {
       sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
+      propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
       ps_sl_fit,
       cond_exp_outcome_fit,
@@ -235,6 +239,7 @@ test_that("differential variance estimators are consistent", {
       sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
+      propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
       ps_sl_fit,
       cond_exp_outcome_fit,
@@ -247,6 +252,7 @@ test_that("differential variance estimators are consistent", {
       sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
+      propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
       ps_sl_fit,
       cond_exp_outcome_fit,
@@ -310,6 +316,7 @@ test_that("TMLE approximately solves the EIF", {
     sample_tbl,
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
+    propensity_score_var_name = NULL,
     outcome_var_name = "outcome",
     ps_sl_fit,
     cond_exp_outcome_fit,
@@ -322,6 +329,7 @@ test_that("TMLE approximately solves the EIF", {
     sample_tbl,
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
+    propensity_score_var_name = NULL,
     outcome_var_name = "outcome",
     ps_sl_fit,
     cond_exp_outcome_fit,
@@ -368,10 +376,11 @@ test_that("cross-fitted differential variance estimators are consistent", {
       clean_tbl = sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
+      propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
       num_nuisance_sl_folds = 5,
       estimator_type = "one-step",
       estimand_type = "absolute"
@@ -382,10 +391,11 @@ test_that("cross-fitted differential variance estimators are consistent", {
       clean_tbl = sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
+      propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
       num_nuisance_sl_folds = 5,
       estimator_type = "tmle",
       estimand_type = "absolute"
@@ -426,10 +436,11 @@ test_that("cross-fitted TMLE approximately solves the EIF", {
     clean_tbl = sample_tbl,
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
+    propensity_score_var_name = NULL,
     outcome_var_name = "outcome",
     propensity_score_library = c("SL.mean", "SL.glm"),
     cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-    cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+    cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
     num_nuisance_sl_folds = 5,
     estimator_type = "tmle",
     estimand_type = "absolute"
@@ -475,10 +486,11 @@ test_that(
       clean_tbl = sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
+      propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
       num_nuisance_sl_folds = 5,
       estimator_type = "one-step",
       estimand_type = "absolute"
@@ -489,10 +501,11 @@ test_that(
       clean_tbl = sample_tbl,
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
+      propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
       num_nuisance_sl_folds = 5,
       estimator_type = "tmle",
       estimand_type = "absolute"
@@ -526,3 +539,95 @@ test_that(
   expect_lt(abs(mean(abs_tmle_covered) - 0.95), 0.025)
 
 })
+
+
+test_that(
+  paste0(
+    "cross-fitted differential variance estimators are asymptotically ",
+    "linear when propensity score is known"
+  ),
+{
+
+    # load required libraries
+    library(dplyr)
+    library(SuperLearner)
+    library(earth)
+    library(origami)
+
+    set.seed(6162342)
+
+    # calculate estimand
+    var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
+    var_control <- var(toy_population_tbl$potential_outcome_control)
+    abs_estimand <- var_treatment - var_control
+
+    # approximate coverage
+    num_iters <- 100
+    abs_one_step_covered <- rep(NA, num_iters)
+    abs_tmle_covered <- rep(NA, num_iters)
+    for (iter in seq_len(num_iters)) {
+
+      # grab a sample of the population
+      sample_tbl <- slice_sample(toy_population_tbl, n = 1000)
+
+      # split the sample data into folds
+      folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
+
+      # cross-validate the diff var estimators
+      cf_os_diff_var_ests <- cross_validate(
+        cv_fun = cf_diff_var_estimator_fun,
+        folds = folds,
+        clean_tbl = sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        propensity_score_var_name = "propensity_score",
+        outcome_var_name = "outcome",
+        cond_exp_outcome_library = c("SL.mean", "SL.glm"),
+        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        num_nuisance_sl_folds = 5,
+        estimator_type = "one-step",
+        estimand_type = "absolute"
+      )
+      cf_tmle_diff_var_ests <- cross_validate(
+        cv_fun = cf_diff_var_estimator_fun,
+        folds = folds,
+        clean_tbl = sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        propensity_score_var_name = "propensity_score",
+        outcome_var_name = "outcome",
+        cond_exp_outcome_library = c("SL.mean", "SL.glm"),
+        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        num_nuisance_sl_folds = 5,
+        estimator_type = "tmle",
+        estimand_type = "absolute"
+      )
+
+      # compute CIs for one-step
+      cf_os_estimate <- mean(cf_os_diff_var_ests$estimates)
+      cf_os_se <- sqrt(var(cf_os_diff_var_ests$eif) / nrow(sample_tbl))
+      cf_os_ci_lower <- cf_os_estimate - 1.96 * cf_os_se
+      cf_os_ci_upper <- cf_os_estimate + 1.96 * cf_os_se
+
+      # compute CIs for TMLE
+      cf_tmle_estimate <- mean(cf_tmle_diff_var_ests$estimates)
+      cf_tmle_se <- sqrt(var(cf_tmle_diff_var_ests$eif) / nrow(sample_tbl))
+      cf_tmle_ci_lower <- cf_tmle_estimate - 1.96 * cf_tmle_se
+      cf_tmle_ci_upper <- cf_tmle_estimate + 1.96 * cf_tmle_se
+
+
+      # absolute one-step estimate
+      abs_one_step_covered[iter] <- ifelse(
+        cf_os_ci_lower < abs_estimand && abs_estimand < cf_os_ci_upper, 1, 0
+      )
+      abs_tmle_covered[iter] <- ifelse(
+        cf_tmle_ci_lower < abs_estimand && abs_estimand < cf_tmle_ci_upper, 1, 0
+      )
+
+    }
+
+    # expect approximate 95% coverage, with some wiggle room
+    expect_lt(abs(mean(abs_one_step_covered) - 0.95), 0.025)
+    expect_lt(abs(mean(abs_tmle_covered) - 0.95), 0.025)
+
+  })
