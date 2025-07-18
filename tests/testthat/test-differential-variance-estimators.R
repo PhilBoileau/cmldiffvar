@@ -380,7 +380,7 @@ test_that("cross-fitted differential variance estimators are consistent", {
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
       num_nuisance_sl_folds = 5,
       estimator_type = "one-step",
       estimand_type = "absolute"
@@ -395,7 +395,7 @@ test_that("cross-fitted differential variance estimators are consistent", {
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
       num_nuisance_sl_folds = 5,
       estimator_type = "tmle",
       estimand_type = "absolute"
@@ -440,7 +440,7 @@ test_that("cross-fitted TMLE approximately solves the EIF", {
     outcome_var_name = "outcome",
     propensity_score_library = c("SL.mean", "SL.glm"),
     cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-    cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+    cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
     num_nuisance_sl_folds = 5,
     estimator_type = "tmle",
     estimand_type = "absolute"
@@ -490,7 +490,7 @@ test_that(
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
       num_nuisance_sl_folds = 5,
       estimator_type = "one-step",
       estimand_type = "absolute"
@@ -505,7 +505,7 @@ test_that(
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
       num_nuisance_sl_folds = 5,
       estimator_type = "tmle",
       estimand_type = "absolute"
@@ -583,7 +583,7 @@ test_that(
         propensity_score_var_name = "propensity_score",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-        cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
         num_nuisance_sl_folds = 5,
         estimator_type = "one-step",
         estimand_type = "absolute"
@@ -597,7 +597,7 @@ test_that(
         propensity_score_var_name = "propensity_score",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-        cond_exp_sq_outcome_library= c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
         num_nuisance_sl_folds = 5,
         estimator_type = "tmle",
         estimand_type = "absolute"
