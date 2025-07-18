@@ -340,7 +340,7 @@ cf_diff_var_estimator_fun <- function(
       num_nuisance_sl_folds = num_nuisance_sl_folds
     )
   } else {
-    propensity_score_library <- NULL
+    propensity_score_sl_fit <- NULL
   }
   cond_exp_outcome_sl_fit <- estimate_cond_exp_outcome_fun(
     train_tbl,
