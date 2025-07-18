@@ -1,7 +1,7 @@
 # Set global variable `self
 utils::globalVariables(c("self"))
 
-#' SuperLearner wrapper for GLM with Gamma family
+#' SuperLearner wrapper for GLM with Gamma family and identity link
 #'
 #' @description A SuperLearner wrapper that implements generalized linear models
 #'   using the Gamma family with an identity link.
@@ -21,7 +21,7 @@ utils::globalVariables(c("self"))
 #' * `fit`: A list containing the fitted model object.
 #'
 #' @export
-SL.glm.gamma <- function(Y, X, newX, ...) {
+SL.glm.gamma.identity <- function(Y, X, newX, ...) {
   # Get column names of predictor matrix X
   col_names <- colnames(X)
 
@@ -81,6 +81,82 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
 
   return(out)
 }
+
+
+#' SuperLearner wrapper for GLM with Gamma family and log link
+#'
+#' @description
+#' A SuperLearner wrapper that implements GLM using Gamma family
+#' with a log link.
+#'
+#' @details
+#' The predictor matrix `X` is assumed to have a binary
+#' treatment column as its last column. Thus, we don't consider the last column
+#' when squared terms are defined.
+#'
+#' @param Y A numeric `vector` of outcome values.
+#' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
+#' @param newX A numeric `matrix` or `data.frame` of predictors.
+#' @param ... Any additional arguments.
+#' @return A list with components:
+#' * `pred`: A numeric vector of predictions on `newX`.
+#' * `fit`: A list containing the fitted model object.
+SL.glm.gamma.log <- function(Y, X, newX, ...) {
+  # Get column names of predictor matrix X
+  col_names <- colnames(X)
+
+  # Get treatment column name
+  treatment_col_name <- col_names[length(col_names)]
+
+  # Define terms for the GLM formula
+  main_terms <- paste(col_names, collapse="+")
+  sq_terms <- paste0("I(", col_names[-length(col_names)], "^2)", collapse="+")
+  prod_terms <- paste(
+    utils::combn(col_names, 2, function(x) {
+      sorted <- sort(x)
+      paste0("I(", sorted[1], "*", sorted[2], ")")
+    }),
+    collapse = "+"
+  )
+  # Define the full formula as a string
+  formula_str <- paste0("Y ~ ", main_terms, "+", prod_terms, "+", sq_terms)
+
+  # Define the formula
+  formula <- stats::as.formula(formula_str)
+
+  # Define the data.frame for training
+  data_train <- data.frame(Y = Y, X)
+
+  # Make a matrix out of the formula
+  formula_mat <- stats::model.matrix(formula, data = data_train)
+
+  # Create starting values vector
+  start_vals <- stats::setNames(rep(0, ncol(formula_mat)), colnames(formula_mat))
+
+  # Set coefficient for treatment and intercept to 1
+  start_vals[treatment_col_name] <- 1
+  start_vals[1] <- 1
+
+  # Fit the glm
+  fit_glm <-
+    stats::glm(
+      formula,
+      data = data_train,
+      family = stats::Gamma(link = "log"),
+      start = start_vals,
+      maxit = 100
+    )
+
+  # Compute predictions using newX
+  pred <- stats::predict(fit_glm, newdata = newX, type = "response")
+
+  # Wrap and return
+  fit = list(model = fit_glm)
+  out <- list(pred = pred, fit = fit)
+  class(out$fit) <- "SL.glm.gamma"
+  return(out)
+}
+
 
 #' SuperLearner wrapper for neural network using torch
 #'
