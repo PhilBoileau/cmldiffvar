@@ -110,6 +110,7 @@ one_step_diff_var_estimator_fun <- function(
   clean_tbl,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name,
   outcome_var_name,
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
@@ -123,6 +124,7 @@ one_step_diff_var_estimator_fun <- function(
     treatment_group = 1,
     confounder_var_names,
     treatment_var_name,
+    propensity_score_var_name,
     propensity_score_sl_fit,
     cond_exp_outcome_sl_fit,
     cond_exp_sq_outcome_sl_fit
@@ -132,6 +134,7 @@ one_step_diff_var_estimator_fun <- function(
     treatment_group = 0,
     confounder_var_names,
     treatment_var_name,
+    propensity_score_var_name,
     propensity_score_sl_fit,
     cond_exp_outcome_sl_fit,
     cond_exp_sq_outcome_sl_fit
@@ -214,6 +217,7 @@ tml_diff_var_estimator_fun <- function(
   clean_tbl,
   confounder_var_names,
   treatment_var_name,
+  propensity_score_var_name,
   outcome_var_name,
   propensity_score_sl_fit,
   cond_exp_outcome_sl_fit,
@@ -227,6 +231,7 @@ tml_diff_var_estimator_fun <- function(
     treatment_group = 1,
     confounder_var_names,
     treatment_var_name,
+    propensity_score_var_name,
     propensity_score_sl_fit,
     cond_exp_outcome_sl_fit,
     cond_exp_sq_outcome_sl_fit
@@ -236,6 +241,7 @@ tml_diff_var_estimator_fun <- function(
     treatment_group = 0,
     confounder_var_names,
     treatment_var_name,
+    propensity_score_var_name,
     propensity_score_sl_fit,
     cond_exp_outcome_sl_fit,
     cond_exp_sq_outcome_sl_fit
