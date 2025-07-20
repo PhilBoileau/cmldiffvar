@@ -61,14 +61,15 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
   start_vals[1] <- 1
 
   # Fit the glm
-  fit_glm <-
-    stats::glm(
+  suppressWarnings(
+    fit_glm <-stats::glm(
       formula,
       data = data_train,
       family = stats::Gamma(link = "identity"),
       start = start_vals,
       maxit = 100
     )
+  )
 
   # Compute predictions using newX
   pred <- stats::predict(fit_glm, newdata = newX, type = "response")
