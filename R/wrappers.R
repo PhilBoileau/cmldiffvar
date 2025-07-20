@@ -16,9 +16,12 @@ utils::globalVariables(c("self"))
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
 #' @param newX A numeric `matrix` or `data.frame` of predictors.
 #' @param ... Any additional arguments.
+#'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
 #' * `fit`: A list containing the fitted model object.
+#'
+#' @export
 SL.glm.gamma <- function(Y, X, newX, ...) {
   # Get column names of predictor matrix X
   col_names <- colnames(X)
@@ -91,9 +94,12 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
 #' @param loss_fn The loss function used during training, default is MSE.
 #' @param epochs The number of epochs for training, default is 100.
 #' @param ... Any additional arguments.
+#'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
 #' * `fit`: A list containing the fitted model object.
+#'
+#' @export
 SL.torch.softplus <- function(
     Y,
     X,
