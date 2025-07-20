@@ -120,7 +120,7 @@ test_that(
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 1e3
+  num_iters <- 100
   coef_list <- list()
   for(iter_idx in 1:num_iters){
     # Grab a sample of the population

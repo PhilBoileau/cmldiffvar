@@ -67,7 +67,7 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
       data = data_train,
       family = stats::Gamma(link = "identity"),
       start = start_vals,
-      maxit = 100
+      maxit = 1000
     )
   )
 
