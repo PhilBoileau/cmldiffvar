@@ -5,22 +5,21 @@
 \alias{multiple_confounders_toy_population_tbl}
 \title{Toy Population Data with multiple confounders}
 \format{
-\subsection{\code{multiple_confounders_toy_population_tbl}}{
-
-A \link{tibble} with 100,000 rows and seven columns:
-\describe{
-\item{confounder_1}{First confounding variable of the treatment--outcome
-relationship}
-\item{confounder_2}{Second confounding variable of the treatment--outcome
-relationship}
-\item{confounder_3}{Third confounding variable of the treatment--outcome
-relationship}
-\item{treatment}{A binary treatment assignment indicator}
-\item{outcome}{A continuous outcome variable}
-\item{potential_outcome_treatment}{A continuous variable representing the
-potential outcome under treatment assignment}
-\item{potential_outcome_control}{A continuous variable representing the
-potential outcome under control assignment} }
+\code{multiple_confounders_toy_population_tbl} A \link{tibble} with 100,000
+rows and seven columns:
+\itemize{
+\item \code{confounder_1}: First confounding variable of the treatment--outcome
+relationship
+\item \code{confounder_2}: Second confounding variable of the treatment--outcome
+relationship
+\item \code{confounder_3}: Third confounding variable of the treatment--outcome
+relationship
+\item \code{treatment}: A binary treatment assignment indicator
+\item \code{outcome}: A continuous outcome variable
+potential_outcome_treatment: A continuous variable representing the
+potential outcome under treatment assignment
+\item \code{potential_outcome_control}: A continuous variable representing the
+potential outcome under control assignment
 }
 }
 \usage{
