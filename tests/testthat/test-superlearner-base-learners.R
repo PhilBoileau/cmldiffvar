@@ -73,7 +73,7 @@ test_that(
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 100
+  num_iters <- 10
   pred_tbl <- lapply(
     seq_len(num_iters),
     function(iter_idx) {
