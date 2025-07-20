@@ -40,8 +40,9 @@ A list with components:
 }
 }
 \description{
-A SuperLearner wrapper that implements a neural network using torch, with a
-softplus activation to encourage strictly positive predictions. By default,
-the neural network uses a single hidden layer with 10 hidden units, an Adam
-optimizer with a learning rate of 0.01, an MSE loss function, and 100 epochs.
+A SuperLearner wrapper that implements a neural network using
+torch, with a softplus activation to encourage strictly positive
+predictions. By default, the neural network uses a single hidden layer with
+10 hidden units, an Adam optimizer with a learning rate of 0.01, an MSE
+loss function, and 100 epochs.
 }
