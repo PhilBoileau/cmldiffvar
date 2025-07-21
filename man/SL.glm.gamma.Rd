@@ -23,11 +23,12 @@ A list with components:
 }
 }
 \description{
-A SuperLearner wrapper that implements GLM using Gamma family
-with an identity link.
+A SuperLearner wrapper that implements generalized linear models
+using the Gamma family with an identity link.
 }
 \details{
-The predictor matrix \code{X} is assumed to have a binary
-treatment column as its last column. Thus, we don't consider the last column
-when squared terms are defined.
+The predictor matrix \code{X} is assumed to have a binary treatment
+column as its last column. Thus, we don't consider the last column when
+squared terms are defined. In addition to the main terms, coefficients for
+the squared covariates are included in the model.
 }

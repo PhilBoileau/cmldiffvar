@@ -5,17 +5,18 @@
 \alias{toy_population_tbl}
 \title{Toy Population Data}
 \format{
-\subsection{\code{toy_population_tbl}}{
-
-A \link{tibble} with 100,000 rows and five columns:
-\describe{
-\item{confounder}{Confounding variable of the treatment--outcome
-relationship} \item{treatment}{A binary treatment assignment indicator}
-\item{outcome}{A continuous outcome variable}
-\item{potential_outcome_treatment}{A continuous variable representing the
-potential outcome under treatment assignment}
-\item{potential_outcome_control}{A continuous variable representing the
-potential outcome under control assignment} }
+\code{toy_population_tbl} A \link{tibble} with 100,000 rows and five columns:
+\itemize{
+\item \code{confounder}: Confounding variable of the treatment--outcome
+relationship
+\item \code{treatment}: A binary treatment assignment indicator
+\item \code{propensity_score}: A numeric variable corresponding to the propensity
+score \code{outcome}: A continuous outcome variable
+\item \code{potential_outcome_treatment}: A continuous variable representing the
+potential outcome under treatment assignment
+\item \code{potential_outcome_control}: A
+continuous variable representing the potential outcome under control
+assignment
 }
 }
 \usage{

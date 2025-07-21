@@ -3,22 +3,24 @@ utils::globalVariables(c("self"))
 
 #' SuperLearner wrapper for GLM with Gamma family
 #'
-#' @description
-#' A SuperLearner wrapper that implements GLM using Gamma family
-#' with an identity link.
+#' @description A SuperLearner wrapper that implements generalized linear models
+#'   using the Gamma family with an identity link.
 #'
-#' @details
-#' The predictor matrix `X` is assumed to have a binary
-#' treatment column as its last column. Thus, we don't consider the last column
-#' when squared terms are defined.
+#' @details The predictor matrix `X` is assumed to have a binary treatment
+#'   column as its last column. Thus, we don't consider the last column when
+#'   squared terms are defined. In addition to the main terms, coefficients for
+#'   the squared covariates are included in the model.
 #'
 #' @param Y A numeric `vector` of outcome values.
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
 #' @param newX A numeric `matrix` or `data.frame` of predictors.
 #' @param ... Any additional arguments.
+#'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
 #' * `fit`: A list containing the fitted model object.
+#'
+#' @export
 SL.glm.gamma <- function(Y, X, newX, ...) {
   # Get column names of predictor matrix X
   col_names <- colnames(X)
@@ -36,6 +38,7 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
     }),
     collapse = "+"
   )
+
   # Define the full formula as a string
   formula_str <- paste0("Y ~ ", main_terms, "+", prod_terms, "+", sq_terms)
 
@@ -49,21 +52,24 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
   formula_mat <- stats::model.matrix(formula, data = data_train)
 
   # Create starting values vector
-  start_vals <- stats::setNames(rep(0, ncol(formula_mat)), colnames(formula_mat))
+  start_vals <- stats::setNames(
+    rep(0, ncol(formula_mat)), colnames(formula_mat)
+  )
 
   # Set coefficient for treatment and intercept to 1
   start_vals[treatment_col_name] <- 1
   start_vals[1] <- 1
 
   # Fit the glm
-  fit_glm <-
-    stats::glm(
+  suppressWarnings(
+    fit_glm <-stats::glm(
       formula,
       data = data_train,
       family = stats::Gamma(link = "identity"),
       start = start_vals,
-      maxit = 100
+      maxit = 1000
     )
+  )
 
   # Compute predictions using newX
   pred <- stats::predict(fit_glm, newdata = newX, type = "response")
@@ -72,16 +78,17 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
   fit = list(model = fit_glm)
   out <- list(pred = pred, fit = fit)
   class(out$fit) <- "SL.glm.gamma"
+
   return(out)
 }
 
 #' SuperLearner wrapper for neural network using torch
 #'
-#' @description
-#' A SuperLearner wrapper that implements a neural network using torch, with a
-#' softplus activation to encourage strictly positive predictions. By default,
-#' the neural network uses a single hidden layer with 10 hidden units, an Adam
-#' optimizer with a learning rate of 0.01, an MSE loss function, and 100 epochs.
+#' @description A SuperLearner wrapper that implements a neural network using
+#'   torch, with a softplus activation to encourage strictly positive
+#'   predictions. By default, the neural network uses a single hidden layer with
+#'   10 hidden units, an Adam optimizer with a learning rate of 0.01, an MSE
+#'   loss function, and 100 epochs.
 #'
 #' @param Y A numeric `vector` of outcome values.
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
@@ -91,9 +98,12 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
 #' @param loss_fn The loss function used during training, default is MSE.
 #' @param epochs The number of epochs for training, default is 100.
 #' @param ... Any additional arguments.
+#'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
 #' * `fit`: A list containing the fitted model object.
+#'
+#' @export
 SL.torch.softplus <- function(
     Y,
     X,
@@ -104,6 +114,7 @@ SL.torch.softplus <- function(
     epochs=100,
     ...
   ){
+
   # Use correct data structures
   X_mat <- as.matrix(X)
   newX_mat <- as.matrix(newX)
@@ -111,7 +122,9 @@ SL.torch.softplus <- function(
 
   # Define predictors and outcome for training in correct format
   x_train <- torch::torch_tensor(X_mat, dtype = torch::torch_float())
-  y_train <- torch::torch_tensor(Y_vec, dtype = torch::torch_float())$unsqueeze(2)
+  y_train <- torch::torch_tensor(
+    Y_vec, dtype = torch::torch_float()
+  )$unsqueeze(2)
 
   # Define held out predictors for predictions in correct format
   x_new <- torch::torch_tensor(newX_mat, dtype = torch::torch_float())
