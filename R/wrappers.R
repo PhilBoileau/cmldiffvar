@@ -98,9 +98,12 @@ SL.glm.gamma.identity <- function(Y, X, newX, ...) {
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
 #' @param newX A numeric `matrix` or `data.frame` of predictors.
 #' @param ... Any additional arguments.
+#'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
 #' * `fit`: A list containing the fitted model object.
+#'
+#' @export
 SL.glm.gamma.log <- function(Y, X, newX, ...) {
   # Get column names of predictor matrix X
   col_names <- colnames(X)
@@ -257,16 +260,19 @@ SL.nnet.torch.softplus <- function(
 
 #' SuperLearner wrapper of SL.xgboost that ensures positive predictions
 #'
-#' @description
-#' A SuperLearner wrapper for SL.xgboost that ensures positive predictions. Any
-#' predictions below 1e-4 are clipped to 1e-4.
+#' @description A SuperLearner wrapper for SL.xgboost that ensures positive
+#'   predictions. Predictions below 1e-4 are clipped to a minimum value of 1e-4.
+#'
 #'
 #' @param ... SL.xgboost arguments.
 #' @param ntrees Number of trees, default is 100.
 #' @param lower Lower bound to clip predictions to, default is 1e-4.
+#'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions.
 #' * `fit`: A list containing the fitted model object.
+#'
+#' @export
 SL.xgboost.wrapper <- function(..., ntrees = 100, lower = 1e-4) {
   out <- SuperLearner::SL.xgboost(..., ntrees=ntrees)
   out$pred <- pmax(out$pred, lower)
@@ -276,23 +282,24 @@ SL.xgboost.wrapper <- function(..., ntrees = 100, lower = 1e-4) {
 
 #' SuperLearner wrapper for GAM with Gamma family and log link
 #'
-#' @description
-#' A SuperLearner wrapper that implements GAM using Gamma family
-#' with a log link.
+#' @description A SuperLearner wrapper that implements generalized additive
+#'   models using the Gamma family with a log link.
 #'
-#' @details
-#' The predictor matrix `X` is assumed to have a binary
-#' treatment column as its last column. Thus, we don't consider the last column
-#' when squared terms are defined. Smoothness is only applied to non-binary
-#' columns.
+#' @details The predictor matrix `X` is assumed to have a binary
+#'   treatment column as its last column. Thus, we don't consider the last column
+#'   when squared terms are defined. Only main terms are considered.
+#'   Smoothness functions are only applied to non-binary terms.
 #'
 #' @param Y A numeric `vector` of outcome values.
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
 #' @param newX A numeric `matrix` or `data.frame` of predictors.
 #' @param ... Any additional arguments.
+#'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
 #' * `fit`: A list containing the fitted model object.
+#'
+#' @export
 SL.gam.gamma.log <- function(Y, X, newX, ...) {
   # Get column names of predictor matrix X
   col_names <- colnames(X)

@@ -21,6 +21,6 @@ A list with components:
 }
 }
 \description{
-A SuperLearner wrapper for SL.xgboost that ensures positive predictions. Any
-predictions below 1e-4 are clipped to 1e-4.
+A SuperLearner wrapper for SL.xgboost that ensures positive
+predictions. Predictions below 1e-4 are clipped to a minimum value of 1e-4.
 }

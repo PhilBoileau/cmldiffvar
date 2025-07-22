@@ -23,12 +23,12 @@ A list with components:
 }
 }
 \description{
-A SuperLearner wrapper that implements GAM using Gamma family
-with a log link.
+A SuperLearner wrapper that implements generalized additive
+models using the Gamma family with a log link.
 }
 \details{
 The predictor matrix \code{X} is assumed to have a binary
 treatment column as its last column. Thus, we don't consider the last column
-when squared terms are defined. Smoothness is only applied to non-binary
-columns.
+when squared terms are defined. Only main terms are considered.
+Smoothness functions are only applied to non-binary terms.
 }
