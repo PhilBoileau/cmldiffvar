@@ -266,7 +266,7 @@ SL.torch.softplus <- function(
 #' * `pred`: A numeric vector of predictions.
 #' * `fit`: A list containing the fitted model object.
 SL.xgboost.wrapper <- function(..., ntrees = 100, lower = 1e-4) {
-  out <- SL.xgboost(..., ntrees=ntrees)
+  out <- SuperLearner::SL.xgboost(..., ntrees=ntrees)
   out$pred <- pmax(out$pred, lower)
   class(out$fit) <- "SL.xgboost.wrapper"
   return(out)
@@ -301,7 +301,7 @@ SL.gam.gamma.log <- function(Y, X, newX, ...) {
   # Get the rest of the predictors
   predictors_cols <- col_names[-length(col_names)]
 
-  # Define a is_low_categorical hidden function
+  # Define a is_binary hidden function
   is_binary <- sapply(X, function(col) {
     # Check if variable has 2 categories
     length(unique(col)) == 2

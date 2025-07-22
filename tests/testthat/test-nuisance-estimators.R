@@ -351,7 +351,6 @@ test_that("conditional expected outcome^2 estimator SL.xgboost.wrapper wrapper
   # Load required libraries
   library(SuperLearner)
   library(dplyr)
-  library(xgboost)
 
   # Set seed for reproducibility
   set.seed(234642)
@@ -435,8 +434,8 @@ test_that("conditional expected outcome^2 estimator SL.gam.gamma.log wrapper
 })
 
 
-test_that("conditional expected outcome^2 estimator SL.glm.gamma wrapper
-          has consistent coefficients under the assumption of normally
+test_that("conditional expected outcome^2 estimator SL.glm.gamma.identity
+          wrapper has consistent coefficients under the assumption of normally
           distributed outcomes", {
 
   # Load required libraries
@@ -464,7 +463,8 @@ test_that("conditional expected outcome^2 estimator SL.glm.gamma wrapper
     )
 
     # Grab the fit
-    fit <- cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma_All$model
+    fit <-
+      cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$model
 
     # Save the coefficients of the fit
     coef_list[[iter_idx]] <- coef(fit)
@@ -511,7 +511,8 @@ test_that("SL.glm.gamma wrapper adapts to multiple confounders", {
   )
 
   # Grab the fit
-  fit <- cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma_All$model
+  fit <-
+    cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$model
 
   # Get coefficient names
   colnames <- names(fit$coefficients)
