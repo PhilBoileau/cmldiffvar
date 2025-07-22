@@ -300,8 +300,8 @@ test_that("conditional expected outcome^2 estimator SL.glm.gamma.log
 })
 
 
-test_that("conditional expected outcome^2 estimator SL.torch.softplus wrapper
-          predicts > 0", {
+test_that("conditional expected outcome^2 estimator SL.nnet.torch.softplus
+          wrapper predicts > 0", {
 
   # Load required libraries
   library(SuperLearner)
@@ -326,7 +326,7 @@ test_that("conditional expected outcome^2 estimator SL.torch.softplus wrapper
         confounder_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
-        cond_exp_sq_outcome_library = c("SL.torch.softplus"),
+        cond_exp_sq_outcome_library = c("SL.nnet.torch.softplus"),
         num_nuisance_sl_folds = 5
       )
 

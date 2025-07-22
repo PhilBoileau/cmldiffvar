@@ -173,6 +173,7 @@ SL.glm.gamma.log <- function(Y, X, newX, ...) {
 #' @param learning_rate Learning rate for the Adam optimizer, default is 0.01.
 #' @param loss_fn The loss function used during training, default is MSE.
 #' @param epochs The number of epochs for training, default is 100.
+#' @param lower Lower bound to clip predictions to, default is 1e-4
 #' @param ... Any additional arguments.
 #'
 #' @return A list with components:
@@ -180,7 +181,7 @@ SL.glm.gamma.log <- function(Y, X, newX, ...) {
 #' * `fit`: A list containing the fitted model object.
 #'
 #' @export
-SL.torch.softplus <- function(
+SL.nnet.torch.softplus <- function(
     Y,
     X,
     newX,
@@ -188,6 +189,7 @@ SL.torch.softplus <- function(
     learning_rate=0.01,
     loss_fn=torch::nn_mse_loss(),
     epochs=100,
+    lower = 1e-4,
     ...
   ){
 
@@ -243,12 +245,12 @@ SL.torch.softplus <- function(
 
   # Compute predictions on held out predictors
   torch::with_no_grad({
-    preds <- as.numeric(model(x_new)$squeeze())
+    preds <- pmax(as.numeric(model(x_new)$squeeze()), lower)
   })
 
   # Wrap and return
   fit <- list(model = model)
-  class(fit) <- "SL.torch.softplus"
+  class(fit) <- "SL.nnet.torch.softplus"
 
   return(list(pred = preds, fit = fit))
 }
