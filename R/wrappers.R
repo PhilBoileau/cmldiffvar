@@ -147,7 +147,7 @@ SL.glm.gamma.log <- function(Y, X, newX, ...) {
       data = data_train,
       family = stats::Gamma(link = "log"),
       start = start_vals,
-      maxit = 100
+      maxit = 1000
     )
 
   # Compute predictions using newX
@@ -273,10 +273,10 @@ SL.nnet.torch.softplus <- function(
 #' * `fit`: A list containing the fitted model object.
 #'
 #' @export
-SL.xgboost.wrapper <- function(..., ntrees = 100, lower = 1e-4) {
+SL.xgboost.bounded <- function(..., ntrees = 100, lower = 1e-4) {
   out <- SuperLearner::SL.xgboost(..., ntrees=ntrees)
   out$pred <- pmax(out$pred, lower)
-  class(out$fit) <- "SL.xgboost.wrapper"
+  class(out$fit) <- "SL.xgboost.bounded"
   return(out)
 }
 
@@ -312,8 +312,8 @@ SL.gam.gamma.log <- function(Y, X, newX, ...) {
 
   # Define a is_binary hidden function
   is_binary <- sapply(X, function(col) {
-    # Check if variable has 2 categories
-    length(unique(col)) == 2
+    (is.factor(col) && nlevels(col) == 2) ||
+      (is.numeric(col) && length(unique(col)) == 2)
   })
 
   # Get numeric and binary predictors
@@ -324,10 +324,10 @@ SL.gam.gamma.log <- function(Y, X, newX, ...) {
   terms <- c(treatment_col)
 
   # Get smooth terms and linear terms
-  if (!is.na(numeric_cols))
-    terms <- c(terms, paste0("s(", numeric_cols, ")", collapse = " + "))
-  if (!is.na(binary_cols))
-    terms <- c(terms, linear_terms <- paste(binary_cols, collapse = " + "))
+  if (length(numeric_cols)>0)
+    terms <- c(terms, paste0("s(", numeric_cols, ")"))
+  if (length(binary_cols)>0)
+    terms <- c(terms, linear_terms <- paste(binary_cols))
 
   # Define the full formula as a string
   formula_str <- paste0("Y ~ ", paste(terms, collapse="+"))
@@ -344,6 +344,7 @@ SL.gam.gamma.log <- function(Y, X, newX, ...) {
       formula,
       family = stats::Gamma(link = "log"),
       data = data_train,
+      select = TRUE
     )
 
   # Compute predictions using newX

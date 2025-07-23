@@ -178,7 +178,7 @@ test_that("conditional expected outcome^2 estimator SL.xgboost.wrapper wrapper
         confounder_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
-        cond_exp_sq_outcome_library = c("SL.xgboost.wrapper"),
+        cond_exp_sq_outcome_library = c("SL.xgboost.bounded"),
         num_nuisance_sl_folds = 5
       )
 
