@@ -1,7 +1,7 @@
 # Set global variable `self
 utils::globalVariables(c("self"))
 
-#' SuperLearner wrapper for GLM with Gamma family
+#' SuperLearner wrapper for GLM with Gamma family and identity link
 #'
 #' @description A SuperLearner wrapper that implements generalized linear models
 #'   using the Gamma family with an identity link.
@@ -21,7 +21,7 @@ utils::globalVariables(c("self"))
 #' * `fit`: A list containing the fitted model object.
 #'
 #' @export
-SL.glm.gamma <- function(Y, X, newX, ...) {
+SL.glm.gamma.identity <- function(Y, X, newX, ...) {
   # Get column names of predictor matrix X
   col_names <- colnames(X)
 
@@ -77,10 +77,89 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
   # Wrap and return
   fit = list(model = fit_glm)
   out <- list(pred = pred, fit = fit)
-  class(out$fit) <- "SL.glm.gamma"
-
+  class(out$fit) <- "SL.glm.gamma.identity"
   return(out)
 }
+
+
+#' SuperLearner wrapper for GLM with Gamma family and log link
+#'
+#' @description A SuperLearner wrapper that implements generalized linear models
+#'   using the Gamma family with a log link.
+#'
+#'
+#' @details The predictor matrix `X` is assumed to have a binary treatment
+#'   column as its last column. Thus, we don't consider the last column when
+#'   squared terms are defined. In addition to the main terms, coefficients for
+#'   the squared covariates are included in the model.
+#'
+#'
+#' @param Y A numeric `vector` of outcome values.
+#' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
+#' @param newX A numeric `matrix` or `data.frame` of predictors.
+#' @param ... Any additional arguments.
+#'
+#' @return A list with components:
+#' * `pred`: A numeric vector of predictions on `newX`.
+#' * `fit`: A list containing the fitted model object.
+#'
+#' @export
+SL.glm.gamma.log <- function(Y, X, newX, ...) {
+  # Get column names of predictor matrix X
+  col_names <- colnames(X)
+
+  # Get treatment column name
+  treatment_col_name <- col_names[length(col_names)]
+
+  # Define terms for the GLM formula
+  main_terms <- paste(col_names, collapse="+")
+  sq_terms <- paste0("I(", col_names[-length(col_names)], "^2)", collapse="+")
+  prod_terms <- paste(
+    utils::combn(col_names, 2, function(x) {
+      sorted <- sort(x)
+      paste0("I(", sorted[1], "*", sorted[2], ")")
+    }),
+    collapse = "+"
+  )
+  # Define the full formula as a string
+  formula_str <- paste0("Y ~ ", main_terms, "+", prod_terms, "+", sq_terms)
+
+  # Define the formula
+  formula <- stats::as.formula(formula_str)
+
+  # Define the data.frame for training
+  data_train <- data.frame(Y = Y, X)
+
+  # Make a matrix out of the formula
+  formula_mat <- stats::model.matrix(formula, data = data_train)
+
+  # Create starting values vector
+  start_vals <- stats::setNames(rep(0, ncol(formula_mat)), colnames(formula_mat))
+
+  # Set coefficient for treatment and intercept to 1
+  start_vals[treatment_col_name] <- 1
+  start_vals[1] <- 1
+
+  # Fit the glm
+  fit_glm <-
+    stats::glm(
+      formula,
+      data = data_train,
+      family = stats::Gamma(link = "log"),
+      start = start_vals,
+      maxit = 1000
+    )
+
+  # Compute predictions using newX
+  pred <- stats::predict(fit_glm, newdata = newX, type = "response")
+
+  # Wrap and return
+  fit = list(model = fit_glm)
+  out <- list(pred = pred, fit = fit)
+  class(out$fit) <- "SL.glm.gamma.log"
+  return(out)
+}
+
 
 #' SuperLearner wrapper for neural network using torch
 #'
@@ -97,6 +176,7 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
 #' @param learning_rate Learning rate for the Adam optimizer, default is 0.01.
 #' @param loss_fn The loss function used during training, default is MSE.
 #' @param epochs The number of epochs for training, default is 100.
+#' @param lower Lower bound to clip predictions to, default is 1e-4
 #' @param ... Any additional arguments.
 #'
 #' @return A list with components:
@@ -104,7 +184,7 @@ SL.glm.gamma <- function(Y, X, newX, ...) {
 #' * `fit`: A list containing the fitted model object.
 #'
 #' @export
-SL.torch.softplus <- function(
+SL.nnet.torch.softplus <- function(
     Y,
     X,
     newX,
@@ -112,6 +192,7 @@ SL.torch.softplus <- function(
     learning_rate=0.01,
     loss_fn=torch::nn_mse_loss(),
     epochs=100,
+    lower = 1e-4,
     ...
   ){
 
@@ -167,12 +248,111 @@ SL.torch.softplus <- function(
 
   # Compute predictions on held out predictors
   torch::with_no_grad({
-    preds <- as.numeric(model(x_new)$squeeze())
+    preds <- pmax(as.numeric(model(x_new)$squeeze()), lower)
   })
 
   # Wrap and return
   fit <- list(model = model)
-  class(fit) <- "SL.torch.softplus"
+  class(fit) <- "SL.nnet.torch.softplus"
 
   return(list(pred = preds, fit = fit))
+}
+
+#' SuperLearner wrapper of SL.xgboost that ensures positive predictions
+#'
+#' @description A SuperLearner wrapper for SL.xgboost that ensures positive
+#'   predictions. Predictions below 1e-4 are clipped to a minimum value of 1e-4.
+#'
+#'
+#' @param ... SL.xgboost arguments.
+#' @param ntrees Number of trees, default is 100.
+#' @param lower Lower bound to clip predictions to, default is 1e-4.
+#'
+#' @return A list with components:
+#' * `pred`: A numeric vector of predictions.
+#' * `fit`: A list containing the fitted model object.
+#'
+#' @export
+SL.xgboost.bounded <- function(..., ntrees = 100, lower = 1e-4) {
+  out <- SuperLearner::SL.xgboost(..., ntrees=ntrees)
+  out$pred <- pmax(out$pred, lower)
+  class(out$fit) <- "SL.xgboost.bounded"
+  return(out)
+}
+
+#' SuperLearner wrapper for GAM with Gamma family and log link
+#'
+#' @description A SuperLearner wrapper that implements generalized additive
+#'   models using the Gamma family with a log link.
+#'
+#' @details The predictor matrix `X` is assumed to have a binary
+#'   treatment column as its last column. Thus, we don't consider the last column
+#'   when squared terms are defined. Only main terms are considered.
+#'   Smoothness functions are only applied to non-binary terms.
+#'
+#' @param Y A numeric `vector` of outcome values.
+#' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
+#' @param newX A numeric `matrix` or `data.frame` of predictors.
+#' @param ... Any additional arguments.
+#'
+#' @return A list with components:
+#' * `pred`: A numeric vector of predictions on `newX`.
+#' * `fit`: A list containing the fitted model object.
+#'
+#' @export
+SL.gam.gamma.log <- function(Y, X, newX, ...) {
+  # Get column names of predictor matrix X
+  col_names <- colnames(X)
+
+  # Get treatment column
+  treatment_col <- col_names[length(col_names)]
+
+  # Get the rest of the predictors
+  predictors_cols <- col_names[-length(col_names)]
+
+  # Define a is_binary hidden function
+  is_binary <- sapply(X, function(col) {
+    (is.factor(col) && nlevels(col) == 2) ||
+      (is.numeric(col) && length(unique(col)) == 2)
+  })
+
+  # Get numeric and binary predictors
+  binary_cols <- predictors_cols[is_binary]
+  numeric_cols <- predictors_cols[!is_binary]
+
+  # Initialize vector of terms for the formula
+  terms <- c(treatment_col)
+
+  # Get smooth terms and linear terms
+  if (length(numeric_cols)>0)
+    terms <- c(terms, paste0("s(", numeric_cols, ")"))
+  if (length(binary_cols)>0)
+    terms <- c(terms, linear_terms <- paste(binary_cols))
+
+  # Define the full formula as a string
+  formula_str <- paste0("Y ~ ", paste(terms, collapse="+"))
+
+  # Define the formula
+  formula <- stats::as.formula(formula_str)
+
+  # Define the data.frame for training
+  data_train <- data.frame(Y = Y, X)
+
+  # Fit the gam
+  fit_gam <-
+    mgcv::gam(
+      formula,
+      family = stats::Gamma(link = "log"),
+      data = data_train,
+      select = TRUE
+    )
+
+  # Compute predictions using newX
+  pred <- stats::predict(fit_gam, newdata = newX, type = "response")
+
+  # Wrap and return
+  fit = list(model = fit_gam)
+  out <- list(pred = pred, fit = fit)
+  class(out$fit) <- "SL.gam.gamma.log"
+  return(out)
 }

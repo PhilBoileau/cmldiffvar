@@ -195,4 +195,3 @@ test_that("conditional expected outcome^2 estimator wrapper learns from data", {
   )
 
 })
-

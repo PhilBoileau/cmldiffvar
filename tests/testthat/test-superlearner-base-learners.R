@@ -1,5 +1,6 @@
 test_that(
-  "conditional expected outcome^2 estimator SL.glm.gamma wrapper predicts > 0",
+  "conditional expected outcome^2 estimator SL.glm.gamma.identity
+   wrapper predicts > 0",
   {
 
   # Load required libraries
@@ -24,7 +25,7 @@ test_that(
         confounder_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
-        cond_exp_sq_outcome_library = c("SL.glm.gamma"),
+        cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
         num_nuisance_sl_folds = 5
       )
 
@@ -59,8 +60,53 @@ test_that(
   }
 )
 
+test_that("conditional expected outcome^2 estimator SL.glm.gamma.log
+          wrapper predicts > 0", {
+
+  # Load required libraries
+  library(SuperLearner)
+  library(dplyr)
+
+  # Set seed for reproducibility
+  set.seed(234642)
+
+  # Compute SL predictions
+  num_iters <- 100
+  pred_tbl <- lapply(
+    seq_len(num_iters),
+    function(iter_idx) {
+
+      # Grab a sample of the population
+      sample_tbl <- slice_sample(toy_population_tbl, n = 100)
+
+      # Estimate propensity score
+      cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
+        sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        outcome_var_name = "outcome",
+        cond_exp_sq_outcome_library = c("SL.glm.gamma.log"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # Return a tibble row with results
+      return(tibble(
+        "EY2_hat_fit" =
+          cond_exp_sq_outcome_fit$SL.predict,
+        "treatment" = sample_tbl$treatment)
+      )
+    }
+  ) |>
+    bind_rows()
+
+  # Ensure that model predictions are strictly positive
+  expect_true(all(pred_tbl$EY2_hat_fit > 0))
+
+  }
+)
+
 test_that(
-  "conditional expected outcome^2 estimator SL.torch.softplus wrapper
+  "conditional expected outcome^2 estimator SL.nnet.torch.softplus wrapper
   predicts > 0",
   {
 
@@ -87,7 +133,7 @@ test_that(
         confounder_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
-        cond_exp_sq_outcome_library = c("SL.torch.softplus"),
+        cond_exp_sq_outcome_library = c("SL.nnet.torch.softplus"),
         num_nuisance_sl_folds = 5
       )
 
@@ -107,9 +153,101 @@ test_that(
   }
 )
 
+test_that("conditional expected outcome^2 estimator SL.xgboost.wrapper wrapper
+          predicts > 0", {
+
+  # Load required libraries
+  library(SuperLearner)
+  library(dplyr)
+
+  # Set seed for reproducibility
+  set.seed(234642)
+
+  # Compute SL predictions
+  num_iters <- 100
+  pred_tbl <- lapply(
+    seq_len(num_iters),
+    function(iter_idx) {
+
+      # Grab a sample of the population
+      sample_tbl <- slice_sample(toy_population_tbl, n = 100)
+
+      # Estimate propensity score
+      cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
+        sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        outcome_var_name = "outcome",
+        cond_exp_sq_outcome_library = c("SL.xgboost.bounded"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # Return a tibble row with results
+      return(tibble(
+        "EY2_hat_fit" =
+          cond_exp_sq_outcome_fit$SL.predict,
+        "treatment" = sample_tbl$treatment)
+      )
+    }
+  ) |>
+    bind_rows()
+
+  # Ensure that model predictions are strictly positive
+  expect_true(all(pred_tbl$EY2_hat_fit > 0))
+
+  }
+)
+
+test_that("conditional expected outcome^2 estimator SL.gam.gamma.log wrapper
+          predicts > 0", {
+
+  # Load required libraries
+  library(SuperLearner)
+  library(dplyr)
+  library(mgcv)
+
+  # Set seed for reproducibility
+  set.seed(234642)
+
+  # Compute SL predictions
+  num_iters <- 100
+  pred_tbl <- lapply(
+    seq_len(num_iters),
+    function(iter_idx) {
+
+      # Grab a sample of the population
+      sample_tbl <- slice_sample(toy_population_tbl, n = 100)
+
+      # Estimate propensity score
+      cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
+        sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        outcome_var_name = "outcome",
+        cond_exp_sq_outcome_library = c("SL.gam.gamma.log"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # Return a tibble row with results
+      return(tibble(
+        "EY2_hat_fit" =
+          cond_exp_sq_outcome_fit$SL.predict,
+        "treatment" = sample_tbl$treatment)
+      )
+    }
+  ) |>
+    bind_rows()
+
+  # Ensure that model predictions are strictly positive
+  expect_true(all(pred_tbl$EY2_hat_fit > 0))
+
+  }
+)
+
 test_that(
-  "conditional expected outcome^2 estimator SL.glm.gamma wrapper has consistent
-  coefficients under the assumption of normally distributed outcomes",
+  "conditional expected outcome^2 estimator SL.glm.gamma.identity wrapper
+   has consistent coefficients under the assumption of normally distributed
+   outcomes",
   {
 
   # Load required libraries
@@ -132,12 +270,13 @@ test_that(
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
-      cond_exp_sq_outcome_library = c("SL.glm.gamma"),
+      cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
       num_nuisance_sl_folds = 5
     )
 
     # Grab the fit
-    fit <- cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma_All$model
+    fit <-
+      cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$model
 
     # Save the coefficients of the fit
     coef_list[[iter_idx]] <- coef(fit)
@@ -180,12 +319,13 @@ test_that("SL.glm.gamma wrapper adapts to multiple confounders", {
     confounder_var_names = c("confounder_1", "confounder_2", "confounder_3"),
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
-    cond_exp_sq_outcome_library = c("SL.glm.gamma"),
+    cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
     num_nuisance_sl_folds = 5
   )
 
   # Grab the fit
-  fit <- cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma_All$model
+  fit <-
+    cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$model
 
   # Get coefficient names
   colnames <- names(fit$coefficients)
