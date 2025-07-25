@@ -73,9 +73,9 @@ dif_var_result_tbl <- sample_tbl |>
 dif_var_result_tbl |> kable(digits = 2, format.args = list(nsmall = 2))
 ```
 
-| estimand | estimator | confidence_level | estimate | se | ci_low | ci_high | p_value |
-|:---|:---|---:|---:|---:|---:|---:|---:|
-| absolute differential variance | cross-fit tmle | 0.95 | 7.80 | 1.06 | 5.72 | 9.89 | 0.00 |
+| estimand                       | estimate |   se | ci_low | ci_high | p_value |
+|:-------------------------------|---------:|-----:|-------:|--------:|--------:|
+| absolute differential variance |     7.29 | 1.01 |   5.31 |    9.28 |    0.00 |
 
 ------------------------------------------------------------------------
 
