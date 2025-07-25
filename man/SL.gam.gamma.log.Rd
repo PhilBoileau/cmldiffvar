@@ -4,16 +4,21 @@
 \alias{SL.gam.gamma.log}
 \title{SuperLearner wrapper for GAM with Gamma family and log link}
 \usage{
-SL.gam.gamma.log(Y, X, newX, ...)
+SL.gam.gamma.log(Y, X, newX, obsWeights, deg.gam = 2, cts.num = 4, ...)
 }
 \arguments{
 \item{Y}{A numeric \code{vector} of outcome values.}
 
 \item{X}{A numeric \code{matrix} or \code{data.frame} of covariates and treatment.}
 
-\item{newX}{A numeric \code{matrix} or \code{data.frame} of predictors.}
+\item{obsWeights}{An optional vector of weights to be used in the fitting
+process.}
 
-\item{...}{Any additional arguments.}
+\item{deg.gam}{A numeric representing the degrees of the GAM. Defaults to 2.}
+
+\item{cts.num}{A numeric indicating the minimum number of unique values a
+numeric covariate requires to be considered as a continuous variable.
+Defaults to 4.}
 }
 \value{
 A list with components:
@@ -27,8 +32,5 @@ A SuperLearner wrapper that implements generalized additive
 models using the Gamma family with a log link.
 }
 \details{
-The predictor matrix \code{X} is assumed to have a binary
-treatment column as its last column. Thus, we don't consider the last column
-when squared terms are defined. Only main terms are considered.
-Smoothness functions are only applied to non-binary terms.
+A copy of \verb{[SuperLearner::SL.gam]} but using the Gammma family.
 }

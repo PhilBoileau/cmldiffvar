@@ -284,73 +284,99 @@ SL.xgboost.bounded <- function(..., ntrees = 100, lower = 1e-4) {
 #' @description A SuperLearner wrapper that implements generalized additive
 #'   models using the Gamma family with a log link.
 #'
-#' @details The predictor matrix `X` is assumed to have a binary
-#'   treatment column as its last column. Thus, we don't consider the last column
-#'   when squared terms are defined. Only main terms are considered.
-#'   Smoothness functions are only applied to non-binary terms.
+#' @details A copy of `[SuperLearner::SL.gam]` but using the Gammma family.
 #'
 #' @param Y A numeric `vector` of outcome values.
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
-#' @param newX A numeric `matrix` or `data.frame` of predictors.
-#' @param ... Any additional arguments.
+#' @param obsWeights An optional vector of weights to be used in the fitting
+#'   process.
+#' @param deg.gam A numeric representing the degrees of the GAM. Defaults to 2.
+#' @param cts.num A numeric indicating the minimum number of unique values a
+#'   numeric covariate requires to be considered as a continuous variable.
+#'   Defaults to 4.
 #'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
 #' * `fit`: A list containing the fitted model object.
 #'
 #' @export
-SL.gam.gamma.log <- function(Y, X, newX, ...) {
-  # Get column names of predictor matrix X
-  col_names <- colnames(X)
+SL.gam.gamma.log <- function(
+    Y, X, newX, obsWeights, deg.gam = 2, cts.num = 4, ...
+) {
 
-  # Get treatment column
-  treatment_col <- col_names[length(col_names)]
+  # requireNamespace() alone does not work. requireNamespace, unlike require(),
+  # does not attached the package and allow the formula to parse correctly with
+  # s(), gam::s() doesn't work, is not recognized as a special function
+  if (!requireNamespace('gam'))
+    stop("SL.gam requires the gam package, but it isn't available")
 
-  # Get the rest of the predictors
-  predictors_cols <- col_names[-length(col_names)]
+  # check if gam attached, if not, then attached
+  if (!"package:gam" %in% search()) attachNamespace('gam')
 
-  # Define a is_binary hidden function
-  is_binary <- sapply(X, function(col) {
-    (is.factor(col) && nlevels(col) == 2) ||
-      (is.numeric(col) && length(unique(col)) == 2)
-  })
+  if ("mgcv" %in% loadedNamespaces())
+    warning(paste0(
+      "mgcv and gam packages are both in use. You might see an error because ",
+      "both packages use the same function names."
+    ))
 
-  # Get numeric and binary predictors
-  binary_cols <- predictors_cols[is_binary]
-  numeric_cols <- predictors_cols[!is_binary]
-
-  # Initialize vector of terms for the formula
-  terms <- c(treatment_col)
-
-  # Get smooth terms and linear terms
-  if (length(numeric_cols)>0)
-    terms <- c(terms, paste0("s(", numeric_cols, ")"))
-  if (length(binary_cols)>0)
-    terms <- c(terms, linear_terms <- paste(binary_cols))
-
-  # Define the full formula as a string
-  formula_str <- paste0("Y ~ ", paste(terms, collapse="+"))
-
-  # Define the formula
-  formula <- stats::as.formula(formula_str)
-
-  # Define the data.frame for training
-  data_train <- data.frame(Y = Y, X)
-
-  # Fit the gam
-  fit_gam <-
-    mgcv::gam(
-      formula,
-      family = stats::Gamma(link = "log"),
-      data = data_train
+  # create the formula for gam with a spline for each continuous variable
+  cts.x <- apply(X, 2, function(x) (length(unique(x)) > cts.num))
+  if (sum(!cts.x) > 0) {
+    gam.model <- as.formula(
+      paste(
+        "Y~",
+        paste(
+          paste(
+            "s(", colnames(X[, cts.x, drop = FALSE]), ",", deg.gam,")", sep=""
+          ),
+          collapse = "+"
+        ),
+        "+",
+        paste(colnames(X[, !cts.x, drop=FALSE]), collapse = "+")
+      )
     )
+  } else {
+    gam.model <- as.formula(
+      paste(
+        "Y~",
+        paste(
+          paste(
+            "s(", colnames(X[, cts.x, drop = FALSE]), ",", deg.gam, ")", sep=""
+          ),
+          collapse = "+")
+        )
+      )
+  }
 
-  # Compute predictions using newX
-  pred <- stats::predict(fit_gam, newdata = newX, type = "response")
+  # fix for when all variables are binomial
+  if (sum(!cts.x) == length(cts.x)) {
+    gam.model <- as.formula(
+      paste("Y~", paste(colnames(X), collapse = "+"), sep = "")
+    )
+  }
 
-  # Wrap and return
-  fit = list(object = fit_gam)
-  class(fit) <- "SL.gam"
+  fit.gam <- gam::gam(
+    gam.model,
+    data = X,
+    family = Gamma(link = "log"),
+    control = gam::gam.control(maxit = 50, bf.maxit = 50),
+    weights = obsWeights
+  )
+
+  if(packageVersion('gam') >= "1.15") {
+    # updated gam class in version 1.15
+    pred <- gam::predict.Gam(fit.gam, newdata = newX, type = "response")
+  } else {
+    stop(
+      paste0(
+        "This SL.gam wrapper requires gam version >= 1.15, please update the",
+        "gam package with 'update.packages('gam')'"
+      )
+    )
+  }
+
+  fit <- list(object = fit.gam)
   out <- list(pred = pred, fit = fit)
+  class(out$fit) <- c("SL.gam")
   return(out)
 }

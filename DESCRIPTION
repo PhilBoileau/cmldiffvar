@@ -35,6 +35,7 @@ LazyDataCompression: xz
 Imports: 
     checkmate,
     dplyr,
+    gam,
     origami,
     rlang,
     stats,
