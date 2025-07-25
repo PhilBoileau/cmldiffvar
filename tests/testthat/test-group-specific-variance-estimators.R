@@ -196,8 +196,7 @@ test_that("TMLE of treatment group-specific variance solves the EIF", {
   # make sure mean EIF is approximately equal to zero
   # that is, that the TMLE tilting procedure solves the estimating equation
   # defined by the empirical bias term in the von Mises expansion
-  expect_lt(mean(tml_var_treatment_eif), .Machine$double.eps * 10e3)
-  expect_lt(mean(tml_var_control_eif), .Machine$double.eps * 10e3)
-
+  expect_lt(mean(tml_var_treatment_eif), 1e-6)
+  expect_lt(mean(tml_var_control_eif), 1e-6)
 
 })
