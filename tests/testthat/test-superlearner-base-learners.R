@@ -204,7 +204,7 @@ test_that("conditional expected outcome^2 estimator SL.gam.gamma.log wrapper
   # Load required libraries
   library(SuperLearner)
   library(dplyr)
-  library(mgcv)
+  library(gam)
 
   # Set seed for reproducibility
   set.seed(234642)
