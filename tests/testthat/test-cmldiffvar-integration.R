@@ -20,7 +20,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -40,7 +42,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         propensity_score_var_name = "propensity_score",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -60,7 +64,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -80,7 +86,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
@@ -100,7 +108,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
@@ -120,7 +130,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         propensity_score_var_name = "propensity_score",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
@@ -140,7 +152,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -160,7 +174,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -180,7 +196,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         propensity_score_var_name = "propensity_score",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -199,7 +217,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
@@ -219,7 +239,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         propensity_score_var_name = "propensity_score",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
@@ -239,7 +261,9 @@ test_that("serial cmldiffvarr estimates diff vars without errors", {
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
@@ -274,7 +298,9 @@ test_that("parallelized cmldiffvarr estimates diff vars without errors",{
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -294,7 +320,9 @@ test_that("parallelized cmldiffvarr estimates diff vars without errors",{
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -314,7 +342,9 @@ test_that("parallelized cmldiffvarr estimates diff vars without errors",{
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
@@ -334,7 +364,9 @@ test_that("parallelized cmldiffvarr estimates diff vars without errors",{
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
@@ -354,7 +386,9 @@ test_that("parallelized cmldiffvarr estimates diff vars without errors",{
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -374,7 +408,9 @@ test_that("parallelized cmldiffvarr estimates diff vars without errors",{
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = FALSE,
         num_cross_fit_folds = 5,
@@ -394,7 +430,9 @@ test_that("parallelized cmldiffvarr estimates diff vars without errors",{
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
@@ -414,7 +452,9 @@ test_that("parallelized cmldiffvarr estimates diff vars without errors",{
         outcome_var_name = "outcome",
         propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
         cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c(
+          "SL.mean", "SL.glm.gamma.identity", "SL.gam.gamma.log"
+        ),
         num_nuisance_sl_folds = 5,
         cross_fit = TRUE,
         num_cross_fit_folds = 5,
