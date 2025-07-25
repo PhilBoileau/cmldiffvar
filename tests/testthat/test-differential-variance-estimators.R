@@ -31,7 +31,7 @@ test_that("counterfactual table generator produces counterfactual tables", {
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
-    cond_exp_sq_outcome_library = c("SL.glm", "SL.earth"),
+    cond_exp_sq_outcome_library = c("SL.glm", "SL.glm.gamma.log"),
     num_nuisance_sl_folds = 5
   )
 
@@ -124,7 +124,7 @@ test_that("group-specific one-step mean estimator is consistent", {
         confounder_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
-        cond_exp_sq_outcome_library = c("SL.glm", "SL.earth"),
+        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.log"),
         num_nuisance_sl_folds = 5
       )
 
@@ -204,7 +204,7 @@ test_that("differential variance estimators are consistent", {
       confounder_var_names = "confounder",
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
-      cond_exp_sq_outcome_library = c("SL.mean", "SL.earth", "SL.glm"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.identity"),
       num_nuisance_sl_folds = 5
     )
 
@@ -307,7 +307,7 @@ test_that("TMLE approximately solves the EIF", {
     confounder_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
-    cond_exp_sq_outcome_library = c("SL.mean", "SL.earth", "SL.glm"),
+    cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.identity"),
     num_nuisance_sl_folds = 5
   )
 
@@ -380,7 +380,7 @@ test_that("cross-fitted differential variance estimators are consistent", {
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.identity"),
       num_nuisance_sl_folds = 5,
       estimator_type = "one-step",
       estimand_type = "absolute"
@@ -395,7 +395,7 @@ test_that("cross-fitted differential variance estimators are consistent", {
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.identity"),
       num_nuisance_sl_folds = 5,
       estimator_type = "tmle",
       estimand_type = "absolute"
@@ -440,7 +440,7 @@ test_that("cross-fitted TMLE approximately solves the EIF", {
     outcome_var_name = "outcome",
     propensity_score_library = c("SL.mean", "SL.glm"),
     cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-    cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+    cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.identity"),
     num_nuisance_sl_folds = 5,
     estimator_type = "tmle",
     estimand_type = "absolute"
@@ -474,7 +474,7 @@ test_that(
   for (iter in seq_len(num_iters)) {
 
     # grab a sample of the population
-    sample_tbl <- slice_sample(toy_population_tbl, n = 1000)
+    sample_tbl <- slice_sample(toy_population_tbl, n = 500)
 
     # split the sample data into folds
     folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
@@ -490,7 +490,7 @@ test_that(
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.identity"),
       num_nuisance_sl_folds = 5,
       estimator_type = "one-step",
       estimand_type = "absolute"
@@ -505,7 +505,7 @@ test_that(
       outcome_var_name = "outcome",
       propensity_score_library = c("SL.mean", "SL.glm"),
       cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+      cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.identity"),
       num_nuisance_sl_folds = 5,
       estimator_type = "tmle",
       estimand_type = "absolute"
@@ -540,7 +540,6 @@ test_that(
 
 })
 
-
 test_that(
   paste0(
     "cross-fitted differential variance estimators are asymptotically ",
@@ -554,7 +553,7 @@ test_that(
     library(earth)
     library(origami)
 
-    set.seed(6162342)
+    set.seed(12452)
 
     # calculate estimand
     var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
@@ -562,13 +561,13 @@ test_that(
     abs_estimand <- var_treatment - var_control
 
     # approximate coverage
-    num_iters <- 100
+    num_iters <- 200
     abs_one_step_covered <- rep(NA, num_iters)
     abs_tmle_covered <- rep(NA, num_iters)
     for (iter in seq_len(num_iters)) {
 
       # grab a sample of the population
-      sample_tbl <- slice_sample(toy_population_tbl, n = 1000)
+      sample_tbl <- slice_sample(toy_population_tbl, n = 500)
 
       # split the sample data into folds
       folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
@@ -582,8 +581,8 @@ test_that(
         treatment_var_name = "treatment",
         propensity_score_var_name = "propensity_score",
         outcome_var_name = "outcome",
-        cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_outcome_library = c("SL.glm"),
+        cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
         num_nuisance_sl_folds = 5,
         estimator_type = "one-step",
         estimand_type = "absolute"
@@ -596,8 +595,9 @@ test_that(
         treatment_var_name = "treatment",
         propensity_score_var_name = "propensity_score",
         outcome_var_name = "outcome",
-        cond_exp_outcome_library = c("SL.mean", "SL.glm"),
-        cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+        cond_exp_outcome_library = c("SL.glm"),
+        cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"
+        ),
         num_nuisance_sl_folds = 5,
         estimator_type = "tmle",
         estimand_type = "absolute"

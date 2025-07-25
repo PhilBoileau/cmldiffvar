@@ -15,7 +15,7 @@ cmldiffvar(
   outcome_var_name,
   propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
   cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-  cond_exp_sq_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
+  cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.log", "SL.earth.gamma.log"),
   num_nuisance_sl_folds = 5,
   cross_fit = TRUE,
   num_cross_fit_folds = 5,
@@ -59,7 +59,7 @@ confounders and treatment assignment. Defaults to \code{c("SL.mean", "SL.glm", "
 \item{cond_exp_sq_outcome_library}{A \code{character} vector of candidate learners
 used by the SuperLearner estimator of the expected squared outcome
 conditional on confounders and treatment assignment. Defaults to
-\code{c("SL.mean", "SL.glm", "SL.earth")}.}
+\code{c("SL.mean", "SL.glm.gamma.log", "SL.earth.gamma.log")}.}
 
 \item{num_nuisance_sl_folds}{A \code{numeric} indicating the number of folds to
 use in cross-validated SuperLearner estimators. Defaults to \code{5}.}

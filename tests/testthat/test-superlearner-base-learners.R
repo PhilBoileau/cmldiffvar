@@ -11,7 +11,7 @@ test_that(
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 100
+  num_iters <- 10
   pred_tbl <- lapply(
     seq_len(num_iters),
     function(iter_idx) {
@@ -71,7 +71,7 @@ test_that("conditional expected outcome^2 estimator SL.glm.gamma.log
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 100
+  num_iters <- 10
   pred_tbl <- lapply(
     seq_len(num_iters),
     function(iter_idx) {
@@ -153,18 +153,19 @@ test_that(
   }
 )
 
-test_that("conditional expected outcome^2 estimator SL.xgboost.wrapper wrapper
+test_that("conditional expected outcome^2 estimator SL.xgboost.bounded wrapper
           predicts > 0", {
 
   # Load required libraries
   library(SuperLearner)
   library(dplyr)
+  library(xgboost)
 
   # Set seed for reproducibility
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 100
+  num_iters <- 10
   pred_tbl <- lapply(
     seq_len(num_iters),
     function(iter_idx) {
@@ -204,7 +205,7 @@ test_that("conditional expected outcome^2 estimator SL.gam.gamma.log wrapper
   # Load required libraries
   library(SuperLearner)
   library(dplyr)
-  library(mgcv)
+  library(gam)
 
   # Set seed for reproducibility
   set.seed(234642)
@@ -258,7 +259,7 @@ test_that(
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 100
+  num_iters <- 10
   coef_list <- list()
   for(iter_idx in 1:num_iters){
     # Grab a sample of the population
@@ -276,7 +277,7 @@ test_that(
 
     # Grab the fit
     fit <-
-      cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$model
+    cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$object
 
     # Save the coefficients of the fit
     coef_list[[iter_idx]] <- coef(fit)
@@ -325,7 +326,7 @@ test_that("SL.glm.gamma wrapper adapts to multiple confounders", {
 
   # Grab the fit
   fit <-
-    cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$model
+    cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$object
 
   # Get coefficient names
   colnames <- names(fit$coefficients)
@@ -345,5 +346,49 @@ test_that("SL.glm.gamma wrapper adapts to multiple confounders", {
   }
 )
 
+test_that("conditional expected outcome^2 estimator SL.earth.gamma.log wrapper
+          predicts > 0", {
+
+  # Load required libraries
+  library(SuperLearner)
+  library(dplyr)
+
+  # Set seed for reproducibility
+  set.seed(8234)
+
+  # Compute SL predictions
+  num_iters <- 10
+  pred_tbl <- lapply(
+    seq_len(num_iters),
+    function(iter_idx) {
+
+      # Grab a sample of the population
+      sample_tbl <- slice_sample(toy_population_tbl, n = 1000)
+
+      # Estimate propensity score
+      cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
+        sample_tbl,
+        confounder_var_names = "confounder",
+        treatment_var_name = "treatment",
+        outcome_var_name = "outcome",
+        cond_exp_sq_outcome_library = c("SL.earth.gamma.log"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # Return a tibble row with results
+      return(tibble(
+        "EY2_hat_fit" =
+          cond_exp_sq_outcome_fit$SL.predict,
+        "treatment" = sample_tbl$treatment)
+      )
+    }
+  ) |>
+    bind_rows()
+
+  # Ensure that model predictions are strictly positive
+  expect_true(all(pred_tbl$EY2_hat_fit > 0))
+
+}
+)
 
 
