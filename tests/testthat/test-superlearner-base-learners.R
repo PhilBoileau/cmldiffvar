@@ -276,7 +276,7 @@ test_that(
 
     # Grab the fit
     fit <-
-      cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$model
+    cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$object
 
     # Save the coefficients of the fit
     coef_list[[iter_idx]] <- coef(fit)
@@ -325,7 +325,7 @@ test_that("SL.glm.gamma wrapper adapts to multiple confounders", {
 
   # Grab the fit
   fit <-
-    cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$model
+    cond_exp_sq_outcome_correct_fit$fitLibrary$SL.glm.gamma.identity_All$object
 
   # Get coefficient names
   colnames <- names(fit$coefficients)

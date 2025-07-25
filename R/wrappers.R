@@ -276,7 +276,6 @@ SL.nnet.torch.softplus <- function(
 SL.xgboost.bounded <- function(..., ntrees = 100, lower = 1e-4) {
   out <- SuperLearner::SL.xgboost(..., ntrees=ntrees)
   out$pred <- pmax(out$pred, lower)
-  class(out$fit) <- "SL.xgboost"
   return(out)
 }
 
@@ -343,16 +342,15 @@ SL.gam.gamma.log <- function(Y, X, newX, ...) {
     mgcv::gam(
       formula,
       family = stats::Gamma(link = "log"),
-      data = data_train,
-      select = TRUE
+      data = data_train
     )
 
   # Compute predictions using newX
   pred <- stats::predict(fit_gam, newdata = newX, type = "response")
 
   # Wrap and return
-  fit = list(model = fit_gam)
+  fit = list(object = fit_gam)
+  class(fit) <- "SL.gam"
   out <- list(pred = pred, fit = fit)
-  class(out$fit) <- "SL.gam.gamma.log"
   return(out)
 }
