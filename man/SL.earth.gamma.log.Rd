@@ -8,8 +8,6 @@ SL.earth.gamma.log(
   Y,
   X,
   newX,
-  obsWeights,
-  id,
   degree = 2,
   penalty = 3,
   nk = max(21, 2 * ncol(X) + 1),
@@ -26,8 +24,7 @@ SL.earth.gamma.log(
 
 \item{X}{A numeric \code{matrix} or \code{data.frame} of covariates and treatment.}
 
-\item{obsWeights}{An optional vector of weights to be used in the
-SuperLearner fitting process. Not used.}
+\item{newX}{A numeric \code{matrix} or \code{data.frame} of predictors.}
 
 \item{degree}{Maximum degree of interaction. Default is 3, meaning build a
 model with interaction terms.}
@@ -62,6 +59,8 @@ as per Friedman's MARS paper section 3.8 with alpha = 0.05.}
 final knot. The default endspan=0 is treated specially and means calculate
 the endspan internally, as per the MARS paper equation 45 with  alpha =
 0.05.}
+
+\item{...}{Any additional arguments.}
 }
 \value{
 A list with components:

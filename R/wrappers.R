@@ -288,12 +288,13 @@ SL.xgboost.bounded <- function(..., ntrees = 100, lower = 1e-4) {
 #'
 #' @param Y A numeric `vector` of outcome values.
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
-#' @param obsWeights An optional vector of weights to be used in the fitting
-#'   process.
+#' @param newX A numeric `matrix` or `data.frame` of predictors.
+#' @param obsWeights Not used.
 #' @param deg.gam A numeric representing the degrees of the GAM. Defaults to 2.
 #' @param cts.num A numeric indicating the minimum number of unique values a
 #'   numeric covariate requires to be considered as a continuous variable.
 #'   Defaults to 4.
+#' @param ... Any additional arguments.
 #'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
@@ -322,7 +323,7 @@ SL.gam.gamma.log <- function(
   # create the formula for gam with a spline for each continuous variable
   cts.x <- apply(X, 2, function(x) (length(unique(x)) > cts.num))
   if (sum(!cts.x) > 0) {
-    gam.model <- as.formula(
+    gam.model <- stats::as.formula(
       paste(
         "Y~",
         paste(
@@ -336,7 +337,7 @@ SL.gam.gamma.log <- function(
       )
     )
   } else {
-    gam.model <- as.formula(
+    gam.model <- stats::as.formula(
       paste(
         "Y~",
         paste(
@@ -350,7 +351,7 @@ SL.gam.gamma.log <- function(
 
   # fix for when all variables are binomial
   if (sum(!cts.x) == length(cts.x)) {
-    gam.model <- as.formula(
+    gam.model <- stats::as.formula(
       paste("Y~", paste(colnames(X), collapse = "+"), sep = "")
     )
   }
@@ -358,12 +359,12 @@ SL.gam.gamma.log <- function(
   fit.gam <- gam::gam(
     gam.model,
     data = X,
-    family = Gamma(link = "log"),
+    family = stats::Gamma(link = "log"),
     control = gam::gam.control(maxit = 50, bf.maxit = 50),
     weights = obsWeights
   )
 
-  if(packageVersion('gam') >= "1.15") {
+  if(utils::packageVersion('gam') >= "1.15") {
     # updated gam class in version 1.15
     pred <- gam::predict.Gam(fit.gam, newdata = newX, type = "response")
   } else {
@@ -392,8 +393,7 @@ SL.gam.gamma.log <- function(
 #'
 #' @param Y A numeric `vector` of outcome values.
 #' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
-#' @param obsWeights An optional vector of weights to be used in the
-#'   SuperLearner fitting process. Not used.
+#' @param newX A numeric `matrix` or `data.frame` of predictors.
 #' @param degree Maximum degree of interaction. Default is 3, meaning build a
 #'   model with interaction terms.
 #' @param penalty Generalized Cross Validation (GCV) penalty per knot. Defaults
@@ -420,6 +420,7 @@ SL.gam.gamma.log <- function(
 #'   final knot. The default endspan=0 is treated specially and means calculate
 #'   the endspan internally, as per the MARS paper equation 45 with  alpha =
 #'   0.05.
+#' @param ... Any additional arguments.
 #'
 #' @return A list with components:
 #' * `pred`: A numeric vector of predictions on `newX`.
@@ -427,7 +428,7 @@ SL.gam.gamma.log <- function(
 #'
 #' @export
 SL.earth.gamma.log <- function(
-    Y, X, newX, obsWeights, id, degree = 2, penalty = 3,
+    Y, X, newX, degree = 2, penalty = 3,
     nk = max(21, 2 * ncol(X) + 1), pmethod = "backward", nfold = 0,
     ncross = 1, minspan = 0, endspan = 0, ...
 ) {
@@ -435,9 +436,9 @@ SL.earth.gamma.log <- function(
   fit.earth <- earth::earth(
     x = X, y = Y, degree = degree, nk = nk, penalty = penalty,
     pmethod = pmethod, nfold = nfold, ncross = ncross, minspan = minspan,
-    endspan = endspan, glm = list(family = Gamma(link = "log"))
+    endspan = endspan, glm = list(family = stats::Gamma(link = "log"))
   )
-  pred <- predict(fit.earth, newdata = newX, type = "response")
+  pred <- stats::predict(fit.earth, newdata = newX, type = "response")
   fit <- list(object = fit.earth)
   out <- list(pred = pred, fit = fit)
   class(out$fit) <- c("SL.earth")

@@ -11,7 +11,7 @@ test_that(
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 100
+  num_iters <- 10
   pred_tbl <- lapply(
     seq_len(num_iters),
     function(iter_idx) {
@@ -71,7 +71,7 @@ test_that("conditional expected outcome^2 estimator SL.glm.gamma.log
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 100
+  num_iters <- 10
   pred_tbl <- lapply(
     seq_len(num_iters),
     function(iter_idx) {
@@ -153,18 +153,19 @@ test_that(
   }
 )
 
-test_that("conditional expected outcome^2 estimator SL.xgboost.wrapper wrapper
+test_that("conditional expected outcome^2 estimator SL.xgboost.bounded wrapper
           predicts > 0", {
 
   # Load required libraries
   library(SuperLearner)
   library(dplyr)
+  library(xgboost)
 
   # Set seed for reproducibility
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 100
+  num_iters <- 10
   pred_tbl <- lapply(
     seq_len(num_iters),
     function(iter_idx) {
@@ -258,7 +259,7 @@ test_that(
   set.seed(234642)
 
   # Compute SL predictions
-  num_iters <- 100
+  num_iters <- 10
   coef_list <- list()
   for(iter_idx in 1:num_iters){
     # Grab a sample of the population

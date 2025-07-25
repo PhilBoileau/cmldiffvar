@@ -11,14 +11,17 @@ SL.gam.gamma.log(Y, X, newX, obsWeights, deg.gam = 2, cts.num = 4, ...)
 
 \item{X}{A numeric \code{matrix} or \code{data.frame} of covariates and treatment.}
 
-\item{obsWeights}{An optional vector of weights to be used in the fitting
-process.}
+\item{newX}{A numeric \code{matrix} or \code{data.frame} of predictors.}
+
+\item{obsWeights}{Not used.}
 
 \item{deg.gam}{A numeric representing the degrees of the GAM. Defaults to 2.}
 
 \item{cts.num}{A numeric indicating the minimum number of unique values a
 numeric covariate requires to be considered as a continuous variable.
 Defaults to 4.}
+
+\item{...}{Any additional arguments.}
 }
 \value{
 A list with components:
