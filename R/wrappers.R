@@ -380,3 +380,67 @@ SL.gam.gamma.log <- function(
   class(out$fit) <- c("SL.gam")
   return(out)
 }
+
+#' SuperLearner wrapper for Multivariate Adaptive Regression Splines
+#'
+#' @description A SuperLearner wrapper that implements Multivariate Adaptive
+#'   Regression Splines using the Gamma family with a log link.
+#'
+#' @details A copy of `[SuperLearner::SL.earth]()` but using the Gammma family,
+#' which is itself a wrapper of `[earth::earth]()`. See `[earth::earth]()` for
+#' more details.
+#'
+#' @param Y A numeric `vector` of outcome values.
+#' @param X A numeric `matrix` or `data.frame` of covariates and treatment.
+#' @param obsWeights An optional vector of weights to be used in the
+#'   SuperLearner fitting process. Not used.
+#' @param degree Maximum degree of interaction. Default is 3, meaning build a
+#'   model with interaction terms.
+#' @param penalty Generalized Cross Validation (GCV) penalty per knot. Defaults
+#'   is 3.
+#' @param nk Maximum number of model terms before pruning, i.e., the maximum
+#'   number of terms created by the forward pass. Includes the intercept. The
+#'   default is semi-automatically calculated from the number of predictors but
+#'   may need adjusting.
+#' @param pmethod Pruning method. One of: "backward", "none", "exhaustive",
+#'   "forward", "seqrep", "cv". Default is "backward". Specify pmethod="cv" to
+#'   use cross-validation to select the number of terms. This selects the number
+#'   of terms that gives the maximum mean out-of-fold RSq on the fold models.
+#'   Requires the nfold argument. Use "none" to retain all the terms created by
+#'   the forward pass.
+#' @param nfold Number of cross-validation folds. Default is 0, no cross
+#'   validation.
+#' @param ncross Only applies if nfold>1. Number of cross-validations. Each
+#'   cross-validation has nfold folds. Default 1.
+#' @param minspan Minimum number of observations between knots. (This increases
+#'   resistance to runs of correlated noise in the input data.) The default
+#'   minspan=0 is treated specially and means calculate the minspan internally,
+#'   as per Friedman's MARS paper section 3.8 with alpha = 0.05.
+#' @param endspan Minimum number of observations before the first and after the
+#'   final knot. The default endspan=0 is treated specially and means calculate
+#'   the endspan internally, as per the MARS paper equation 45 with  alpha =
+#'   0.05.
+#'
+#' @return A list with components:
+#' * `pred`: A numeric vector of predictions on `newX`.
+#' * `fit`: A list containing the fitted model object.
+#'
+#' @export
+SL.earth.gamma <- function(
+    Y, X, newX, obsWeights, id, degree = 2, penalty = 3,
+    nk = max(21, 2 * ncol(X) + 1), pmethod = "backward", nfold = 0,
+    ncross = 1, minspan = 0, endspan = 0, ...
+) {
+
+  fit.earth <- earth::earth(
+    x = X, y = Y, degree = degree, nk = nk, penalty = penalty,
+    pmethod = pmethod, nfold = nfold, ncross = ncross, minspan = minspan,
+    endspan = endspan, glm = list(family = Gamma(link = "log"))
+  )
+  pred <- predict(fit.earth, newdata = newX, type = "response")
+  fit <- list(object = fit.earth)
+  out <- list(pred = pred, fit = fit)
+  class(out$fit) <- c("SL.earth")
+  return(out)
+
+}
