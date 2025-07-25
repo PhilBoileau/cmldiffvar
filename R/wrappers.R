@@ -75,9 +75,9 @@ SL.glm.gamma.identity <- function(Y, X, newX, ...) {
   pred <- stats::predict(fit_glm, newdata = newX, type = "response")
 
   # Wrap and return
-  fit = list(model = fit_glm)
+  fit <-list(object = fit_glm)
+  class(fit) <- "SL.glm"
   out <- list(pred = pred, fit = fit)
-  class(out$fit) <- "SL.glm.gamma.identity"
   return(out)
 }
 
@@ -154,9 +154,9 @@ SL.glm.gamma.log <- function(Y, X, newX, ...) {
   pred <- stats::predict(fit_glm, newdata = newX, type = "response")
 
   # Wrap and return
-  fit = list(model = fit_glm)
+  fit <-list(object = fit_glm)
+  class(fit) <- "SL.glm"
   out <- list(pred = pred, fit = fit)
-  class(out$fit) <- "SL.glm.gamma.log"
   return(out)
 }
 
@@ -252,10 +252,10 @@ SL.nnet.torch.softplus <- function(
   })
 
   # Wrap and return
-  fit <- list(model = model)
-  class(fit) <- "SL.nnet.torch.softplus"
-
-  return(list(pred = preds, fit = fit))
+  fit <- list(object = model)
+  class(fit) <- "SL.nnet"
+  out <- list(pred = preds, fit = fit)
+  return(out)
 }
 
 #' SuperLearner wrapper of SL.xgboost that ensures positive predictions
@@ -276,7 +276,7 @@ SL.nnet.torch.softplus <- function(
 SL.xgboost.bounded <- function(..., ntrees = 100, lower = 1e-4) {
   out <- SuperLearner::SL.xgboost(..., ntrees=ntrees)
   out$pred <- pmax(out$pred, lower)
-  class(out$fit) <- "SL.xgboost.bounded"
+  class(out$fit) <- "SL.xgboost"
   return(out)
 }
 
