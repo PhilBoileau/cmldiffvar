@@ -426,7 +426,7 @@ SL.gam.gamma.log <- function(
 #' * `fit`: A list containing the fitted model object.
 #'
 #' @export
-SL.earth.gamma <- function(
+SL.earth.gamma.log <- function(
     Y, X, newX, obsWeights, id, degree = 2, penalty = 3,
     nk = max(21, 2 * ncol(X) + 1), pmethod = "backward", nfold = 0,
     ncross = 1, minspan = 0, endspan = 0, ...
