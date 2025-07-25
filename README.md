@@ -75,7 +75,7 @@ dif_var_result_tbl |> kable(digits = 2, format.args = list(nsmall = 2))
 
 | estimand                       | estimate |   se | ci_low | ci_high | p_value |
 |:-------------------------------|---------:|-----:|-------:|--------:|--------:|
-| absolute differential variance |     7.29 | 1.01 |   5.31 |    9.28 |    0.00 |
+| absolute differential variance |     7.17 | 1.01 |   5.19 |    9.15 |    0.00 |
 
 ------------------------------------------------------------------------
 
