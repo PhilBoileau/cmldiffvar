@@ -1,0 +1,20 @@
+url: https://pboileau.ca/cmldiffvar/
+template:
+  bootstrap: 5
+
+reference:
+  - title: "Differential Variance Inference"
+  - contents:
+    - cmldiffvar
+  - title: "Nuisance Parameter Estimators"
+  - contents:
+    - SL.earth.gamma.log
+    - SL.gam.gamma.log
+    - SL.glm.gamma.identity
+    - SL.glm.gamma.log
+    - SL.nnet.torch.softplus
+    - SL.xgboost.bounded
+  - title: "Toy Datasets"
+  - contents:
+    - multiple_confounders_toy_population_tbl
+    - toy_population_tbl
