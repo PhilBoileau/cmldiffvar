@@ -10,6 +10,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 [![MIT
 license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/license/mit/)
 [![R-CMD-check](https://github.com/PhilBoileau/cmldiffvar/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/PhilBoileau/cmldiffvar/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/PhilBoileau/cmldiffvar/graph/badge.svg)](https://app.codecov.io/gh/PhilBoileau/cmldiffvar)
 <!-- badges: end -->
 
 > Causal Machine Learning Methods for Differential Variance Inference
