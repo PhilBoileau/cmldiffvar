@@ -24,3 +24,4 @@ which it found valid starting values, default is FALSE.}
 Automatically look for valid starting values for Gamma GLMs, since Gamma
 assumes that \eqn{X\beta > 0}.
 }
+\keyword{internal}

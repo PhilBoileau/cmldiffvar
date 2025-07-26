@@ -10,6 +10,8 @@
 #' @param verbose Flag to determine if the function should print the attempt at
 #' which it found valid starting values, default is FALSE.
 #' @return `start_vals` containing valid starting values.
+#'
+#' @keywords internal
 get_valid_glm_gamma_start <- function(
     formula, data,
     max_tries = 100,
