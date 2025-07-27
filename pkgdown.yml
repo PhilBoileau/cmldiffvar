@@ -1,0 +1,8 @@
+pandoc: 3.1.11
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles: {}
+last_built: 2025-07-27T14:52Z
+urls:
+  reference: https://pboileau.ca/cmldiffvar/reference
+  article: https://pboileau.ca/cmldiffvar/articles
