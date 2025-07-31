@@ -277,3 +277,30 @@ bound_away_from_0_and_1_fun <- function(unit_interval_vec) {
 
   return(unit_interval_vec)
 }
+
+
+unadjusted_var_estimator_fun <- function(
+  treatment_group,
+  treatment_vec,
+  outcome_vec,
+  ps_vec
+) {
+
+  # compute the estimate
+  outcome_vec_subset <- outcome_vec[which(treatment_vec == treatment_group)]
+  group_mean_est <- mean(outcome_vec_subset)
+  group_var_est <- mean((outcome_vec_subset - group_mean_est)^2)
+
+  # compute the efficient influence function for the full data
+  eif_vec <- (treatment_vec == treatment_group) / propensity_score *
+    ((outcome_vec - group_mean_est)^2 - group_var_est)
+
+  # return the estimate and the EIF
+  result_ls <- list(
+    estimate = group_var_est,
+    eif = eif_vec
+  )
+
+  return(result_ls)
+
+}
