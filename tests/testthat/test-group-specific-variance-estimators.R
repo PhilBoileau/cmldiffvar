@@ -243,7 +243,7 @@ test_that("unadjusted estimators of group-specific are consistent", {
         treatment_group = 1,
         treatment_vec = sample_tbl$treatment,
         outcome_vec = sample_tbl$outcome,
-        ps_vec = sample_tbl$propensity_score
+        ps_est_vec = sample_tbl$propensity_score
       )
 
       # estimate control group variance
@@ -251,7 +251,7 @@ test_that("unadjusted estimators of group-specific are consistent", {
         treatment_group = 0,
         treatment_vec = sample_tbl$treatment,
         outcome_vec = sample_tbl$outcome,
-        ps_vec = sample_tbl$propensity_score
+        ps_est_vec = sample_tbl$propensity_score
       )
 
       # return estimates
