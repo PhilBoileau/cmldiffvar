@@ -305,7 +305,9 @@ unadjusted_var_estimator_fun <- function(
   group_var_est <- mean((outcome_vec_subset - group_mean_est)^2)
 
   # compute the efficient influence function for the full data
-  eif_vec <- (treatment_vec == treatment_group) / ps_est_vec *
+  eif_vec <- (treatment_vec == treatment_group) /
+    ((treatment_group == 1) * ps_est_vec +
+       (treatment_group == 0) * (1 - ps_est_vec)) *
     ((outcome_vec - group_mean_est)^2 - group_var_est)
 
   # return the estimate and the EIF
