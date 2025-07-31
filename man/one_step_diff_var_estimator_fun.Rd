@@ -47,7 +47,12 @@ difference of group-specific variances. Set this parameter to \code{"relative"}
 to estimate the ratio of the group-specific variances.}
 }
 \value{
-A \code{numeric} estimate of the difference in treatment group variances.
+A named list with the following components:
+\itemize{
+\item \code{estimate}: A \code{numeric} estimate of the selected estimand.
+\item \code{eif}: A \code{numeric} vector of the efficient influence function of the
+selected estimand.
+}
 }
 \description{
 \code{one_step_diff_var_estimator_fun()} estimates the differential variance using

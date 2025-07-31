@@ -102,7 +102,10 @@ generate_counterfactural_tbl_fun <- function(
 #'   difference of group-specific variances. Set this parameter to `"relative"`
 #'   to estimate the ratio of the group-specific variances.
 #'
-#' @returns A `numeric` estimate of the difference in treatment group variances.
+#' @returns A named list with the following components:
+#'  * `estimate`: A `numeric` estimate of the selected estimand.
+#'  * `eif`: A `numeric` vector of the efficient influence function of the
+#'    selected estimand.
 #'
 #' @keywords internal
 #'
@@ -400,6 +403,19 @@ cf_diff_var_estimator_fun <- function(
 }
 
 
+#' Estimator of Differential Variance
+#'
+#' `unadjusted_diff_var_estimator_fun()` estimates the differential variance
+#' using an unadjusted estimator. This estimator is regular and asymptotically
+#' linear when the treatment assignment mechanism does not depend on
+#' pre-treatment covariates, such as in a randomized controlled trial.
+#'
+#' @inheritParams one_step_diff_var_estimator_fun
+#'
+#' @inherit one_step_diff_var_estimator_fun return
+#'
+#' @keywords internal
+#'
 unadjusted_diff_var_estimator_fun <- function(
   clean_tbl,
   treatment_var_name,
