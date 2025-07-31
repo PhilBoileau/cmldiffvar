@@ -102,7 +102,10 @@ generate_counterfactural_tbl_fun <- function(
 #'   difference of group-specific variances. Set this parameter to `"relative"`
 #'   to estimate the ratio of the group-specific variances.
 #'
-#' @returns A `numeric` estimate of the difference in treatment group variances.
+#' @returns A named list with the following components:
+#'  * `estimate`: A `numeric` estimate of the selected estimand.
+#'  * `eif`: A `numeric` vector of the efficient influence function of the
+#'    selected estimand.
 #'
 #' @keywords internal
 #'
@@ -397,4 +400,71 @@ cf_diff_var_estimator_fun <- function(
   )
 
   return(valid_out_ls)
+}
+
+
+#' Estimator of Differential Variance
+#'
+#' `unadjusted_diff_var_estimator_fun()` estimates the differential variance
+#' using an unadjusted estimator. This estimator is regular and asymptotically
+#' linear when the treatment assignment mechanism does not depend on
+#' pre-treatment covariates, such as in a randomized controlled trial.
+#'
+#' @inheritParams one_step_diff_var_estimator_fun
+#'
+#' @inherit one_step_diff_var_estimator_fun return
+#'
+#' @keywords internal
+#'
+unadjusted_diff_var_estimator_fun <- function(
+  clean_tbl,
+  treatment_var_name,
+  propensity_score_var_name,
+  outcome_var_name,
+  estimand_type
+) {
+
+  # check if propensity score values are provided
+  # use unadjusted propensity score estimator otherwise
+  if (is.null(propensity_score_var_name)) {
+    propensity_score_vec <- mean(clean_tbl[[treatment_var_name]])
+  } else {
+    propensity_score_vec <- clean_tbl[[propensity_score_var_name]]
+  }
+
+  # estimate the treatment-group specific variance
+  treatment_group_var <- unadjusted_var_estimator_fun(
+    treatment_group = 1,
+    treatment_vec = clean_tbl[[treatment_var_name]],
+    outcome_vec = clean_tbl[[outcome_var_name]],
+    ps_est_vec = propensity_score_vec
+  )
+
+  # estimate the control-group specific variance
+  control_group_var <- unadjusted_var_estimator_fun(
+    treatment_group = 0,
+    treatment_vec = clean_tbl[[treatment_var_name]],
+    outcome_vec = clean_tbl[[outcome_var_name]],
+    ps_est_vec = propensity_score_vec
+  )
+
+  # assemble the point estimate and eif of the estimate based on the estimand
+  if (estimand_type == "absolute") {
+    estimate <- treatment_group_var$estimate - control_group_var$estimate
+    eif <- treatment_group_var$eif - control_group_var$eif
+  } else if (estimand_type == "relative") {
+    estimate <- treatment_group_var$estimate / control_group_var$estimate
+    eif <- treatment_group_var$eif / control_group_var$estimate -
+      treatment_group_var$estimate * control_group_var$eif /
+      control_group_var$estimate^2
+  }
+
+  # prepare list of results
+  results_ls <- list(
+    estimate = estimate,
+    eif = eif
+  )
+
+  return(results_ls)
+
 }

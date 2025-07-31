@@ -277,3 +277,45 @@ bound_away_from_0_and_1_fun <- function(unit_interval_vec) {
 
   return(unit_interval_vec)
 }
+
+
+#' Unadjsuted Group-Specific Variance Estimator
+#'
+#' @description `unadjusted_var_estimator_fun()` estimates of the group-specific
+#'   variance using an unadjusted plug-in estimator. Note that this estimator is
+#'   regular and asymptotically linear in a nonparametric model when treatment
+#'   assignment is randomized. The efficient influence function returned by this
+#'   estimator corresponds to that of the complete data.
+#'
+#' @inheritParams one_step_var_estimator_fun
+#'
+#' @inherit one_step_var_estimator_fun return
+#'
+#' @keywords internal
+unadjusted_var_estimator_fun <- function(
+  treatment_group,
+  treatment_vec,
+  outcome_vec,
+  ps_est_vec
+) {
+
+  # compute the estimate
+  outcome_vec_subset <- outcome_vec[which(treatment_vec == treatment_group)]
+  group_mean_est <- mean(outcome_vec_subset)
+  group_var_est <- mean((outcome_vec_subset - group_mean_est)^2)
+
+  # compute the efficient influence function for the full data
+  eif_vec <- (treatment_vec == treatment_group) /
+    ((treatment_group == 1) * ps_est_vec +
+       (treatment_group == 0) * (1 - ps_est_vec)) *
+    ((outcome_vec - group_mean_est)^2 - group_var_est)
+
+  # return the estimate and the EIF
+  result_ls <- list(
+    estimate = group_var_est,
+    eif = eif_vec
+  )
+
+  return(result_ls)
+
+}

@@ -6,6 +6,7 @@ reference:
   - title: "Differential Variance Inference"
   - contents:
     - cmldiffvar
+    - unadjdiffvar
   - title: "Nuisance Parameter Estimators"
   - contents:
     - SL.earth.gamma.log

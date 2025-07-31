@@ -630,3 +630,131 @@ test_that(
   expect_lt(abs(mean(abs_tmle_covered) - 0.95), 0.025)
 
 })
+
+
+test_that("unadjused diff var estimators are asymptotically linear", {
+
+  library(dplyr)
+
+  # generate randomized study data
+  set.seed(684684)
+  n_pop <- 100000
+  propensity_score <- 0.5
+  propensity_score_vec <- rep(propensity_score, n_pop)
+  treatment_vec <- rbinom(n_pop, 1, propensity_score)
+  outcome_treatment_vec <- rnorm(n = n_pop, mean = 3, sd = 3)
+  outcome_control_vec <- rnorm(n = n_pop, mean = 1, sd = 1)
+  outcome_vec <- sapply(
+    seq_len(n_pop),
+    function(pop_idx) {
+      if (treatment_vec[pop_idx] == 1) {
+        outcome_treatment_vec[pop_idx]
+      } else {
+        outcome_control_vec[pop_idx]
+      }
+    }
+  )
+  population_tbl <- tibble(
+    propensity_score = propensity_score_vec,
+    treatment = treatment_vec,
+    outcome = outcome_vec
+  )
+
+  # estimate bias
+  num_iters <- 100
+  coverage_tbl <- lapply(
+    seq_len(num_iters),
+    function(iter) {
+
+      # sample from population
+      sample_tbl <- slice_sample(population_tbl, n = 1000)
+
+      # compute estimates and CIs assuming propensity score is known
+      ps_known_abs_diff_inf <- unadjusted_diff_var_estimator_fun(
+        clean_tbl = sample_tbl,
+        treatment_var_name = "treatment",
+        propensity_score_var_name = "propensity_score",
+        outcome_var_name = "outcome",
+        estimand_type = "absolute"
+      )
+      ps_known_rel_diff_inf <- unadjusted_diff_var_estimator_fun(
+        clean_tbl = sample_tbl,
+        treatment_var_name = "treatment",
+        propensity_score_var_name = "propensity_score",
+        outcome_var_name = "outcome",
+        estimand_type = "relative"
+      )
+
+      # compute estimates and CIs assuming propensity score is unknown
+      ps_unknown_abs_diff_inf <- unadjusted_diff_var_estimator_fun(
+        clean_tbl = sample_tbl,
+        treatment_var_name = "treatment",
+        propensity_score_var_name = NULL,
+        outcome_var_name = "outcome",
+        estimand_type = "absolute"
+      )
+      ps_unknown_rel_diff_inf <- unadjusted_diff_var_estimator_fun(
+        clean_tbl = sample_tbl,
+        treatment_var_name = "treatment",
+        propensity_score_var_name = NULL,
+        outcome_var_name = "outcome",
+        estimand_type = "relative"
+      )
+
+      # calculate coverages
+
+      # known propensity score, absolute diff var
+      ps_known_abs_diff_lower_ci <- ps_known_abs_diff_inf$estimate -
+        1.96 * sqrt(var(ps_known_abs_diff_inf$eif) / nrow(sample_tbl))
+      ps_known_abs_diff_upper_ci <- ps_known_abs_diff_inf$estimate +
+        1.96 * sqrt(var(ps_known_abs_diff_inf$eif) / nrow(sample_tbl))
+      ps_known_abs_diff_covered <- ifelse(
+        ps_known_abs_diff_lower_ci < 8 && ps_known_abs_diff_upper_ci > 8, 1, 0
+      )
+
+      # known propensity score, relative diff var
+      ps_known_rel_diff_lower_ci <- ps_known_rel_diff_inf$estimate -
+        1.96 * sqrt(var(ps_known_rel_diff_inf$eif) / nrow(sample_tbl))
+      ps_known_rel_diff_upper_ci <- ps_known_rel_diff_inf$estimate +
+        1.96 * sqrt(var(ps_known_rel_diff_inf$eif) / nrow(sample_tbl))
+      ps_known_rel_diff_covered <- ifelse(
+        ps_known_rel_diff_lower_ci < 9 && ps_known_rel_diff_upper_ci > 9, 1, 0
+      )
+
+      # unknown propensity score, absolute diff var
+      ps_unknown_abs_diff_lower_ci <- ps_unknown_abs_diff_inf$estimate -
+        1.96 * sqrt(var(ps_unknown_abs_diff_inf$eif) / nrow(sample_tbl))
+      ps_unknown_abs_diff_upper_ci <- ps_unknown_abs_diff_inf$estimate +
+        1.96 * sqrt(var(ps_unknown_abs_diff_inf$eif) / nrow(sample_tbl))
+      ps_unknown_abs_diff_covered <- ifelse(
+        ps_unknown_abs_diff_lower_ci < 8 && ps_unknown_abs_diff_upper_ci > 8,
+        1, 0
+      )
+
+      # unknown propensity score, relative diff var
+      ps_unknown_rel_diff_lower_ci <- ps_unknown_rel_diff_inf$estimate -
+        1.96 * sqrt(var(ps_unknown_rel_diff_inf$eif) / nrow(sample_tbl))
+      ps_unknown_rel_diff_upper_ci <- ps_unknown_rel_diff_inf$estimate +
+        1.96 * sqrt(var(ps_unknown_rel_diff_inf$eif) / nrow(sample_tbl))
+      ps_unknown_rel_diff_covered <- ifelse(
+        ps_unknown_rel_diff_lower_ci < 9 && ps_unknown_rel_diff_upper_ci > 9,
+        1, 0
+      )
+
+      tibble(
+        ps_known_abs_diff_covered = ps_known_abs_diff_covered,
+        ps_known_rel_diff_covered = ps_known_rel_diff_covered,
+        ps_unknown_abs_diff_covered = ps_unknown_abs_diff_covered,
+        ps_unknown_rel_diff_covered = ps_unknown_rel_diff_covered
+      )
+
+}) |>
+    bind_rows()
+
+  # expect approximate 95% coverage, with some wiggle room
+  expect_lt(abs(mean(coverage_tbl$ps_known_abs_diff_covered) - 0.95), 0.025)
+  expect_lt(abs(mean(coverage_tbl$ps_known_rel_diff_covered) - 0.95), 0.025)
+  expect_lt(abs(mean(coverage_tbl$ps_unknown_abs_diff_covered) - 0.95), 0.025)
+  expect_lt(abs(mean(coverage_tbl$ps_unknown_rel_diff_covered) - 0.95), 0.025)
+
+})
