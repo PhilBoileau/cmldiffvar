@@ -44,17 +44,14 @@ unadjdiffvar <- function(
 
   # check dataset contains appropriate variables
   if (is.null(propensity_score_var_name)) {
-    clean_tbl_var_names <- c(
-      confounder_var_names, treatment_var_name, outcome_var_name
-    )
+    clean_tbl_var_names <- c(treatment_var_name, outcome_var_name)
   } else {
     checkmate::assert_character(propensity_score_var_name)
     checkmate::assert_numeric(
       data_tbl[[propensity_score_var_name]], lower = 0.001, upper = 0.999
     )
     clean_tbl_var_names <- c(
-      confounder_var_names, treatment_var_name, propensity_score_var_name,
-      outcome_var_name
+      treatment_var_name, propensity_score_var_name, outcome_var_name
     )
   }
   checkmate::assert_names(clean_tbl_var_names, subset.of = colnames(data_tbl))
