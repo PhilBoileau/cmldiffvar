@@ -253,9 +253,32 @@ SL.nnet.torch.softplus <- function(
 
   # Wrap and return
   fit <- list(object = model)
-  class(fit) <- "SL.nnet"
+  class(fit) <- "SL.torch"
   out <- list(pred = preds, fit = fit)
   return(out)
+}
+
+#' Prediction method wrapper for base learners of class SL.torch
+#'
+#' @description
+#' This function provides the prediction method for objects of class
+#' SL.torch. It converts `newdata` into a torch tensor, applies
+#' the fitted torch model, and returns predictions as a numeric vector
+#'
+#' @param object An object of class SL.torch.
+#' @param newdata A numeric `matrix` or `data.frame` of predictors.
+#' @param ... Additional arguments (not currently used).
+#'
+#' @return A numeric vector of predictions.
+#'
+#' @export
+predict.SL.torch <- function(object, newdata, ...) {
+  x_matrix <- as.matrix(newdata)
+  x_tensor <- torch::torch_tensor(x_matrix, dtype = torch::torch_float())
+  torch::with_no_grad({
+    preds <- as.numeric(object$object(x_tensor)$squeeze())
+  })
+  return(preds)
 }
 
 #' SuperLearner wrapper of SL.xgboost that ensures positive predictions
