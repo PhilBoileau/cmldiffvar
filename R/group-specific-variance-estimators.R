@@ -139,9 +139,14 @@ tml_var_estimator_fun <- function(
       weights = clever_covariate_denom
     )
   )
-  tilted_bounded_cond_exp_outcome_est_vec <- stats::predict.glm(
-    tilted_bounded_cond_exp_outcome_fit,
-    type = "response"
+  if (is.na(stats::coef(tilted_bounded_cond_exp_outcome_fit))) {
+    tilted_bounded_cond_exp_outcome_fit$coefficients <- 0
+  }
+  epsilon_cond_exp_outcome <- unname(
+    stats::coef(tilted_bounded_cond_exp_outcome_fit)
+  )
+  tilted_bounded_cond_exp_outcome_est_vec <- stats::plogis(
+    logit_bounded_cond_exp_outcome_est_vec + epsilon_cond_exp_outcome
   )
   tilted_cond_exp_outcome_est_vec <-
     tilted_bounded_cond_exp_outcome_est_vec *
@@ -160,9 +165,14 @@ tml_var_estimator_fun <- function(
       weights = clever_covariate_denom
     )
   )
-  tilted_bounded_cond_exp_sq_outcome_est_vec <- stats::predict.glm(
-    tilted_bounded_cond_exp_sq_outcome_fit,
-    type = "response"
+  if (is.na(stats::coef(tilted_bounded_cond_exp_sq_outcome_fit))) {
+    tilted_bounded_cond_exp_sq_outcome_fit$coefficients <- 0
+  }
+  epsilon_cond_exp_outcome_sq <- unname(
+    stats::coef(tilted_bounded_cond_exp_sq_outcome_fit)
+  )
+  tilted_bounded_cond_exp_sq_outcome_est_vec <- stats::plogis(
+    logit_bounded_cond_exp_sq_outcome_est_vec + epsilon_cond_exp_outcome_sq
   )
   tilted_cond_exp_sq_outcome_est_vec <-
     tilted_bounded_cond_exp_sq_outcome_est_vec *
