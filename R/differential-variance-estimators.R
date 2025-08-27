@@ -5,6 +5,12 @@
 #'
 #' @inheritParams estimate_propensity_score_fun
 #' @inheritParams one_step_var_estimator_fun
+#' @param propensity_score_adj_var_names A `character` vector providing the
+#'   columns names of the adjustment set variables for propensity score
+#'   estimation stored in `clean_tbl`.
+#' @param cond_exp_outcome_adj_var_names A `character` vector providing the
+#'   columns names of the adjustment set variables for outcome regression
+#'   estimation stored in `clean_tbl`.
 #' @param propensity_score_var_name An optional `character` providing the column
 #'   name of the treatment assignment indicator stored in `data_tbl`.
 #' @param propensity_score_sl_fit A [SuperLearner::SuperLearner] object
@@ -25,7 +31,8 @@
 generate_counterfactural_tbl_fun <- function(
   clean_tbl,
   treatment_group,
-  confounder_var_names,
+  propensity_score_adj_var_names,
+  cond_exp_outcome_adj_var_names,
   treatment_var_name,
   propensity_score_var_name,
   propensity_score_sl_fit,
@@ -45,7 +52,7 @@ generate_counterfactural_tbl_fun <- function(
     pred_propensity_score <- SuperLearner::predict.SuperLearner(
       propensity_score_sl_fit,
       newdata = clean_counterfactual_tbl |>
-        dplyr::select(dplyr::all_of(confounder_var_names)),
+        dplyr::select(dplyr::all_of(propensity_score_adj_var_names)),
       onlySL = TRUE
     )$pred
   } else {
@@ -57,7 +64,7 @@ generate_counterfactural_tbl_fun <- function(
     newdata = clean_counterfactual_tbl |>
       dplyr::select(
         dplyr::all_of(
-          c(confounder_var_names, treatment_var_name)
+          c(cond_exp_outcome_adj_var_names, treatment_var_name)
         )
       ),
     onlySL = TRUE
@@ -67,7 +74,7 @@ generate_counterfactural_tbl_fun <- function(
     newdata = clean_counterfactual_tbl |>
       dplyr::select(
         dplyr::all_of(
-          c(confounder_var_names, treatment_var_name)
+          c(cond_exp_outcome_adj_var_names, treatment_var_name)
         )
       ),
     onlySL = TRUE
@@ -111,7 +118,8 @@ generate_counterfactural_tbl_fun <- function(
 #'
 one_step_diff_var_estimator_fun <- function(
   clean_tbl,
-  confounder_var_names,
+  propensity_score_adj_var_names,
+  cond_exp_outcome_adj_var_names,
   treatment_var_name,
   propensity_score_var_name,
   outcome_var_name,
@@ -125,7 +133,8 @@ one_step_diff_var_estimator_fun <- function(
   clean_treatment_tbl <- generate_counterfactural_tbl_fun(
     clean_tbl,
     treatment_group = 1,
-    confounder_var_names,
+    propensity_score_adj_var_names,
+    cond_exp_outcome_adj_var_names,
     treatment_var_name,
     propensity_score_var_name,
     propensity_score_sl_fit,
@@ -135,7 +144,8 @@ one_step_diff_var_estimator_fun <- function(
   clean_control_tbl <- generate_counterfactural_tbl_fun(
     clean_tbl,
     treatment_group = 0,
-    confounder_var_names,
+    propensity_score_adj_var_names,
+    cond_exp_outcome_adj_var_names,
     treatment_var_name,
     propensity_score_var_name,
     propensity_score_sl_fit,
@@ -218,7 +228,8 @@ one_step_diff_var_estimator_fun <- function(
 #'
 tml_diff_var_estimator_fun <- function(
   clean_tbl,
-  confounder_var_names,
+  propensity_score_adj_var_names,
+  cond_exp_outcome_adj_var_names,
   treatment_var_name,
   propensity_score_var_name,
   outcome_var_name,
@@ -232,7 +243,8 @@ tml_diff_var_estimator_fun <- function(
   clean_treatment_tbl <- generate_counterfactural_tbl_fun(
     clean_tbl,
     treatment_group = 1,
-    confounder_var_names,
+    propensity_score_adj_var_names,
+    cond_exp_outcome_adj_var_names,
     treatment_var_name,
     propensity_score_var_name,
     propensity_score_sl_fit,
@@ -242,7 +254,8 @@ tml_diff_var_estimator_fun <- function(
   clean_control_tbl <- generate_counterfactural_tbl_fun(
     clean_tbl,
     treatment_group = 0,
-    confounder_var_names,
+    propensity_score_adj_var_names,
+    cond_exp_outcome_adj_var_names,
     treatment_var_name,
     propensity_score_var_name,
     propensity_score_sl_fit,
@@ -317,7 +330,8 @@ tml_diff_var_estimator_fun <- function(
 cf_diff_var_estimator_fun <- function(
   fold,
   clean_tbl,
-  confounder_var_names,
+  propensity_score_adj_var_names,
+  cond_exp_outcome_adj_var_names,
   treatment_var_name,
   propensity_score_var_name,
   outcome_var_name,
@@ -337,7 +351,7 @@ cf_diff_var_estimator_fun <- function(
   if (is.null(propensity_score_var_name)) {
     propensity_score_sl_fit <- estimate_propensity_score_fun(
       train_tbl,
-      confounder_var_names = confounder_var_names,
+      adj_set_var_names = propensity_score_adj_var_names,
       treatment_var_name = treatment_var_name,
       propensity_score_library = propensity_score_library,
       num_nuisance_sl_folds = num_nuisance_sl_folds
@@ -347,7 +361,7 @@ cf_diff_var_estimator_fun <- function(
   }
   cond_exp_outcome_sl_fit <- estimate_cond_exp_outcome_fun(
     train_tbl,
-    confounder_var_names = confounder_var_names,
+    adj_set_var_names = cond_exp_outcome_adj_var_names,
     treatment_var_name = treatment_var_name,
     outcome_var_name = outcome_var_name,
     cond_exp_outcome_library = cond_exp_outcome_library,
@@ -355,7 +369,7 @@ cf_diff_var_estimator_fun <- function(
   )
   cond_exp_sq_outcome_sl_fit <- estimate_cond_exp_sq_outcome_fun(
     train_tbl,
-    confounder_var_names = confounder_var_names,
+    adj_set_var_names = cond_exp_outcome_adj_var_names,
     treatment_var_name = treatment_var_name,
     outcome_var_name = outcome_var_name,
     cond_exp_sq_outcome_library = cond_exp_sq_outcome_library,
@@ -367,7 +381,8 @@ cf_diff_var_estimator_fun <- function(
 
     diff_var_est <- one_step_diff_var_estimator_fun(
       valid_tbl,
-      confounder_var_names = confounder_var_names,
+      propensity_score_adj_var_names = propensity_score_adj_var_names,
+      cond_exp_outcome_adj_var_names = cond_exp_outcome_adj_var_names,
       treatment_var_name = treatment_var_name,
       propensity_score_var_name = propensity_score_var_name,
       outcome_var_name = outcome_var_name,
@@ -381,7 +396,8 @@ cf_diff_var_estimator_fun <- function(
 
     diff_var_est <- tml_diff_var_estimator_fun(
       valid_tbl,
-      confounder_var_names = confounder_var_names,
+      propensity_score_adj_var_names = propensity_score_adj_var_names,
+      cond_exp_outcome_adj_var_names = cond_exp_outcome_adj_var_names,
       treatment_var_name = treatment_var_name,
       propensity_score_var_name = propensity_score_var_name,
       outcome_var_name = outcome_var_name,
