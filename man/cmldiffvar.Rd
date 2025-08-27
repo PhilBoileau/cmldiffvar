@@ -9,7 +9,8 @@ cmldiffvar(
   estimand_type = "absolute",
   estimator_type = "tmle",
   confidence_level = 0.95,
-  confounder_var_names,
+  propensity_score_adj_var_names,
+  cond_exp_outcome_adj_var_names,
   treatment_var_name,
   propensity_score_var_name = NULL,
   outcome_var_name,
@@ -35,8 +36,14 @@ cross-fitting procedure.}
 \item{confidence_level}{A \code{numeric} between $0.1$ and $0.99$ providing the
 confidence level used to compute confidence intervals. Defaults to \code{0.95}.}
 
-\item{confounder_var_names}{A \code{character} vector providing the columns names
-of the treatment--outcome confounders stored in \code{data_tbl}.}
+\item{propensity_score_adj_var_names}{A \code{character} vector providing the
+columns names of the adjustment set variables for propensity score
+estimation stored in \code{data_tbl}. Ignored if \code{propensity_score_var_name} is
+\code{NULL}.}
+
+\item{cond_exp_outcome_adj_var_names}{A \code{character} vector providing the
+columns names of the adjustment set variables for conditional expected
+(squared) outcome estimation stored in \code{data_tbl}.}
 
 \item{treatment_var_name}{A \code{character} providing the column name of the
 treatment assignment indicator stored in \code{data_tbl}.}

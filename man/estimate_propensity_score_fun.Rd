@@ -6,7 +6,7 @@
 \usage{
 estimate_propensity_score_fun(
   clean_tbl,
-  confounder_var_names,
+  adj_set_var_names,
   treatment_var_name,
   propensity_score_library,
   num_nuisance_sl_folds
@@ -16,8 +16,8 @@ estimate_propensity_score_fun(
 \item{clean_tbl}{A pre-processed \link{tibble} that is ready for nuisance
 parameter estimation.}
 
-\item{confounder_var_names}{A \code{character} vector providing the columns names
-of the treatment--outcome confounders stored in \code{clean_tbl}.}
+\item{adj_set_var_names}{A \code{character} vector providing the columns names
+of the adjustment set variables stored in \code{clean_tbl}.}
 
 \item{treatment_var_name}{A \code{character} providing the column name of the
 treatment assignment indicator stored in \code{clean_tbl}.}
