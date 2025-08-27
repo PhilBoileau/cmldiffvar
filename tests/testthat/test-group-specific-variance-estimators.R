@@ -201,6 +201,152 @@ test_that("TMLE of treatment group-specific variance solves the EIF", {
 
 })
 
+test_that("estimators are consistent when regressions are estimated by means", {
+
+  library(dplyr)
+  library(SuperLearner)
+
+  set.seed(621341)
+
+  # a DGP function for assessing multiple robusteness
+  # the true variance of Y1 and Y0 are 7.72 and 3.11, respectively
+  var_y1 <- 7.72
+  var_y0 <- 3.11
+  multiple_robustness_dgp_fun <- function(n) {
+
+    # Define confounder variables
+    W1 <- stats::rbinom(n = n, size = 1, p = 0.3)
+    W2 <- stats::rnorm(n = n, mean = 0, sd = 1)
+
+    # Compute propensity score
+    pA <- stats::plogis(q = (1 + W1 + W2)/4)
+
+    # Define treatment variable
+    A <- stats::rbinom(n = n, size = 1, p = pA)
+
+    # Compute mean of potential outcomes
+    # We have set our DGP such that: E[Y(a)] = 1 + a + W1 + W2 + a*W2 + W1*W2
+    meanYA1 <- 1 + 1 + W1 + W2 + 1*W2 + W1*W2
+    meanYA0 <- 1 + 0 + W1 + W2 + 0*W2 + W1*W2
+
+    # Define potential outcomes
+    YA1 <- stats::rnorm(n = n, mean = meanYA1, sd = sqrt(2))
+    YA0 <- stats::rnorm(n = n, mean = meanYA0, sd = 1)
+
+    # Compute outcome variable
+    Y <- A * YA1 + (1 - A) * YA0
+
+    # return a tibble of the observed data
+    tibble(
+      "Y" = Y,
+      "A" = A,
+      "W1" = W1,
+      "W2" = W2
+    )
+  }
+
+  # generate a dataset
+  sample_tbl <- multiple_robustness_dgp_fun(n = 1000)
+
+  # estimate the propensity score with a well-specified estimator
+  ps_fit <- glm(
+    A ~ W1 + W2, family = "binomial", data = sample_tbl
+  )
+
+  # estimate the outcome regressions by their group means
+  cond_outcome_fit <- glm(Y ~ 1, data = sample_tbl)
+  cond_sq_outcome_fit <- glm(Y^2 ~ 1, data = sample_tbl)
+
+  # predict conditional outcomes under treatment
+  sample_treatment_tbl <- sample_tbl |> mutate(A = 1)
+  cond_outcome_treatment_est <- predict(
+    cond_outcome_fit,
+    sample_treatment_tbl
+  )
+  cond_sq_outcome_treatment_est <- predict(
+    cond_sq_outcome_fit, sample_treatment_tbl
+  )
+
+  # predict conditional outcomes under control
+  sample_control_tbl <- sample_tbl |> mutate(A = 0)
+  cond_outcome_control_est <- predict(cond_outcome_fit, sample_control_tbl)
+  cond_sq_outcome_control_est <- predict(
+    cond_sq_outcome_fit, sample_control_tbl
+  )
+
+  # predict propensity score
+  ps_est <- predict(ps_fit, type = "response")
+
+  # predicted mean under treatment and control (one-step estimator)
+  one_step_mean_treatment_est <- mean(
+    (sample_tbl$A == 1) *
+      (sample_tbl$Y - cond_outcome_treatment_est) /
+      ps_est + cond_outcome_treatment_est
+  )
+  one_step_mean_control_est <- mean(
+    (sample_tbl$A == 0) *
+      (sample_tbl$Y - cond_outcome_control_est) /
+      ps_est + cond_outcome_control_est
+  )
+
+  # calculate variance of treatment one-step estimate
+  one_step_var_treatment_est <- one_step_var_estimator_fun(
+    treatment_group = 1,
+    treatment_vec = sample_tbl$A,
+    outcome_vec = sample_treatment_tbl$Y,
+    ps_est_vec = ps_est,
+    cond_exp_outcome_est_vec = cond_outcome_treatment_est,
+    cond_exp_sq_outcome_est_vec = cond_sq_outcome_treatment_est,
+    mean_est = one_step_mean_treatment_est
+  )$estimate
+
+  # calculate variance of treatment TML estimate
+  tml_var_treatment_est <- tml_var_estimator_fun(
+    treatment_group = 1,
+    treatment_vec = sample_tbl$A,
+    outcome_vec = sample_treatment_tbl$Y,
+    ps_est_vec = ps_est,
+    cond_exp_outcome_est_vec = cond_outcome_treatment_est,
+    cond_exp_sq_outcome_est_vec = cond_sq_outcome_treatment_est
+  )$estimate
+
+  # calculate variance of control one-step estimate
+  one_step_var_control_est <- one_step_var_estimator_fun(
+    treatment_group = 0,
+    treatment_vec = sample_tbl$A,
+    outcome_vec = sample_treatment_tbl$Y,
+    ps_est_vec = ps_est,
+    cond_exp_outcome_est_vec = cond_outcome_control_est,
+    cond_exp_sq_outcome_est_vec = cond_sq_outcome_control_est,
+    mean_est = one_step_mean_control_est
+  )$estimate
+
+  # calculate variance of control TML estimate
+  tml_var_control_est <- tml_var_estimator_fun(
+    treatment_group = 0,
+    treatment_vec = sample_tbl$A,
+    outcome_vec = sample_treatment_tbl$Y,
+    ps_est_vec = ps_est,
+    cond_exp_outcome_est_vec = cond_outcome_control_est,
+    cond_exp_sq_outcome_est_vec = cond_sq_outcome_control_est
+  )$estimate
+
+  # make sure that estimates are close to the true parameter values
+  expect_equal(
+    one_step_var_treatment_est, var_y1, tolerance = 0.2
+  )
+  expect_equal(
+    tml_var_treatment_est, var_y1, tolerance = 0.2
+  )
+  expect_equal(
+    one_step_var_control_est, var_y0, tolerance = 0.2
+  )
+  expect_equal(
+    tml_var_control_est, var_y0, tolerance = 0.2
+  )
+
+})
+
 test_that("unadjusted estimators of group-specific are consistent", {
 
   library(dplyr)
