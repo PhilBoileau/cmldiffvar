@@ -19,7 +19,7 @@ test_that("propensity score estimator wrapper learns from data", {
       # estimate propensity score witch correctly specified model
       ps_sl_correct_fit <- estimate_propensity_score_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         propensity_score_library = c("SL.glm", "SL.mean"),
         num_nuisance_sl_folds = 5
@@ -28,7 +28,7 @@ test_that("propensity score estimator wrapper learns from data", {
       # estimate propensity score with misspecified model
       ps_sl_misspecified_fit <- estimate_propensity_score_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         propensity_score_library = c("SL.mean"),
         num_nuisance_sl_folds = 5
@@ -84,7 +84,7 @@ test_that("conditional expected outcome estimator wrapper learns from data", {
       # estimate propensity score witch correctly specified model
       cond_exp_outcome_correct_fit <- estimate_cond_exp_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.glm", "SL.mean"),
@@ -94,7 +94,7 @@ test_that("conditional expected outcome estimator wrapper learns from data", {
       # estimate propensity score with misspecified model
       cond_exp_outcome_misspecified_fit <- estimate_cond_exp_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.mean"),
@@ -151,7 +151,7 @@ test_that("conditional expected outcome^2 estimator wrapper learns from data", {
       # estimate propensity score witch correctly specified model
       cond_exp_sq_outcome_correct_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.glm", "SL.earth"),
@@ -161,7 +161,7 @@ test_that("conditional expected outcome^2 estimator wrapper learns from data", {
       # estimate propensity score with misspecified model
       cond_exp_sq_outcome_misspecified_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.mean"),

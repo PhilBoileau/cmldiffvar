@@ -13,14 +13,14 @@ test_that("counterfactual table generator produces counterfactual tables", {
   # fit nuisance parameter estimators
   ps_sl_fit <- estimate_propensity_score_fun(
     sample_tbl,
-    confounder_var_names = "confounder",
+    adj_set_var_names = "confounder",
     treatment_var_name = "treatment",
     propensity_score_library = c("SL.glm", "SL.mean"),
     num_nuisance_sl_folds = 5
   )
   cond_exp_outcome_fit <- estimate_cond_exp_outcome_fun(
     sample_tbl,
-    confounder_var_names = "confounder",
+    adj_set_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
     cond_exp_outcome_library = c("SL.glm", "SL.mean"),
@@ -28,7 +28,7 @@ test_that("counterfactual table generator produces counterfactual tables", {
   )
   cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
     sample_tbl,
-    confounder_var_names = "confounder",
+    adj_set_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
     cond_exp_sq_outcome_library = c("SL.glm", "SL.glm.gamma.log"),
@@ -39,7 +39,8 @@ test_that("counterfactual table generator produces counterfactual tables", {
   sample_treatment_tbl <- generate_counterfactural_tbl_fun(
     sample_tbl,
     treatment_group = 1,
-    confounder_var_names = "confounder",
+    propensity_score_adj_var_names = "confounder",
+    cond_exp_outcome_adj_var_names = "confounder",
     treatment_var_name = "treatment",
     propensity_score_var_name = NULL,
     ps_sl_fit,
@@ -106,14 +107,14 @@ test_that("group-specific one-step mean estimator is consistent", {
       # fit nuisance parameter estimators
       ps_sl_fit <- estimate_propensity_score_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         propensity_score_library = c("SL.glm", "SL.mean"),
         num_nuisance_sl_folds = 5
       )
       cond_exp_outcome_fit <- estimate_cond_exp_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_outcome_library = c("SL.glm", "SL.mean"),
@@ -121,7 +122,7 @@ test_that("group-specific one-step mean estimator is consistent", {
       )
       cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.log"),
@@ -132,7 +133,8 @@ test_that("group-specific one-step mean estimator is consistent", {
       sample_treatment_tbl <- generate_counterfactural_tbl_fun(
         sample_tbl,
         treatment_group = 1,
-        confounder_var_names = "confounder",
+        propensity_score_adj_var_names = "confounder",
+        cond_exp_outcome_adj_var_names = "confounder",
         treatment_var_name = "treatment",
         propensity_score_var_name = NULL,
         ps_sl_fit,
@@ -186,14 +188,14 @@ test_that("differential variance estimators are consistent", {
     # fit nuisance parameter estimators
     ps_sl_fit <- estimate_propensity_score_fun(
       sample_tbl,
-      confounder_var_names = "confounder",
+      adj_set_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_library = c("SL.glm", "SL.mean"),
       num_nuisance_sl_folds = 5
     )
     cond_exp_outcome_fit <- estimate_cond_exp_outcome_fun(
       sample_tbl,
-      confounder_var_names = "confounder",
+      adj_set_var_names = "confounder",
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
       cond_exp_outcome_library = c("SL.glm", "SL.mean"),
@@ -201,7 +203,7 @@ test_that("differential variance estimators are consistent", {
     )
     cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
       sample_tbl,
-      confounder_var_names = "confounder",
+      adj_set_var_names = "confounder",
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
       cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.identity"),
@@ -211,7 +213,8 @@ test_that("differential variance estimators are consistent", {
     # absolute one-step estimate
     abs_one_step_diff_var_ests[iter] <- one_step_diff_var_estimator_fun(
       sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = "confounder",
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
@@ -224,7 +227,8 @@ test_that("differential variance estimators are consistent", {
     # absolute TML estimate
     abs_tml_diff_var_ests[iter] <- tml_diff_var_estimator_fun(
       sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = "confounder",
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
@@ -237,7 +241,8 @@ test_that("differential variance estimators are consistent", {
     # relative one-step estimate
     rel_one_step_diff_var_ests[iter] <- one_step_diff_var_estimator_fun(
       sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = "confounder",
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
@@ -250,7 +255,8 @@ test_that("differential variance estimators are consistent", {
     # relative TML estimate
     rel_tml_diff_var_ests[iter] <- tml_diff_var_estimator_fun(
       sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = "confounder",
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
@@ -289,14 +295,14 @@ test_that("TMLE approximately solves the EIF", {
   # fit nuisance parameter estimators
   ps_sl_fit <- estimate_propensity_score_fun(
     sample_tbl,
-    confounder_var_names = "confounder",
+    adj_set_var_names = "confounder",
     treatment_var_name = "treatment",
     propensity_score_library = c("SL.glm", "SL.mean"),
     num_nuisance_sl_folds = 5
   )
   cond_exp_outcome_fit <- estimate_cond_exp_outcome_fun(
     sample_tbl,
-    confounder_var_names = "confounder",
+    adj_set_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
     cond_exp_outcome_library = c("SL.glm", "SL.mean"),
@@ -304,7 +310,7 @@ test_that("TMLE approximately solves the EIF", {
   )
   cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
     sample_tbl,
-    confounder_var_names = "confounder",
+    adj_set_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
     cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.identity"),
@@ -314,7 +320,8 @@ test_that("TMLE approximately solves the EIF", {
   # absolute TML estimator's eif
   abs_tml_diff_var_eif <- tml_diff_var_estimator_fun(
     sample_tbl,
-    confounder_var_names = "confounder",
+    propensity_score_adj_var_names = "confounder",
+    cond_exp_outcome_adj_var_names = "confounder",
     treatment_var_name = "treatment",
     propensity_score_var_name = NULL,
     outcome_var_name = "outcome",
@@ -327,7 +334,8 @@ test_that("TMLE approximately solves the EIF", {
   # relative TML estimator's eif
   rel_tml_diff_var_eif <- tml_diff_var_estimator_fun(
     sample_tbl,
-    confounder_var_names = "confounder",
+    propensity_score_adj_var_names = "confounder",
+    cond_exp_outcome_adj_var_names = "confounder",
     treatment_var_name = "treatment",
     propensity_score_var_name = NULL,
     outcome_var_name = "outcome",
@@ -374,7 +382,8 @@ test_that("cross-fitted differential variance estimators are consistent", {
       cv_fun = cf_diff_var_estimator_fun,
       folds = folds,
       clean_tbl = sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = "confounder",
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
@@ -389,7 +398,8 @@ test_that("cross-fitted differential variance estimators are consistent", {
       cv_fun = cf_diff_var_estimator_fun,
       folds = folds,
       clean_tbl = sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = "confounder",
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
@@ -434,7 +444,8 @@ test_that("cross-fitted TMLE approximately solves the EIF", {
     cv_fun = cf_diff_var_estimator_fun,
     folds = folds,
     clean_tbl = sample_tbl,
-    confounder_var_names = "confounder",
+    propensity_score_adj_var_names = "confounder",
+    cond_exp_outcome_adj_var_names = "confounder",
     treatment_var_name = "treatment",
     propensity_score_var_name = NULL,
     outcome_var_name = "outcome",
@@ -484,7 +495,8 @@ test_that(
       cv_fun = cf_diff_var_estimator_fun,
       folds = folds,
       clean_tbl = sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = "confounder",
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
@@ -499,7 +511,8 @@ test_that(
       cv_fun = cf_diff_var_estimator_fun,
       folds = folds,
       clean_tbl = sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = "confounder",
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = NULL,
       outcome_var_name = "outcome",
@@ -577,7 +590,8 @@ test_that(
       cv_fun = cf_diff_var_estimator_fun,
       folds = folds,
       clean_tbl = sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = NULL,
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = "propensity_score",
       outcome_var_name = "outcome",
@@ -591,7 +605,8 @@ test_that(
       cv_fun = cf_diff_var_estimator_fun,
       folds = folds,
       clean_tbl = sample_tbl,
-      confounder_var_names = "confounder",
+      propensity_score_adj_var_names = NULL,
+      cond_exp_outcome_adj_var_names = "confounder",
       treatment_var_name = "treatment",
       propensity_score_var_name = "propensity_score",
       outcome_var_name = "outcome",

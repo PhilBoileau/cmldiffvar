@@ -7,7 +7,8 @@
 generate_counterfactural_tbl_fun(
   clean_tbl,
   treatment_group,
-  confounder_var_names,
+  propensity_score_adj_var_names,
+  cond_exp_outcome_adj_var_names,
   treatment_var_name,
   propensity_score_var_name,
   propensity_score_sl_fit,
@@ -22,8 +23,13 @@ parameter estimation.}
 \item{treatment_group}{A binary \code{numeric} indicating the treatment group for
 which the variance is being estimated.}
 
-\item{confounder_var_names}{A \code{character} vector providing the columns names
-of the treatment--outcome confounders stored in \code{clean_tbl}.}
+\item{propensity_score_adj_var_names}{A \code{character} vector providing the
+columns names of the adjustment set variables for propensity score
+estimation stored in \code{clean_tbl}.}
+
+\item{cond_exp_outcome_adj_var_names}{A \code{character} vector providing the
+columns names of the adjustment set variables for outcome regression
+estimation stored in \code{clean_tbl}.}
 
 \item{treatment_var_name}{A \code{character} providing the column name of the
 treatment assignment indicator stored in \code{clean_tbl}.}

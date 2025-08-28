@@ -64,8 +64,13 @@
 #'   cross-fitting procedure.
 #' @param confidence_level A `numeric` between $0.1$ and $0.99$ providing the
 #'   confidence level used to compute confidence intervals. Defaults to `0.95`.
-#' @param confounder_var_names A `character` vector providing the columns names
-#'   of the treatment--outcome confounders stored in `data_tbl`.
+#' @param propensity_score_adj_var_names A `character` vector providing the
+#'   columns names of the adjustment set variables for propensity score
+#'   estimation stored in `data_tbl`. Ignored if `propensity_score_var_name` is
+#'   `NULL`.
+#' @param cond_exp_outcome_adj_var_names A `character` vector providing the
+#'   columns names of the adjustment set variables for conditional expected
+#'   (squared) outcome estimation stored in `data_tbl`.
 #' @param treatment_var_name A `character` providing the column name of the
 #'   treatment assignment indicator stored in `data_tbl`.
 #' @param propensity_score_var_name An optional `character` providing the column
@@ -109,7 +114,8 @@ cmldiffvar <- function(
   estimand_type = "absolute",
   estimator_type = "tmle",
   confidence_level = 0.95,
-  confounder_var_names,
+  propensity_score_adj_var_names,
+  cond_exp_outcome_adj_var_names,
   treatment_var_name,
   propensity_score_var_name = NULL,
   outcome_var_name,
@@ -127,7 +133,10 @@ cmldiffvar <- function(
   checkmate::assert_choice(estimand_type, c("absolute", "relative"))
   checkmate::assert_choice(estimator_type, c("tmle", "one-step"))
   checkmate::assert_number(confidence_level, lower = 0.01, upper = 0.99)
-  checkmate::assert_character(confounder_var_names)
+  if (is.null(propensity_score_var_name)) {
+    checkmate::assert_character(propensity_score_adj_var_names)
+  }
+  checkmate::assert_character(cond_exp_outcome_adj_var_names)
   checkmate::assert_character(treatment_var_name)
   checkmate::assert_character(outcome_var_name)
   checkmate::assert_int(num_nuisance_sl_folds, lower = 2, upper = 20)
@@ -138,7 +147,8 @@ cmldiffvar <- function(
   # check dataset contains appropriate variables
   if (is.null(propensity_score_var_name)) {
     clean_tbl_var_names <- c(
-      confounder_var_names, treatment_var_name, outcome_var_name
+      propensity_score_adj_var_names, cond_exp_outcome_adj_var_names,
+      treatment_var_name, outcome_var_name
     )
   } else {
     checkmate::assert_character(propensity_score_var_name)
@@ -146,8 +156,8 @@ cmldiffvar <- function(
       data_tbl[[propensity_score_var_name]], lower = 0.001, upper = 0.999
     )
     clean_tbl_var_names <- c(
-      confounder_var_names, treatment_var_name, propensity_score_var_name,
-      outcome_var_name
+      propensity_score_adj_var_names, cond_exp_outcome_adj_var_names,
+      treatment_var_name, propensity_score_var_name, outcome_var_name
     )
   }
   checkmate::assert_names(clean_tbl_var_names, subset.of = colnames(data_tbl))
@@ -172,7 +182,7 @@ cmldiffvar <- function(
     if (is.null(propensity_score_var_name)) {
       propensity_score_sl_fit <- estimate_propensity_score_fun(
         clean_tbl,
-        confounder_var_names = confounder_var_names,
+        adj_set_var_names = propensity_score_adj_var_names,
         treatment_var_name = treatment_var_name,
         propensity_score_library = propensity_score_library,
         num_nuisance_sl_folds = num_nuisance_sl_folds
@@ -182,7 +192,7 @@ cmldiffvar <- function(
     }
     cond_exp_outcome_sl_fit <- estimate_cond_exp_outcome_fun(
       clean_tbl,
-      confounder_var_names = confounder_var_names,
+      adj_set_var_names =  cond_exp_outcome_adj_var_names,
       treatment_var_name = treatment_var_name,
       outcome_var_name = outcome_var_name,
       cond_exp_outcome_library = cond_exp_outcome_library,
@@ -190,7 +200,7 @@ cmldiffvar <- function(
     )
     cond_exp_sq_outcome_sl_fit <- estimate_cond_exp_sq_outcome_fun(
       clean_tbl,
-      confounder_var_names = confounder_var_names,
+      adj_set_var_names =  cond_exp_outcome_adj_var_names,
       treatment_var_name = treatment_var_name,
       outcome_var_name = outcome_var_name,
       cond_exp_sq_outcome_library = cond_exp_sq_outcome_library,
@@ -202,7 +212,8 @@ cmldiffvar <- function(
 
       diff_var_est <- one_step_diff_var_estimator_fun(
         clean_tbl,
-        confounder_var_names = confounder_var_names,
+        propensity_score_adj_var_names = propensity_score_adj_var_names,
+        cond_exp_outcome_adj_var_names = cond_exp_outcome_adj_var_names,
         treatment_var_name = treatment_var_name,
         propensity_score_var_name = propensity_score_var_name,
         outcome_var_name = outcome_var_name,
@@ -216,7 +227,8 @@ cmldiffvar <- function(
 
       diff_var_est <- tml_diff_var_estimator_fun(
         clean_tbl,
-        confounder_var_names = confounder_var_names,
+        propensity_score_adj_var_names = propensity_score_adj_var_names,
+        cond_exp_outcome_adj_var_names = cond_exp_outcome_adj_var_names,
         treatment_var_name = treatment_var_name,
         propensity_score_var_name = propensity_score_var_name,
         outcome_var_name = outcome_var_name,
@@ -246,7 +258,8 @@ cmldiffvar <- function(
       cv_fun = cf_diff_var_estimator_fun,
       folds = folds,
       clean_tbl = clean_tbl,
-      confounder_var_names = confounder_var_names,
+      propensity_score_adj_var_names = propensity_score_adj_var_names,
+      cond_exp_outcome_adj_var_names = cond_exp_outcome_adj_var_names,
       treatment_var_name = treatment_var_name,
       propensity_score_var_name = propensity_score_var_name,
       outcome_var_name = outcome_var_name,

@@ -6,7 +6,7 @@
 \usage{
 estimate_cond_exp_sq_outcome_fun(
   clean_tbl,
-  confounder_var_names,
+  adj_set_var_names,
   treatment_var_name,
   outcome_var_name,
   cond_exp_sq_outcome_library,
@@ -17,8 +17,8 @@ estimate_cond_exp_sq_outcome_fun(
 \item{clean_tbl}{A pre-processed \link{tibble} that is ready for nuisance
 parameter estimation.}
 
-\item{confounder_var_names}{A \code{character} vector providing the columns names
-of the treatment--outcome confounders stored in \code{clean_tbl}.}
+\item{adj_set_var_names}{A \code{character} vector providing the columns names
+of the adjustment set variables stored in \code{clean_tbl}.}
 
 \item{treatment_var_name}{A \code{character} providing the column name of the
 treatment assignment indicator stored in \code{clean_tbl}.}

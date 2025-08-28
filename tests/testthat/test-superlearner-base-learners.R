@@ -22,7 +22,7 @@ test_that(
       # Estimate propensity score witch correctly specified model
       cond_exp_sq_outcome_correct_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
@@ -32,7 +32,7 @@ test_that(
       # Estimate propensity score with misspecified model
       cond_exp_sq_outcome_misspecified_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.glm"),
@@ -82,7 +82,7 @@ test_that("conditional expected outcome^2 estimator SL.glm.gamma.log
       # Estimate propensity score
       cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.glm.gamma.log"),
@@ -130,7 +130,7 @@ test_that(
       # Estimate propensity score witch correctly specified model
       cond_exp_sq_outcome_correct_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.nnet.torch.softplus"),
@@ -176,7 +176,7 @@ test_that("conditional expected outcome^2 estimator SL.xgboost.bounded wrapper
       # Estimate propensity score
       cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.xgboost.bounded"),
@@ -222,7 +222,7 @@ test_that("conditional expected outcome^2 estimator SL.gam.gamma.log wrapper
       # Estimate propensity score
       cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.gam.gamma.log"),
@@ -268,7 +268,7 @@ test_that(
     # Estimate propensity score witch correctly specified model
     cond_exp_sq_outcome_correct_fit <- estimate_cond_exp_sq_outcome_fun(
       sample_tbl,
-      confounder_var_names = "confounder",
+      adj_set_var_names = "confounder",
       treatment_var_name = "treatment",
       outcome_var_name = "outcome",
       cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
@@ -317,7 +317,7 @@ test_that("SL.glm.gamma wrapper adapts to multiple confounders", {
   # Estimate propensity score witch correctly specified model
   cond_exp_sq_outcome_correct_fit <- estimate_cond_exp_sq_outcome_fun(
     sample_tbl,
-    confounder_var_names = c("confounder_1", "confounder_2", "confounder_3"),
+    adj_set_var_names = c("confounder_1", "confounder_2", "confounder_3"),
     treatment_var_name = "treatment",
     outcome_var_name = "outcome",
     cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
@@ -368,7 +368,7 @@ test_that("conditional expected outcome^2 estimator SL.earth.gamma.log wrapper
       # Estimate propensity score
       cond_exp_sq_outcome_fit <- estimate_cond_exp_sq_outcome_fun(
         sample_tbl,
-        confounder_var_names = "confounder",
+        adj_set_var_names = "confounder",
         treatment_var_name = "treatment",
         outcome_var_name = "outcome",
         cond_exp_sq_outcome_library = c("SL.earth.gamma.log"),
