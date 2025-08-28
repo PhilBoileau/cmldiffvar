@@ -75,7 +75,8 @@ sample_tbl <- slice_sample(toy_population_tbl, n = 500)
 # estimate absolute differential variance
 dif_var_result_tbl <- sample_tbl |>
   cmldiffvar(
-    confounder_var_names = "confounder",
+    propensity_score_adj_var_names = "confounder",
+    cond_exp_outcome_adj_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome"
   )

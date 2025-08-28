@@ -67,7 +67,8 @@ sample_tbl <- slice_sample(toy_population_tbl, n = 500)
 # estimate absolute differential variance
 dif_var_result_tbl <- sample_tbl |>
   cmldiffvar(
-    confounder_var_names = "confounder",
+    propensity_score_adj_var_names = "confounder",
+    cond_exp_outcome_adj_var_names = "confounder",
     treatment_var_name = "treatment",
     outcome_var_name = "outcome"
   )
@@ -78,7 +79,7 @@ dif_var_result_tbl |> kable(digits = 2, format.args = list(nsmall = 2))
 
 | estimand                       | estimate |   se | ci_low | ci_high | p_value |
 |:-------------------------------|---------:|-----:|-------:|--------:|--------:|
-| absolute differential variance |     7.17 | 1.01 |   5.19 |    9.15 |    0.00 |
+| absolute differential variance |     7.88 | 0.97 |   5.97 |    9.78 |    0.00 |
 
 ------------------------------------------------------------------------
 
