@@ -674,6 +674,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
     treatment = treatment_vec,
     outcome = outcome_vec
   )
+  abs_estimand <- 2
+  rel_estimand <- 9
 
   # estimate bias
   num_iters <- 100
@@ -724,7 +726,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
       ps_known_abs_diff_upper_ci <- ps_known_abs_diff_inf$estimate +
         1.96 * sqrt(var(ps_known_abs_diff_inf$eif) / nrow(sample_tbl))
       ps_known_abs_diff_covered <- ifelse(
-        ps_known_abs_diff_lower_ci < 8 && ps_known_abs_diff_upper_ci > 8, 1, 0
+        ps_known_abs_diff_lower_ci < abs_estimand &&
+          ps_known_abs_diff_upper_ci > abs_estimand, 1, 0
       )
 
       # known propensity score, relative diff var
@@ -733,7 +736,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
       ps_known_rel_diff_upper_ci <- ps_known_rel_diff_inf$estimate +
         1.96 * sqrt(var(ps_known_rel_diff_inf$eif) / nrow(sample_tbl))
       ps_known_rel_diff_covered <- ifelse(
-        ps_known_rel_diff_lower_ci < 9 && ps_known_rel_diff_upper_ci > 9, 1, 0
+        ps_known_rel_diff_lower_ci < rel_estimand &&
+          ps_known_rel_diff_upper_ci > rel_estimand, 1, 0
       )
 
       # unknown propensity score, absolute diff var
@@ -742,7 +746,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
       ps_unknown_abs_diff_upper_ci <- ps_unknown_abs_diff_inf$estimate +
         1.96 * sqrt(var(ps_unknown_abs_diff_inf$eif) / nrow(sample_tbl))
       ps_unknown_abs_diff_covered <- ifelse(
-        ps_unknown_abs_diff_lower_ci < 8 && ps_unknown_abs_diff_upper_ci > 8,
+        ps_unknown_abs_diff_lower_ci < abs_estimand &&
+          ps_unknown_abs_diff_upper_ci > abs_estimand,
         1, 0
       )
 
@@ -752,7 +757,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
       ps_unknown_rel_diff_upper_ci <- ps_unknown_rel_diff_inf$estimate +
         1.96 * sqrt(var(ps_unknown_rel_diff_inf$eif) / nrow(sample_tbl))
       ps_unknown_rel_diff_covered <- ifelse(
-        ps_unknown_rel_diff_lower_ci < 9 && ps_unknown_rel_diff_upper_ci > 9,
+        ps_unknown_rel_diff_lower_ci < rel_estimand &&
+          ps_unknown_rel_diff_upper_ci > rel_estimand,
         1, 0
       )
 
