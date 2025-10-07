@@ -62,8 +62,8 @@ targeted maximum likelihood estimator in the cross-fitting procedure.}
 
 \item{estimand_type}{A \code{character} indicating whether to estimate an absolute
 or relative effect. Set this parameter to \code{"absolute"} to estimate the
-difference of group-specific variances. Set this parameter to \code{"relative"}
-to estimate the ratio of the group-specific variances.}
+difference of group-specific standard deviations. Set this parameter to
+\code{"relative"} to estimate the ratio of the group-specific variances.}
 }
 \value{
 A named list with the following components:
