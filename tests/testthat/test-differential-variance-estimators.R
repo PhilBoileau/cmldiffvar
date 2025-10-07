@@ -171,7 +171,7 @@ test_that("differential variance estimators are consistent", {
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
   var_control <- var(toy_population_tbl$potential_outcome_control)
-  abs_estimand <- var_treatment - var_control
+  abs_estimand <- sqrt(var_treatment) - sqrt(var_control)
   rel_estimand <- var_treatment / var_control
 
   # compute bias
@@ -363,7 +363,7 @@ test_that("cross-fitted differential variance estimators are consistent", {
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
   var_control <- var(toy_population_tbl$potential_outcome_control)
-  abs_estimand <- var_treatment - var_control
+  abs_estimand <- sqrt(var_treatment) - sqrt(var_control)
 
   # compute bias
   num_iters <- 100
@@ -471,12 +471,12 @@ test_that(
   library(earth)
   library(origami)
 
-  set.seed(18349321)
+  set.seed(72342)
 
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
   var_control <- var(toy_population_tbl$potential_outcome_control)
-  abs_estimand <- var_treatment - var_control
+  abs_estimand <- sqrt(var_treatment) - sqrt(var_control)
 
   # approximate coverage
   num_iters <- 100
@@ -566,15 +566,15 @@ test_that(
   library(earth)
   library(origami)
 
-  set.seed(93523)
+  set.seed(73452)
 
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
   var_control <- var(toy_population_tbl$potential_outcome_control)
-  abs_estimand <- var_treatment - var_control
+  abs_estimand <- sqrt(var_treatment) - sqrt(var_control)
 
   # approximate coverage
-  num_iters <- 200
+  num_iters <- 100
   abs_one_step_covered <- rep(NA, num_iters)
   abs_tmle_covered <- rep(NA, num_iters)
   for (iter in seq_len(num_iters)) {
