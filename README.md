@@ -46,10 +46,13 @@ remotes::install_github("PhilBoileau/cmldiffvar")
 
 ## Example
 
-We estimate the absolute differential variance (ADV) using a cross-fit
-targeted maximum likelihood estimator from a random sample of the
-`toy_population_tbl` data included with the `cmldiffvar` package. The
-true ADV in this population is $8$.
+We estimate the absolute differential variance, defined as the
+difference of the potential outcome variances, on a random sample of the
+`toy_population_tbl` data included with the `cmldiffvar` package. We use
+a targeted maximum likelihood estimator that allows adjustment for
+confounding variables. The true absolute differential variance in this
+population is $2$, indicating that there is treatment effect
+heterogeneity.
 
 ``` r
 # load the required packages
@@ -59,7 +62,7 @@ library(SuperLearner)
 library(knitr)
 
 # set the seed for reproducibility
-set.seed(514)
+set.seed(510)
 
 # random sample from population data
 sample_tbl <- slice_sample(toy_population_tbl, n = 500)
@@ -79,7 +82,7 @@ dif_var_result_tbl |> kable(digits = 2, format.args = list(nsmall = 2))
 
 | estimand                       | estimate |   se | ci_low | ci_high | p_value |
 |:-------------------------------|---------:|-----:|-------:|--------:|--------:|
-| absolute differential variance |     7.88 | 0.97 |   5.97 |    9.78 |    0.00 |
+| absolute differential variance |     2.09 | 0.19 |   1.72 |    2.47 |    0.00 |
 
 ------------------------------------------------------------------------
 
