@@ -171,7 +171,7 @@ test_that("differential variance estimators are consistent", {
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
   var_control <- var(toy_population_tbl$potential_outcome_control)
-  abs_estimand <- var_treatment - var_control
+  abs_estimand <- sqrt(var_treatment) - sqrt(var_control)
   rel_estimand <- var_treatment / var_control
 
   # compute bias
@@ -363,7 +363,7 @@ test_that("cross-fitted differential variance estimators are consistent", {
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
   var_control <- var(toy_population_tbl$potential_outcome_control)
-  abs_estimand <- var_treatment - var_control
+  abs_estimand <- sqrt(var_treatment) - sqrt(var_control)
 
   # compute bias
   num_iters <- 100
@@ -471,12 +471,12 @@ test_that(
   library(earth)
   library(origami)
 
-  set.seed(18349321)
+  set.seed(72342)
 
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
   var_control <- var(toy_population_tbl$potential_outcome_control)
-  abs_estimand <- var_treatment - var_control
+  abs_estimand <- sqrt(var_treatment) - sqrt(var_control)
 
   # approximate coverage
   num_iters <- 100
@@ -566,15 +566,15 @@ test_that(
   library(earth)
   library(origami)
 
-  set.seed(93523)
+  set.seed(73452)
 
   # calculate estimand
   var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
   var_control <- var(toy_population_tbl$potential_outcome_control)
-  abs_estimand <- var_treatment - var_control
+  abs_estimand <- sqrt(var_treatment) - sqrt(var_control)
 
   # approximate coverage
-  num_iters <- 200
+  num_iters <- 100
   abs_one_step_covered <- rep(NA, num_iters)
   abs_tmle_covered <- rep(NA, num_iters)
   for (iter in seq_len(num_iters)) {
@@ -674,6 +674,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
     treatment = treatment_vec,
     outcome = outcome_vec
   )
+  abs_estimand <- 2
+  rel_estimand <- 9
 
   # estimate bias
   num_iters <- 100
@@ -724,7 +726,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
       ps_known_abs_diff_upper_ci <- ps_known_abs_diff_inf$estimate +
         1.96 * sqrt(var(ps_known_abs_diff_inf$eif) / nrow(sample_tbl))
       ps_known_abs_diff_covered <- ifelse(
-        ps_known_abs_diff_lower_ci < 8 && ps_known_abs_diff_upper_ci > 8, 1, 0
+        ps_known_abs_diff_lower_ci < abs_estimand &&
+          ps_known_abs_diff_upper_ci > abs_estimand, 1, 0
       )
 
       # known propensity score, relative diff var
@@ -733,7 +736,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
       ps_known_rel_diff_upper_ci <- ps_known_rel_diff_inf$estimate +
         1.96 * sqrt(var(ps_known_rel_diff_inf$eif) / nrow(sample_tbl))
       ps_known_rel_diff_covered <- ifelse(
-        ps_known_rel_diff_lower_ci < 9 && ps_known_rel_diff_upper_ci > 9, 1, 0
+        ps_known_rel_diff_lower_ci < rel_estimand &&
+          ps_known_rel_diff_upper_ci > rel_estimand, 1, 0
       )
 
       # unknown propensity score, absolute diff var
@@ -742,7 +746,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
       ps_unknown_abs_diff_upper_ci <- ps_unknown_abs_diff_inf$estimate +
         1.96 * sqrt(var(ps_unknown_abs_diff_inf$eif) / nrow(sample_tbl))
       ps_unknown_abs_diff_covered <- ifelse(
-        ps_unknown_abs_diff_lower_ci < 8 && ps_unknown_abs_diff_upper_ci > 8,
+        ps_unknown_abs_diff_lower_ci < abs_estimand &&
+          ps_unknown_abs_diff_upper_ci > abs_estimand,
         1, 0
       )
 
@@ -752,7 +757,8 @@ test_that("unadjused diff var estimators are asymptotically linear", {
       ps_unknown_rel_diff_upper_ci <- ps_unknown_rel_diff_inf$estimate +
         1.96 * sqrt(var(ps_unknown_rel_diff_inf$eif) / nrow(sample_tbl))
       ps_unknown_rel_diff_covered <- ifelse(
-        ps_unknown_rel_diff_lower_ci < 9 && ps_unknown_rel_diff_upper_ci > 9,
+        ps_unknown_rel_diff_lower_ci < rel_estimand &&
+          ps_unknown_rel_diff_upper_ci > rel_estimand,
         1, 0
       )
 

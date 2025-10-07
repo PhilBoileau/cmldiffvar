@@ -106,8 +106,8 @@ generate_counterfactural_tbl_fun <- function(
 #' @inheritParams estimate_cond_exp_outcome_fun
 #' @param estimand_type A `character` indicating whether to estimate an absolute
 #'   or relative effect. Set this parameter to `"absolute"` to estimate the
-#'   difference of group-specific variances. Set this parameter to `"relative"`
-#'   to estimate the ratio of the group-specific variances.
+#'   difference of group-specific standard deviations. Set this parameter to
+#'   `"relative"` to estimate the ratio of the group-specific variances.
 #'
 #' @returns A named list with the following components:
 #'  * `estimate`: A `numeric` estimate of the selected estimand.
@@ -192,9 +192,12 @@ one_step_diff_var_estimator_fun <- function(
   # estimate differential variance and compute EIFs
   if (estimand_type == "absolute") {
 
-    estimate <- treatment_group_var_est$estimate -
-      control_group_var_est$estimate
-    eif <- treatment_group_var_est$eif - control_group_var_est$eif
+    estimate <- sqrt(treatment_group_var_est$estimate) -
+      sqrt(control_group_var_est$estimate)
+    eif <- treatment_group_var_est$eif /
+      (2 * sqrt(treatment_group_var_est$estimate)) -
+      control_group_var_est$eif /
+        (2 * sqrt(control_group_var_est$estimate))
 
   } else if (estimand_type == "relative") {
 
@@ -284,9 +287,11 @@ tml_diff_var_estimator_fun <- function(
   # estimate differential variance and compute EIFs
   if (estimand_type == "absolute") {
 
-    estimate <- treatment_group_var_est$estimate -
-      control_group_var_est$estimate
-    eif <- treatment_group_var_est$eif - control_group_var_est$eif
+    estimate <- sqrt(treatment_group_var_est$estimate) -
+      sqrt(control_group_var_est$estimate)
+    eif <- treatment_group_var_est$eif /
+      (2 * sqrt(treatment_group_var_est$estimate)) -
+      control_group_var_est$eif / (2 * sqrt(control_group_var_est$estimate))
 
   } else if (estimand_type == "relative") {
 
@@ -466,8 +471,10 @@ unadjusted_diff_var_estimator_fun <- function(
 
   # assemble the point estimate and eif of the estimate based on the estimand
   if (estimand_type == "absolute") {
-    estimate <- treatment_group_var$estimate - control_group_var$estimate
-    eif <- treatment_group_var$eif - control_group_var$eif
+    estimate <- sqrt(treatment_group_var$estimate) -
+      sqrt(control_group_var$estimate)
+    eif <- treatment_group_var$eif / (2 * sqrt(treatment_group_var$estimate)) -
+      control_group_var$eif / (2 * sqrt(control_group_var$estimate))
   } else if (estimand_type == "relative") {
     estimate <- treatment_group_var$estimate / control_group_var$estimate
     eif <- treatment_group_var$eif / control_group_var$estimate -

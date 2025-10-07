@@ -14,9 +14,9 @@ cmldiffvar(
   treatment_var_name,
   propensity_score_var_name = NULL,
   outcome_var_name,
-  propensity_score_library = c("SL.mean", "SL.glm", "SL.earth"),
-  cond_exp_outcome_library = c("SL.mean", "SL.glm", "SL.earth"),
-  cond_exp_sq_outcome_library = c("SL.mean", "SL.glm.gamma.log", "SL.earth.gamma.log"),
+  propensity_score_library = c("SL.glm", "SL.earth"),
+  cond_exp_outcome_library = c("SL.glm", "SL.earth"),
+  cond_exp_sq_outcome_library = c("SL.glm.interaction", "SL.ranger"),
   num_nuisance_sl_folds = 5,
   cross_fit = TRUE,
   num_cross_fit_folds = 5,
@@ -106,10 +106,10 @@ Under standard causal identifiability conditions --- namely, consistency,
 positivity, and full exchangeability --- \code{cmldiffvar()} performs inference
 on the differential variance of the potential outcomes. Differential
 variance is defined on the absolute scale as the difference in potential
-outcome variances of two treatments. On the relative scale, differential
-variance is defined as the ratio of the potential outcome variances. The
-scale of the differential variance estimated by \code{cmldiffvar()} is specified
-by the \code{estimand_type} parameter.
+outcome standard deviations of two treatments. On the relative scale,
+differential variance is defined as the ratio of the potential outcome
+variances. The scale of the differential variance estimated by
+\code{cmldiffvar()} is specified by the \code{estimand_type} parameter.
 
 These differential variance estimands rely on three nuisance parameters:
 the propensity score, the expected outcome conditional on confounders and
