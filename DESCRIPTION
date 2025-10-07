@@ -38,6 +38,7 @@ Imports:
     earth,
     gam,
     origami,
+    ranger,
     rlang,
     stats,
     SuperLearner,

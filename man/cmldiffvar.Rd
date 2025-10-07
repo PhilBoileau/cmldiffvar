@@ -18,7 +18,7 @@ cmldiffvar(
   cond_exp_outcome_library = c("SL.glm", "SL.earth"),
   cond_exp_sq_outcome_library = c("SL.glm.interaction", "SL.ranger"),
   num_nuisance_sl_folds = 5,
-  cross_fit = TRUE,
+  cross_fit = FALSE,
   num_cross_fit_folds = 5,
   parallel = FALSE
 )
