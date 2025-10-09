@@ -192,24 +192,25 @@ one_step_diff_var_estimator_fun <- function(
   # estimate differential variance and compute EIFs
   if (estimand_type == "absolute") {
 
-    # check if variance estimates are negative
-    # set to zero and output a warning if so
-    if (treatment_group_var_est$estimate < 0) {
-      treatment_group_var_est$estimate <- 0
+    # check if variance estimates are approximately non-positive
+    # set to sqrt(.Machine$double.eps) and output a warning if so
+    estimate_bound <- sqrt(.Machine$double.eps)
+    if (treatment_group_var_est$estimate < estimate_bound) {
+      treatment_group_var_est$estimate <- estimate_bound
       warning(
         paste(
           "The treatment group's variance estimate is negative. Its value has",
-          "been set to zero."
+          "been set to sqrt(.Machine$double.eps)."
         ),
         call. = FALSE
       )
     }
-    if (control_group_var_est$estimate < 0) {
-      control_group_var_est$estimate <- 0
+    if (control_group_var_est$estimate <= estimate_bound) {
+      control_group_var_est$estimate <- estimate_bound
       warning(
         paste(
           "The control group's variance estimate is negative. Its value has",
-          "been set to zero."
+          "been set to sqrt(.Machine$double.eps)."
         ),
         call. = FALSE
       )
@@ -311,24 +312,25 @@ tml_diff_var_estimator_fun <- function(
   # estimate differential variance and compute EIFs
   if (estimand_type == "absolute") {
 
-    # check if variance estimates are negative
-    # set to zero and output a warning if so
-    if (treatment_group_var_est$estimate < 0) {
-      treatment_group_var_est$estimate <- 0
+    # check if variance estimates are approximately non-positive
+    # set to sqrt(.Machine$double.eps) and output a warning if so
+    estimate_bound <- sqrt(.Machine$double.eps)
+    if (treatment_group_var_est$estimate < estimate_bound) {
+      treatment_group_var_est$estimate <- estimate_bound
       warning(
         paste(
           "The treatment group's variance estimate is negative. Its value has",
-          "been set to zero."
+          "been set to sqrt(.Machine$double.eps)."
         ),
         call. = FALSE
       )
     }
-    if (control_group_var_est$estimate < 0) {
-      control_group_var_est$estimate <- 0
+    if (control_group_var_est$estimate <= estimate_bound) {
+      control_group_var_est$estimate <- estimate_bound
       warning(
         paste(
           "The control group's variance estimate is negative. Its value has",
-          "been set to zero."
+          "been set to sqrt(.Machine$double.eps)."
         ),
         call. = FALSE
       )
