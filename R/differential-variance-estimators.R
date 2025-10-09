@@ -192,6 +192,30 @@ one_step_diff_var_estimator_fun <- function(
   # estimate differential variance and compute EIFs
   if (estimand_type == "absolute") {
 
+    # check if variance estimates are negative
+    # set to zero and output a warning if so
+    if (treatment_group_var_est$estimate < 0) {
+      treatment_group_var_est$estimate <- 0
+      warning(
+        paste(
+          "The treatment group's variance estimate is negative. Its value has",
+          "been set to zero."
+        ),
+        call. = FALSE
+      )
+    }
+    if (control_group_var_est$estimate < 0) {
+      control_group_var_est$estimate <- 0
+      warning(
+        paste(
+          "The control group's variance estimate is negative. Its value has",
+          "been set to zero."
+        ),
+        call. = FALSE
+      )
+    }
+
+    # estimate the absolute difference variance estimand
     estimate <- sqrt(treatment_group_var_est$estimate) -
       sqrt(control_group_var_est$estimate)
     eif <- treatment_group_var_est$eif /
@@ -287,6 +311,30 @@ tml_diff_var_estimator_fun <- function(
   # estimate differential variance and compute EIFs
   if (estimand_type == "absolute") {
 
+    # check if variance estimates are negative
+    # set to zero and output a warning if so
+    if (treatment_group_var_est$estimate < 0) {
+      treatment_group_var_est$estimate <- 0
+      warning(
+        paste(
+          "The treatment group's variance estimate is negative. Its value has",
+          "been set to zero."
+        ),
+        call. = FALSE
+      )
+    }
+    if (control_group_var_est$estimate < 0) {
+      control_group_var_est$estimate <- 0
+      warning(
+        paste(
+          "The control group's variance estimate is negative. Its value has",
+          "been set to zero."
+        ),
+        call. = FALSE
+      )
+    }
+
+    # estimate the absolute difference variance estimand
     estimate <- sqrt(treatment_group_var_est$estimate) -
       sqrt(control_group_var_est$estimate)
     eif <- treatment_group_var_est$eif /

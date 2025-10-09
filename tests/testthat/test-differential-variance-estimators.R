@@ -779,3 +779,84 @@ test_that("unadjused diff var estimators are asymptotically linear", {
   expect_lt(abs(mean(coverage_tbl$ps_unknown_rel_diff_covered) - 0.95), 0.025)
 
 })
+
+
+
+test_that(
+  paste0(
+    "cross-fitted absolute differential variance estimators are asymptotically",
+    "handle negative variance estimates gracefully"
+  ),
+  {
+
+    # load required libraries
+    library(dplyr)
+    library(SuperLearner)
+    library(earth)
+    library(origami)
+
+    # this seed has historically produced negative variance estimates
+    set.seed(8213452)
+
+    # calculate estimand
+    var_treatment <- var(toy_population_tbl$potential_outcome_treatment)
+    var_control <- var(toy_population_tbl$potential_outcome_control)
+    abs_estimand <- sqrt(var_treatment) - sqrt(var_control)
+
+    # approximate coverage
+    num_iters <- 100
+    cf_os_estimate <- rep(NA, num_iters)
+    cf_tmle_estimate <- rep(NA, num_iters)
+    for (iter in seq_len(num_iters)) {
+
+      # grab a sample of the population
+      sample_tbl <- slice_sample(toy_population_tbl, n = 500)
+
+      # split the sample data into folds
+      folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
+
+      # cross-validate the diff var estimators
+      cf_os_diff_var_ests <- cross_validate(
+        cv_fun = cf_diff_var_estimator_fun,
+        folds = folds,
+        clean_tbl = sample_tbl,
+        propensity_score_adj_var_names = NULL,
+        cond_exp_outcome_adj_var_names = "confounder",
+        treatment_var_name = "treatment",
+        propensity_score_var_name = "propensity_score",
+        outcome_var_name = "outcome",
+        cond_exp_outcome_library = c("SL.glm"),
+        cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
+        num_nuisance_sl_folds = 5,
+        estimator_type = "one-step",
+        estimand_type = "absolute"
+      )
+      cf_tmle_diff_var_ests <- cross_validate(
+        cv_fun = cf_diff_var_estimator_fun,
+        folds = folds,
+        clean_tbl = sample_tbl,
+        propensity_score_adj_var_names = NULL,
+        cond_exp_outcome_adj_var_names = "confounder",
+        treatment_var_name = "treatment",
+        propensity_score_var_name = "propensity_score",
+        outcome_var_name = "outcome",
+        cond_exp_outcome_library = c("SL.glm"),
+        cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
+        num_nuisance_sl_folds = 5,
+        estimator_type = "tmle",
+        estimand_type = "absolute"
+      )
+
+      # cross-fitted one-step estimates
+      cf_os_estimate[iter] <- mean(cf_os_diff_var_ests$estimates)
+
+      # cross-fitted TMLE estimates
+      cf_tmle_estimate[iter] <- mean(cf_tmle_diff_var_ests$estimates)
+
+    }
+
+    # expect no NaNs
+    expect_equal(sum(is.nan(cf_os_estimate)), 0)
+    expect_equal(sum(is.nan(cf_tmle_estimate)), 0)
+
+  })
