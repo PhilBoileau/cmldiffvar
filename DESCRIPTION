@@ -38,7 +38,7 @@ Imports:
     dplyr,
     earth,
     gam,
-    origami
+    origami,
     rlang,
     stats,
     SuperLearner,
