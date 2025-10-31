@@ -487,6 +487,7 @@ test_that("SuperLearner correctly calls predict.SL.torch
           when using torch-based learners",{
 
   library(dplyr)
+  library(torch)
   library(SuperLearner)
 
   set.seed(2352314)
