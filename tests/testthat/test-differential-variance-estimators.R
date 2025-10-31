@@ -784,7 +784,7 @@ test_that("unadjused diff var estimators are asymptotically linear", {
 
 test_that(
   paste0(
-    "cross-fitted absolute differential variance estimators are asymptotically",
+    "cross-fitted absolute differential variance estimators ",
     "handle negative variance estimates gracefully"
   ),
   {
@@ -816,35 +816,39 @@ test_that(
       folds <- make_folds(sample_tbl, fold_fun = folds_vfold, V = 5L)
 
       # cross-validate the diff var estimators
-      cf_os_diff_var_ests <- cross_validate(
-        cv_fun = cf_diff_var_estimator_fun,
-        folds = folds,
-        clean_tbl = sample_tbl,
-        propensity_score_adj_var_names = NULL,
-        cond_exp_outcome_adj_var_names = "confounder",
-        treatment_var_name = "treatment",
-        propensity_score_var_name = "propensity_score",
-        outcome_var_name = "outcome",
-        cond_exp_outcome_library = c("SL.glm"),
-        cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
-        num_nuisance_sl_folds = 5,
-        estimator_type = "one-step",
-        estimand_type = "absolute"
+      suppressWarnings(
+        cf_os_diff_var_ests <- cross_validate(
+          cv_fun = cf_diff_var_estimator_fun,
+          folds = folds,
+          clean_tbl = sample_tbl,
+          propensity_score_adj_var_names = NULL,
+          cond_exp_outcome_adj_var_names = "confounder",
+          treatment_var_name = "treatment",
+          propensity_score_var_name = "propensity_score",
+          outcome_var_name = "outcome",
+          cond_exp_outcome_library = c("SL.glm"),
+          cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
+          num_nuisance_sl_folds = 5,
+          estimator_type = "one-step",
+          estimand_type = "absolute"
+        )
       )
-      cf_tmle_diff_var_ests <- cross_validate(
-        cv_fun = cf_diff_var_estimator_fun,
-        folds = folds,
-        clean_tbl = sample_tbl,
-        propensity_score_adj_var_names = NULL,
-        cond_exp_outcome_adj_var_names = "confounder",
-        treatment_var_name = "treatment",
-        propensity_score_var_name = "propensity_score",
-        outcome_var_name = "outcome",
-        cond_exp_outcome_library = c("SL.glm"),
-        cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
-        num_nuisance_sl_folds = 5,
-        estimator_type = "tmle",
-        estimand_type = "absolute"
+      suppressWarnings(
+        cf_tmle_diff_var_ests <- cross_validate(
+          cv_fun = cf_diff_var_estimator_fun,
+          folds = folds,
+          clean_tbl = sample_tbl,
+          propensity_score_adj_var_names = NULL,
+          cond_exp_outcome_adj_var_names = "confounder",
+          treatment_var_name = "treatment",
+          propensity_score_var_name = "propensity_score",
+          outcome_var_name = "outcome",
+          cond_exp_outcome_library = c("SL.glm"),
+          cond_exp_sq_outcome_library = c("SL.glm.gamma.identity"),
+          num_nuisance_sl_folds = 5,
+          estimator_type = "tmle",
+          estimand_type = "absolute"
+        )
       )
 
       # cross-fitted one-step estimates
