@@ -126,10 +126,10 @@ prior to submitting a pull request.
 Please cite the following paper when using the `cmldiffvar` R software package.
 
 ```
-@article{boileau-cmldiffvar,
-  author = {Philippe boileau and Hani Zaki and Mireille Schnizter},
+@article{boileau2025,
+  author = {Philippe A. Boileau and Hani Zaki and Gabriele Lileikyte and Patrick R. Lawler and Mireille E. Schnizter},
   journal = {To appear},
-  title = {Causal Machine Learning Methods for Differential Varance Inference},
+  title = {Assumption-Lean Differential Variance Inference for Heterogeneous Treatment Effect Detection},
   url = {NA},
   year = {2025}
 }
