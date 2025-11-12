@@ -1,0 +1,92 @@
+---
+title: "Using the cmldiffvar Package"
+author: "[Philippe Boileau](https://pboileau.ca)"
+date: "`r Sys.Date()`"
+bibliography: ../inst/references.bib
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{using-cmldiffvar}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Background
+
+The average treatment effect (ATE) is a common causal estimand in causal
+analyses. Defined as the difference of the mean potential outcomes, it
+corresponds to the difference in average outcomes had all study units been
+assigned to the treatment groups versus had they all been assigned to the
+control group. While the ATE provides an important summary of the treatment
+effect, it says nothing of effect heterogeneity. Even when the ATE indicates a
+net positive effect of treatment on the average outcome, some study units may
+experience better outcomes when assigned to the control. Decisions informed
+solely by inference about the ATE might therefore produce unwelcome results;
+effect heterogeneity, if it exists, must be accounted for.
+
+The conditional ATE (CATE), another causal parameter, has gained popularity as
+it can uncover and quantify this effect heterogeneity. As its name suggests, the
+CATE reports the ATE of study units as a function of their pre-treatment
+covariates. However, the CATE can only capture treatment effect heterogeneity if
+the considered covariates are treatment effect modifiers. When the true effect
+modifiers are unknown or they are missing from the data due to, for example, 
+resource constraints or measurement issues, then the CATE will incorrectly
+suggest that a treatment effect is homogeneous. Another inferential strategy
+not subject to these limitations must supplement inference about the ATE.
+
+We propose causal inference about the potential outcomes' variances to
+accomplish just that. In particular, we have shown that tests about contrasts of
+potential outcomes' variances, which we refer to differential variance, can be
+used to formally test the homogeneous treatment effect assumption
+[@boileau2025]. We briefly intoduce this procedure in the next section.
+
+
+# Differential Variance for Heterogeneous Treatment Effect Detection
+
+
+## Absolute Differential Variance
+
+
+## Relative Differential Variance
+
+
+# `cmldiffvar` in Action
+
+```{r setup}
+library(cmldiffvar)
+```
+
+
+## Unadjusted Estimators
+
+
+### Estimators
+
+
+### Example
+
+
+## Adjusted Estimators
+
+
+### Estimators
+
+
+### Example
+
+
+# Session Information
+
+```{r session-information, echo=FALSE}
+sessionInfo()
+```
+
+# References
