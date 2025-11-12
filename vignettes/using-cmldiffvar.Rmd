@@ -46,23 +46,128 @@ We propose causal inference about the potential outcomes' variances to
 accomplish just that. In particular, we have shown that tests about contrasts of
 potential outcomes' variances, which we refer to differential variance, can be
 used to formally test the homogeneous treatment effect assumption
-[@boileau2025]. We briefly intoduce this procedure in the next section.
+[@boileau2025]. We briefly introduce this procedure in the next section.
 
 
-# Differential Variance for Heterogeneous Treatment Effect Detection
+# Differential Variance Inference
+
+## Complete Data Model
+
+We assume that data are generated according to a parallel group study design
+wherein study units are randomly assigned to one of two groups, possibly based
+on their pre-treatment covariates. Under a complete data model --- that is, a
+causal model --- we assume that we have access to $n$ independent and
+identically distributed (i.i.d.) copies of $X = (W, A, Y^{(0)}, Y^{(1)})$. Here,
+$W$ is a random vector of covariates that includes the treatment--outcome
+confounders, if any. $A$ is a random binary variable representing treatment
+assignment; study units are said to be assigned to the treatment group when
+$A=1$ and to the control group otherwise. $Y^{(0)}$ and $Y^{(1)}$ are potential
+outcomes, continuous random variables representing the outcome under assignment
+to the treatment and control groups, respectively.
+
+## Causal Estimands
+
+While we will never have access to copies of $X$, the complete data model allows
+us to clearly define the causal estimands of interest. In particular, we will
+consider differential variance parameters based on the potential outcome
+variances, defined as $\sigma_c^2(a) = Var[Y^{(a)}]$. The potential outcome
+variance under treatment is given by $\sigma_c^2(1)$, that under control is
+given by $\sigma_c^2(0)$. Here, the subscript $c$ indicates that these are
+parameters of a complete data model.
+
+### Absolute Differential Variance
+
+The first differential variance that we consider is the difference of the
+potential outcomes' standard deviations. That is,
+$$
+\psi_c = \sigma_c(1) - \sigma_c(0) \;.
+$$
+This causal estimand contrasts the variability between groups on the absolute
+scale. Positive values indicate that the treatment's potential outcomes are more
+variable than the control's, negative values indicate the opposite, and a value
+of zero indicates that the potential outcomes have identical variance.
+
+### Relative Differential Variance
+
+The second differential variance considered here is the ratio of the potential
+outcomes' variances:
+$$
+\lambda_c = \frac{\sigma_c^2(1)}{\sigma_c^2(0)} \;.
+$$
+This causal estimand reports the groups variability on the relative scale.
+Values larger than one correspond to the potential outcomes under treatment are
+more variable, values below zero that the potential outcomes under control are
+more variable, and a value of one indicates that the potential outcomes'
+variances are identical.
+
+## Uncovering Heterogeneous Treatment Effects
+
+Now, if the treatment effect were homogeneous, $\psi_c$ would necessarily equal
+zero and $\lambda_c$ would equal 1. This is because, in a homogeneous treatment
+effect regime, the potential outcomes under treatment equal the potential
+outcomes under control shifted by the ATE. By the linearity of expectation, the
+variances of the potential outcomes are therefore identical.
+
+Conversely, if $\psi_c \neq 0$ (or, equivalent, if $\lambda_c \neq 1$), the
+treatment effect cannot be homogeneous. Causal inference about
+$\psi_c$ and $\lambda_c$ therefore provides a straightforward test about
+treatment effect heterogeneity. The formal theorem and accompanying proof of
+this result are presented provided by @boileau2025.
 
 
-## Absolute Differential Variance
+## Observed Data and Identifiability Conditions
 
+The differential variance estimands introduced above are defined in terms
+of potential outcomes which are never available in practice. Luckily, we can
+rely on standard --- but unverifiable --- causal identifiability assumptions to
+perform inference about these causal estimands from observable data.
 
-## Relative Differential Variance
+Under an observed data model, we have access to $n$ i.i.d. copies of random
+observations $O = (W, A, Y)$, where $W$ and $A$ are as defined in $X$. Here, $Y$
+corresponds to a random variable of the observation's continuous outcome. Then,
+under the assumption of full exchangeability, positivity, and consistency,
+we obtain for $a=0$ or $a=1$ the following results [@boileau2025]:
+$$
+\begin{split}
+  \sigma_c^2(a)
+  & = \mathbb{E}\left[\mathbb{E}[Y^2|W, A=a]\right] -
+          \mathbb{E}\left[\mathbb{E}[Y|W,A=a]\right]^2 \\
+  & = \sigma^2(a) \;.
+\end{split}
+$$
+The assumption of full exchangeability assumes that $W$ contains all confounders
+of the treatment--outcome relationship. The positive assumption requires that
+study units have a non-zero probability of being assigned to either group.
+Finally, the consistency assumptions states that the observed outcomes
+correspond to the potential outcome associated with the study units' group
+assignments. Of note, these identifiability conditions are satisfied by
+construction in randomized controlled trials.
 
+When these conditions are satisfied, we can in turn define parameters in the
+observed data model that are equivalent to the differential variance estimands
+previously defined in the complete data model. That is.
+$$
+\begin{split}
+  \psi_c
+  & = \sigma(1) - \sigma(0) \\
+  & = \psi
+\end{split}
+$$
+and
+$$
+\begin{split}
+  \lambda_c
+  & = \frac{\sigma^2(1)}{\sigma^2(0)} \\
+  & = \lambda \;.
+\end{split}
+$$
+
+We can therefore causal perform inference about these differential variance
+parameters without requiring access to the potential outcomes, assuming the
+causal identifiability conditions are satisfied. The `cmldiffvar` package
+implements such procedures, which we briefly describe next.
 
 # `cmldiffvar` in Action
-
-```{r setup}
-library(cmldiffvar)
-```
 
 
 ## Unadjusted Estimators
@@ -72,6 +177,11 @@ library(cmldiffvar)
 
 
 ### Example
+
+```{r setup}
+library(cmldiffvar)
+```
+
 
 
 ## Adjusted Estimators
