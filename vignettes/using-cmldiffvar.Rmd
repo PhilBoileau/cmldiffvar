@@ -80,7 +80,7 @@ parameters of a complete data model.
 The first differential variance that we consider is the difference of the
 potential outcomes' standard deviations. That is,
 $$
-\psi_c = \sigma_c(1) - \sigma_c(0) \;.
+\psi_c = \sqrt{\sigma_c^2(1)} - \sqrt{\sigma_c^2(0)} \;.
 $$
 This causal estimand contrasts the variability between groups on the absolute
 scale. Positive values indicate that the treatment's potential outcomes are more
@@ -149,7 +149,7 @@ previously defined in the complete data model. That is.
 $$
 \begin{split}
   \psi_c
-  & = \sigma(1) - \sigma(0) \\
+  & = \sqrt{\sigma^2(1)} - \sqrt{\sigma^2(0)} \\
   & = \psi
 \end{split}
 $$
@@ -169,29 +169,203 @@ implements such procedures, which we briefly describe next.
 
 # `cmldiffvar` in Action
 
+The `cmldiffvar` package implements two types of estimators for the absolute and
+relative differential variance: unadjusted and adjusted estimators. The former
+is appropriate for randomized experiments in which there are no confounders of
+the treatment--outcome relationship. The latter should be used in analyses of
+observational study data to account for confounding variables. Adjusted
+estimators can also be used in randomized experiments to adjust for
+pre-treatment covariates that explain variability in the outcome variable,
+potentially improving upon the precision of the unadjusted estimator.
 
 ## Unadjusted Estimators
 
+The unadjusted estimators of the absolute and relative differential variance are
+defined as the difference of the groups' outcomes' standard deviations and the
+ratio of the groups' outcomes' variances, respectively. That is,
+$$
+\hat\psi = \sqrt{\hat\sigma^2(1)} - \sqrt{\hat\sigma^2(0)}
+$$
+and 
+$$
+\hat\lambda = \frac{\hat\sigma^2(1)}{\hat\sigma^2(0)} \;,
+$$
+where
+$$
+\hat\sigma^2(a) = \widehat{\text{Var}}[Y|A=a] \;,
+$$
+the group-specific sample variance.
 
-### Estimators
+The unadjusted absolute and relative differential variance estimators are
+implemented in the `unadjdiffvar()` function. The absolute differential variance
+estimator is called by default; the relative differential variance estimator is
+called by setting the `estimand_type` function to `"relative"`.
 
+These estimators' asymptotic sampling distributions are normal with means equal
+to their respective target estimand and with variance given by the variances of
+their respective influence function. Their influence functions can therefore be
+used to construct Wald-type 95% confidence intervals, which in turn permit
+hypothesis testing. In particular, these estimators can be used to perform
+hypothesis tests about the homogeneous treatment effect assumption. Under the
+null hypothesis, $\psi = 0$ and $\lambda = 1$. Under the alternative,
+$\psi \neq 0$ and $\lambda \neq 1$.
 
 ### Example
 
-```{r setup}
+We estimate the relative differential variance from a simulated randomized
+controlled trial using the `unadjdiffvar()` function. We must specify the
+estimand using the `estimand_type` argument, and provide the variable names
+of the treatment, outcome, and propensity score variable names in the sample
+data set. If the propensity score variable name is not provided to
+`unadjdiffvar()`, they will be estimated from the provided data set as the
+proportion of study units assigned to the treatment group.
+
+The variances of the potential outcomes under the treatment and control group
+assignments are $1.44$ and $1$, respectively. The relative differential variance
+parameter therefore has a value of $\lambda_c = 1.44$, indicating that the
+treatment effect is heterogeneous.
+
+```{r unadjusted-estimator}
+# load the required libraries
 library(cmldiffvar)
+library(dplyr)
+
+# set the seed for reproducibility
+set.seed(3976468)
+
+# simulate randomized controlled trial population
+n_pop <- 100000
+propensity_score <- 0.5
+propensity_score_vec <- rep(propensity_score, n_pop)
+treatment_vec <- rbinom(n_pop, 1, propensity_score)
+outcome_treatment_vec <- rnorm(n = n_pop, mean = 3, sd = 1.2)
+outcome_control_vec <- rnorm(n = n_pop, mean = 1, sd = 1)
+outcome_vec <- treatment_vec * outcome_treatment_vec +
+  (1 - treatment_vec) * outcome_control_vec
+population_tbl <- tibble(
+  propensity_score = propensity_score_vec,
+  treatment = treatment_vec,
+  outcome = outcome_vec
+)
+
+# randomly sample from the population
+sample_tbl <- slice_sample(population_tbl, n = 500)
+
+# estimate the relative differential variance and test the homogeneous treatment
+# assumption
+rel_diff_var_est <- sample_tbl |>
+  unadjdiffvar(
+    estimand_type = "relative",
+    treatment_var_name = "treatment",
+    propensity_score_var_name = "propensity_score",
+    outcome_var_name = "outcome"
+  )
+
+rel_diff_var_est
 ```
 
-
+The unadjusted estimator produces an estimate of
+`r round(rel_diff_var_est$estimate, 3)`, suggesting that the potential outcomes
+under the treatment condition are more variable than the potential outcomes
+under control. The 95% confidence interval does not cover $1$, providing
+evidence of a statistically significant heterogeneous treatment effect. Indeed,
+the p-value of the associated test is `r round(rel_diff_var_est$p_value, 3)`
+such that the homogeneous treatment effect hypothesis is rejected.
 
 ## Adjusted Estimators
 
+The `cmldiffvar` package implements two adjusted estimators for each
+differential variance parameter: a one-step estimator and a targeted maximum
+likelihood estimator (TMLE). These estimators rely on the estimation of three
+nuisance parameters:
 
-### Estimators
+1) the propensity score: $g(W) = P(A=1|W)$,
+2) the outcome regression: $\bar{Q}(W, A) = E[Y|W, A]$, and 
+3) the squared outcome regression: $\bar{Q}^2(W, A) = E[Y^2|W, A]$ .
 
+These adjusted estimators are doubly robust. That is, if $g(W)$ or both
+$\bar{Q}(W, A)$ and $\bar{Q}^2(W, A)$ are consistently estimated, then the
+adjusted estimators are consistent as well. Further, if the nuisance estimators
+of $g(W)$, $\bar{Q}(W, A)$, and $\bar{Q}^2(W, A)$ are consistent and converge at
+a rate of $n^{1/4}$ under the $L_2$ norm, then these estimators are regular and
+asymptotically linearly. This implies that these differential variance parameter
+estimators' sampling distributions are asymptotically normal about the true
+differential variance parameters with variance given by the parameters'
+efficient influence functions. As with the unadjusted estimators, 95% Wald-type
+confidence intervals can in turn be constructed, and hypotheses about treatment
+effect heterogeneity can be performed. Additional details are provided in
+@boileau2025.
+
+Now, this package relies on Super Learners to flexibly estimate $g(W)$,
+$\bar{Q}(W, A)$, and $\bar{Q}^2(W, A)$ [@laanSuperLearner2007]. In particular,
+the `cmldiffvar` package relies on the
+[`SuperLearner`](https://cran.r-project.org/web/packages/SuperLearner/index.html)
+R package implementation of this ensemble learning framework. By default, a
+generalized linear model, multivariate adaptive regression splines, and a Random
+Forest are used as base learners in the Super Learner estimator of the
+propensity score and the outcome regression. A generalized quadratic linear
+model and a Random Forest make up the base learners of the Super Learner
+estimator for the squared outcome regression. Of course, an alternative set of
+base learners used for each estimator can be specified in `cmldiffvar()`
+function.
+
+Finally, we note that these adjusted estimators are guaranteed to be regular and
+asymptotically linear when applied to data generated in a randomized controlled
+trial. The known propensity scores, corresponding to study units arm
+randomization probabilities, can be provided to the `cmldiffvar()` function
+using its `propensity_score_var_name` argument.
 
 ### Example
 
+We estimate the absolute differential variance from a random of a simulated
+observational study population provided with the `cmldiffvar` package using the
+TMLE implemented in the `cmldiffvar()` function. Similar to the unadjusted
+estimator, we must provide the names of the treatment and outcome variables in
+the sample data set. The treatment--outcome relationship is confounded by a
+single variable called `"confounder"`, which we adjust for using the
+`propensity_score_adj_var_names` and `cond_exp_outcome_adj_var_names` arguments.
+Note that the adjustment sets for the propensity score and conditional (squared)
+outcome regressions are specified separately to allow for increased flexibility
+when estimating nuisance parameters. Finally, we rely on the default Super
+Learners to estimate the nuisance parameters.
+
+The variance of the potential outcomes under treatment and control are $10$ and
+$2$, respectively. The absolute differential variance estimand therefore has a
+value of $1.75$.
+
+```{r adjusted-estimator}
+# load the required libraries
+library(cmldiffvar)
+library(dplyr)
+library(SuperLearner)
+
+# set the seed for reproducibility
+set.seed(86523)
+
+# randomly sample from the provided observational study population
+sample_tbl <- slice_sample(toy_population_tbl, n = 500)
+
+# estimate the relative differential variance and test the homogeneous treatment
+# assumption
+abs_diff_var_est <- sample_tbl |>
+  cmldiffvar(
+    estimator_type = "tmle",
+    treatment_var_name = "treatment",
+    outcome_var_name = "outcome",
+    propensity_score_adj_var_names = "confounder",
+    cond_exp_outcome_adj_var_names = "confounder" 
+  )
+
+abs_diff_var_est
+```
+
+The TMLE produces an estimate of `r round(abs_diff_var_est$estimate, 3)`,
+indicating that the standard deviation of the potential outcomes under treatment
+is greater than that of the potential outcomes under control. Further, the 95%
+confidence interval and the p-value of `r round(abs_diff_var_est$p_value, 3)`
+suggest that we reject the null hypothesis of a homogeneous treatment effect.
+Near identical results are obtained when using a one-step estimator instead,
+which can be specified by setting the `estimator_type` argument to `"one-step"`.
 
 # Session Information
 
