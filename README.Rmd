@@ -40,7 +40,8 @@ flexible machine learning methods --- namely, Super Learner ensembles --- to
 avoid the need for convenience assumptions about data-generating processes
 [@vanderlaanTargetedLearningCausal2011; @laanSuperLearner2007]. Hypothesis
 tests about differential variance can uncover heterogeneous treatment effects,
-even when the effect modifiers are excluded from the data.
+even when the effect modifiers are excluded from the data. Details on the
+methodology are provided in @boileau2025.
 
 ---
 
@@ -65,12 +66,14 @@ outcome is continuous, and a single confounder was measured. The true absolute
 differential variance in this population is $2$. Because the absolute
 differential variance is non-zero, the treatment effect is heterogeneous.
 
-We use a targeted maximum likelihood estimator, the `cmldiffvar()` function's
-default estimator, to infer the differential variance of this population. The
-function outputs a point estimate and a $95\%$ confidence interval by default. A
-p-value corresponding to a test of whether the differential variance is
-significantly different from zero is also provided. This is equivalent to
-testing whether the treatment effect is homogeneous.
+We use a targeted maximum likelihood estimator
+[@laanTargetedMaximumLikelihood2006;
+@vanderlaanTargetedLearningCausal2011; @vanderlaanTargetedLearningData2018], the
+`cmldiffvar()` function's default estimator, to infer the differential variance
+of this population. The function outputs a point estimate and a $95\%$
+confidence interval by default. A p-value corresponding to a test of whether the
+differential variance is significantly different from zero is also provided.
+This is equivalent to testing whether the treatment effect is homogeneous.
 
 ```{r example, message=FALSE, warning=FALSE}
 # load the required packages
@@ -101,7 +104,7 @@ dif_var_result_tbl |> kable(digits = 2, format.args = list(nsmall = 2))
 
 The absolute differential variance point estimate is near the ground truth.
 Additionally, the test correctly rejects the null hypothesis of a homogeneous
-treatment effect at the $5\%$ signigicance level.
+treatment effect at the $5\%$ significance level.
 
 ---
 
@@ -126,12 +129,12 @@ prior to submitting a pull request.
 Please cite the following paper when using the `cmldiffvar` R software package.
 
 ```
-@article{boileau2025,
-  author = {Philippe A. Boileau and Hani Zaki and Gabriele Lileikyte and Patrick R. Lawler and Mireille E. Schnizter},
-  journal = {To appear},
-  title = {Assumption-Lean Differential Variance Inference for Heterogeneous Treatment Effect Detection},
-  url = {NA},
-  year = {2025}
+@unpublished{boileau2025,
+ author = {Philippe A Boileau and Hani Zaki and Gabriele Lileikyte and Niklas
+           Nielsen and Patrick R Lawler and Mireille E Schnitzer},
+ title = {Assumption-Lean Differential Variance Inference for Heterogeneous
+          Treatment Effect Detection},
+ year = {In preparation}
 }
 ```
 

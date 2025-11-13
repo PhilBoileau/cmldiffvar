@@ -31,7 +31,8 @@ ensembles — to avoid the need for convenience assumptions about
 data-generating processes (van der Laan and Rose 2011; van der Laan,
 Polley, and Hubbard 2007). Hypothesis tests about differential variance
 can uncover heterogeneous treatment effects, even when the effect
-modifiers are excluded from the data.
+modifiers are excluded from the data. Details on the methodology are
+provided in Boileau et al. (In preparation).
 
 ------------------------------------------------------------------------
 
@@ -57,8 +58,9 @@ confounder was measured. The true absolute differential variance in this
 population is $2$. Because the absolute differential variance is
 non-zero, the treatment effect is heterogeneous.
 
-We use a targeted maximum likelihood estimator, the `cmldiffvar()`
-function’s default estimator, to infer the differential variance of this
+We use a targeted maximum likelihood estimator (van der Laan and Rubin
+2006; van der Laan and Rose 2011, 2018), the `cmldiffvar()` function’s
+default estimator, to infer the differential variance of this
 population. The function outputs a point estimate and a $95\%$
 confidence interval by default. A p-value corresponding to a test of
 whether the differential variance is significantly different from zero
@@ -93,7 +95,7 @@ dif_var_result_tbl <- sample_tbl |>
 
 The absolute differential variance point estimate is near the ground
 truth. Additionally, the test correctly rejects the null hypothesis of a
-homogeneous treatment effect at the $5\%$ signigicance level.
+homogeneous treatment effect at the $5\%$ significance level.
 
 ------------------------------------------------------------------------
 
@@ -118,12 +120,12 @@ prior to submitting a pull request.
 Please cite the following paper when using the `cmldiffvar` R software
 package.
 
-    @article{boileau2025,
-      author = {Philippe A. Boileau and Hani Zaki and Gabriele Lileikyte and Patrick R. Lawler and Mireille E. Schnizter},
-      journal = {To appear},
-      title = {Assumption-Lean Differential Variance Inference for Heterogeneous Treatment Effect Detection},
-      url = {NA},
-      year = {2025}
+    @unpublished{boileau2025,
+     author = {Philippe A Boileau and Hani Zaki and Gabriele Lileikyte and Niklas
+               Nielsen and Patrick R Lawler and Mireille E Schnitzer},
+     title = {Assumption-Lean Differential Variance Inference for Heterogeneous
+              Treatment Effect Detection},
+     year = {In preparation}
     }
 
 ------------------------------------------------------------------------
@@ -144,6 +146,15 @@ for details.
 <div id="refs" class="references csl-bib-body hanging-indent"
 entry-spacing="0">
 
+<div id="ref-boileau2025" class="csl-entry">
+
+Boileau, Philippe A, Hani Zaki, Gabriele Lileikyte, Niklas Nielsen,
+Patrick R Lawler, and Mireille E Schnitzer. In preparation.
+“Assumption-Lean Differential Variance Inference for Heterogeneous
+Treatment Effect Detection.”
+
+</div>
+
 <div id="ref-laanSuperLearner2007" class="csl-entry">
 
 van der Laan, Mark J., Eric C. Polley, and Alan E. Hubbard. 2007. “Super
@@ -158,6 +169,23 @@ van der Laan, Mark J., and Sherri Rose. 2011. *Targeted Learning: Causal
 Inference for Observational and Experimental Data*. Springer Series in
 Statistics. New York, NY: Springer.
 <https://doi.org/10.1007/978-1-4419-9782-1>.
+
+</div>
+
+<div id="ref-vanderlaanTargetedLearningData2018" class="csl-entry">
+
+———. 2018. *Targeted Learning in Data Science: Causal Inference for
+Complex Longitudinal Studies*. Springer Series in Statistics. Cham:
+Springer International Publishing.
+<https://doi.org/10.1007/978-3-319-65304-4>.
+
+</div>
+
+<div id="ref-laanTargetedMaximumLikelihood2006" class="csl-entry">
+
+van der Laan, Mark J., and Daniel Rubin. 2006. “Targeted Maximum
+Likelihood Learning.” *The International Journal of Biostatistics* 2
+(1). <https://doi.org/10.2202/1557-4679.1043>.
 
 </div>
 
