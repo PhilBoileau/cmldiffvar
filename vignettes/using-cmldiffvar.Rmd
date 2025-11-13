@@ -141,7 +141,9 @@ study units have a non-zero probability of being assigned to either group.
 Finally, the consistency assumptions states that the observed outcomes
 correspond to the potential outcome associated with the study units' group
 assignments. Of note, these identifiability conditions are satisfied by
-construction in randomized controlled trials.
+construction in randomized controlled trials. For an in-depth discussion of
+these assumptions, see @hernanCausalInferenceWhat2025.
+
 
 When these conditions are satisfied, we can in turn define parameters in the
 observed data model that are equivalent to the differential variance estimands
@@ -275,9 +277,16 @@ such that the homogeneous treatment effect hypothesis is rejected.
 ## Adjusted Estimators
 
 The `cmldiffvar` package implements two adjusted estimators for each
-differential variance parameter: a one-step estimator and a targeted maximum
-likelihood estimator (TMLE). These estimators rely on the estimation of three
-nuisance parameters:
+differential variance parameter: a one-step estimator
+[@bickelEfficientAdaptiveEstimation1998;
+@pfanzaglCONTRIBUTIONSGENERALASYMPTOTIC1985] and a targeted maximum likelihood
+estimator (TMLE) [@laanTargetedMaximumLikelihood2006;
+@vanderlaanTargetedLearningCausal2011; @vanderlaanTargetedLearningData2018].
+Note that the one-step estimator is equivalent to an estimating equation
+(alternatively known as a double/debiased machine learning estimator)
+[@vanderlaanUnifiedMethodsCensored2003;
+@chernozhukovDoubleDebiasedNeyman2017]. These estimators rely on the estimation
+of three nuisance parameters:
 
 1) the propensity score: $g(W) = P(A=1|W)$,
 2) the outcome regression: $\bar{Q}(W, A) = E[Y|W, A]$, and 
@@ -301,13 +310,14 @@ $\bar{Q}(W, A)$, and $\bar{Q}^2(W, A)$ [@laanSuperLearner2007]. In particular,
 the `cmldiffvar` package relies on the
 [`SuperLearner`](https://cran.r-project.org/web/packages/SuperLearner/index.html)
 R package implementation of this ensemble learning framework. By default, a
-generalized linear model, multivariate adaptive regression splines, and a Random
-Forest are used as base learners in the Super Learner estimator of the
-propensity score and the outcome regression. A generalized quadratic linear
-model and a Random Forest make up the base learners of the Super Learner
-estimator for the squared outcome regression. Of course, an alternative set of
-base learners used for each estimator can be specified in `cmldiffvar()`
-function.
+generalized linear model, multivariate adaptive regression splines
+[@friedmanMultivariateAdaptiveRegression1991], and a Random Forest
+[@breimanRandomForests2001] are used as base learners in the Super Learner
+estimator of the propensity score and the outcome regression. A generalized
+quadratic linear model and a Random Forest make up the base learners of the
+Super Learner estimator for the squared outcome regression. Of course, an
+alternative set of base learners used for each estimator can be specified in
+`cmldiffvar()` function.
 
 Finally, we note that these adjusted estimators are guaranteed to be regular and
 asymptotically linear when applied to data generated in a randomized controlled
