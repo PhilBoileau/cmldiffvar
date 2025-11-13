@@ -2,7 +2,7 @@
 title: "Using the cmldiffvar Package"
 author: "[Philippe Boileau](https://pboileau.ca)"
 date: "`r Sys.Date()`"
-bibliography: ../inst/references.bib
+bibliography: ../inst/REFERENCES.bib
 output:
   rmarkdown::html_vignette:
     toc: true
