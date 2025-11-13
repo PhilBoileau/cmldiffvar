@@ -303,10 +303,6 @@ cmldiffvar <- function(
 
   # assemble and output results ----
 
-  estimator <- paste0(
-    ifelse(cross_fit, "cross-fit ", ""),
-    estimator_type
-  )
   dplyr::tibble(
     estimand = paste(estimand_type, "differential variance"),
     estimate = estimate,
