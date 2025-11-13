@@ -14,6 +14,7 @@ reference:
     - SL.glm.gamma.identity
     - SL.glm.gamma.log
     - SL.nnet.torch.softplus
+    - predict.SL.torch
     - SL.xgboost.bounded
   - title: "Toy Datasets"
   - contents:

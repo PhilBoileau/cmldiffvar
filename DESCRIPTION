@@ -23,7 +23,10 @@ License: MIT + file LICENSE
 Suggests: 
     future,
     testthat (>= 3.0.0),
-    xgboost
+    xgboost,
+    ranger,
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -38,9 +41,9 @@ Imports:
     earth,
     gam,
     origami,
-    ranger,
     rlang,
     stats,
     SuperLearner,
     torch
 URL: https://pboileau.ca/cmldiffvar/
+VignetteBuilder: knitr

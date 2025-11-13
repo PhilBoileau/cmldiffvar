@@ -19,7 +19,7 @@
 #'
 #'   These differential variance estimands rely on three nuisance parameters:
 #'   the propensity score, the expected outcome conditional on confounders and
-#'   treatment assignment, and the expected squared outcome condition on
+#'   treatment assignment, and the expected squared outcome conditional on
 #'   confounders and treatment assignment.
 #'
 #'   `cmldiffvar()` implements cross-fitted one-step and targeted maximum
@@ -80,15 +80,15 @@
 #'   outcome variable stored in `data_tbl`.
 #' @param propensity_score_library A `character` vector of candidate learners
 #'   used by the SuperLearner estimator of the propensity score. Defaults to
-#'   `c("SL.mean", "SL.glm", "SL.earth")`.
+#'   `c("SL.glm", "SL.earth", "SL.ranger")`.
 #' @param cond_exp_outcome_library A `character` vector of candidate learners
 #'   used by the SuperLearner estimator of the expected outcome conditional on
-#'   confounders and treatment assignment. Defaults to `c("SL.mean", "SL.glm",
-#'   "SL.earth")`.
+#'   confounders and treatment assignment. Defaults to `c("SL.glm",
+#'   "SL.earth", "SL.ranger")`.
 #' @param cond_exp_sq_outcome_library A `character` vector of candidate learners
 #'   used by the SuperLearner estimator of the expected squared outcome
 #'   conditional on confounders and treatment assignment. Defaults to
-#'   `c("SL.mean", "SL.glm.gamma.log", "SL.earth.gamma.log")`.
+#'   `c("SL.glm.interaction", "SL.ranger")`.
 #' @param num_nuisance_sl_folds A `numeric` indicating the number of folds to
 #'   use in cross-validated SuperLearner estimators. Defaults to `5`.
 #' @param cross_fit A `logical flag` determining whether cross-fitted estimators
@@ -119,8 +119,8 @@ cmldiffvar <- function(
   treatment_var_name,
   propensity_score_var_name = NULL,
   outcome_var_name,
-  propensity_score_library = c("SL.glm", "SL.earth"),
-  cond_exp_outcome_library = c("SL.glm", "SL.earth"),
+  propensity_score_library = c("SL.glm", "SL.earth", "SL.ranger"),
+  cond_exp_outcome_library = c("SL.glm", "SL.earth", "SL.ranger"),
   cond_exp_sq_outcome_library = c("SL.glm.interaction", "SL.ranger"),
   num_nuisance_sl_folds = 5,
   cross_fit = FALSE,
@@ -303,10 +303,6 @@ cmldiffvar <- function(
 
   # assemble and output results ----
 
-  estimator <- paste0(
-    ifelse(cross_fit, "cross-fit ", ""),
-    estimator_type
-  )
   dplyr::tibble(
     estimand = paste(estimand_type, "differential variance"),
     estimate = estimate,

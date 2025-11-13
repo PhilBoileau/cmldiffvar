@@ -14,8 +14,8 @@ cmldiffvar(
   treatment_var_name,
   propensity_score_var_name = NULL,
   outcome_var_name,
-  propensity_score_library = c("SL.glm", "SL.earth"),
-  cond_exp_outcome_library = c("SL.glm", "SL.earth"),
+  propensity_score_library = c("SL.glm", "SL.earth", "SL.ranger"),
+  cond_exp_outcome_library = c("SL.glm", "SL.earth", "SL.ranger"),
   cond_exp_sq_outcome_library = c("SL.glm.interaction", "SL.ranger"),
   num_nuisance_sl_folds = 5,
   cross_fit = FALSE,
@@ -57,16 +57,16 @@ outcome variable stored in \code{data_tbl}.}
 
 \item{propensity_score_library}{A \code{character} vector of candidate learners
 used by the SuperLearner estimator of the propensity score. Defaults to
-\code{c("SL.mean", "SL.glm", "SL.earth")}.}
+\code{c("SL.glm", "SL.earth", "SL.ranger")}.}
 
 \item{cond_exp_outcome_library}{A \code{character} vector of candidate learners
 used by the SuperLearner estimator of the expected outcome conditional on
-confounders and treatment assignment. Defaults to \code{c("SL.mean", "SL.glm", "SL.earth")}.}
+confounders and treatment assignment. Defaults to \code{c("SL.glm", "SL.earth", "SL.ranger")}.}
 
 \item{cond_exp_sq_outcome_library}{A \code{character} vector of candidate learners
 used by the SuperLearner estimator of the expected squared outcome
 conditional on confounders and treatment assignment. Defaults to
-\code{c("SL.mean", "SL.glm.gamma.log", "SL.earth.gamma.log")}.}
+\code{c("SL.glm.interaction", "SL.ranger")}.}
 
 \item{num_nuisance_sl_folds}{A \code{numeric} indicating the number of folds to
 use in cross-validated SuperLearner estimators. Defaults to \code{5}.}
@@ -113,7 +113,7 @@ variances. The scale of the differential variance estimated by
 
 These differential variance estimands rely on three nuisance parameters:
 the propensity score, the expected outcome conditional on confounders and
-treatment assignment, and the expected squared outcome condition on
+treatment assignment, and the expected squared outcome conditional on
 confounders and treatment assignment.
 
 \code{cmldiffvar()} implements cross-fitted one-step and targeted maximum
