@@ -3,8 +3,11 @@
 <url><loc>https://pboileau.ca/cmldiffvar/CONTRIBUTING.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/LICENSE-text.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/LICENSE.html</loc></url>
+<url><loc>https://pboileau.ca/cmldiffvar/articles/index.html</loc></url>
+<url><loc>https://pboileau.ca/cmldiffvar/articles/using-cmldiffvar.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/authors.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/index.html</loc></url>
+<url><loc>https://pboileau.ca/cmldiffvar/news/index.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/reference/SL.earth.gamma.log.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/reference/SL.gam.gamma.log.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/reference/SL.glm.gamma.identity.html</loc></url>
@@ -26,6 +29,7 @@
 <url><loc>https://pboileau.ca/cmldiffvar/reference/one_step_mean_estimator_fun.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/reference/one_step_var_estimator_fun.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/reference/plugin_var_estimator_fun.html</loc></url>
+<url><loc>https://pboileau.ca/cmldiffvar/reference/predict.SL.torch.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/reference/tml_diff_var_estimator_fun.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/reference/tml_var_estimator_fun.html</loc></url>
 <url><loc>https://pboileau.ca/cmldiffvar/reference/toy_population_tbl.html</loc></url>

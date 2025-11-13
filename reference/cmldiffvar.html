@@ -18,6 +18,11 @@ treatments using causal machine learning methods."></head><body>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/using-cmldiffvar.html">Using the cmldiffvar Package</a></li>
+  </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
       </ul></div>
@@ -45,15 +50,16 @@ treatments using causal machine learning methods.</p>
 <span>  estimand_type <span class="op">=</span> <span class="st">"absolute"</span>,</span>
 <span>  estimator_type <span class="op">=</span> <span class="st">"tmle"</span>,</span>
 <span>  confidence_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
-<span>  <span class="va">confounder_var_names</span>,</span>
+<span>  <span class="va">propensity_score_adj_var_names</span>,</span>
+<span>  <span class="va">cond_exp_outcome_adj_var_names</span>,</span>
 <span>  <span class="va">treatment_var_name</span>,</span>
 <span>  propensity_score_var_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">outcome_var_name</span>,</span>
-<span>  propensity_score_library <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SL.mean"</span>, <span class="st">"SL.glm"</span>, <span class="st">"SL.earth"</span><span class="op">)</span>,</span>
-<span>  cond_exp_outcome_library <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SL.mean"</span>, <span class="st">"SL.glm"</span>, <span class="st">"SL.earth"</span><span class="op">)</span>,</span>
-<span>  cond_exp_sq_outcome_library <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SL.mean"</span>, <span class="st">"SL.glm.gamma.log"</span>, <span class="st">"SL.earth.gamma.log"</span><span class="op">)</span>,</span>
+<span>  propensity_score_library <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SL.glm"</span>, <span class="st">"SL.earth"</span>, <span class="st">"SL.ranger"</span><span class="op">)</span>,</span>
+<span>  cond_exp_outcome_library <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SL.glm"</span>, <span class="st">"SL.earth"</span>, <span class="st">"SL.ranger"</span><span class="op">)</span>,</span>
+<span>  cond_exp_sq_outcome_library <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SL.glm.interaction"</span>, <span class="st">"SL.ranger"</span><span class="op">)</span>,</span>
 <span>  num_nuisance_sl_folds <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  cross_fit <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cross_fit <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  num_cross_fit_folds <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  parallel <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -83,9 +89,17 @@ cross-fitting procedure.</p></dd>
 confidence level used to compute confidence intervals. Defaults to <code>0.95</code>.</p></dd>
 
 
-<dt id="arg-confounder-var-names">confounder_var_names<a class="anchor" aria-label="anchor" href="#arg-confounder-var-names"></a></dt>
-<dd><p>A <code>character</code> vector providing the columns names
-of the treatment–outcome confounders stored in <code>data_tbl</code>.</p></dd>
+<dt id="arg-propensity-score-adj-var-names">propensity_score_adj_var_names<a class="anchor" aria-label="anchor" href="#arg-propensity-score-adj-var-names"></a></dt>
+<dd><p>A <code>character</code> vector providing the
+columns names of the adjustment set variables for propensity score
+estimation stored in <code>data_tbl</code>. Ignored if <code>propensity_score_var_name</code> is
+<code>NULL</code>.</p></dd>
+
+
+<dt id="arg-cond-exp-outcome-adj-var-names">cond_exp_outcome_adj_var_names<a class="anchor" aria-label="anchor" href="#arg-cond-exp-outcome-adj-var-names"></a></dt>
+<dd><p>A <code>character</code> vector providing the
+columns names of the adjustment set variables for conditional expected
+(squared) outcome estimation stored in <code>data_tbl</code>.</p></dd>
 
 
 <dt id="arg-treatment-var-name">treatment_var_name<a class="anchor" aria-label="anchor" href="#arg-treatment-var-name"></a></dt>
@@ -107,20 +121,20 @@ outcome variable stored in <code>data_tbl</code>.</p></dd>
 <dt id="arg-propensity-score-library">propensity_score_library<a class="anchor" aria-label="anchor" href="#arg-propensity-score-library"></a></dt>
 <dd><p>A <code>character</code> vector of candidate learners
 used by the SuperLearner estimator of the propensity score. Defaults to
-<code>c("SL.mean", "SL.glm", "SL.earth")</code>.</p></dd>
+<code>c("SL.glm", "SL.earth", "SL.ranger")</code>.</p></dd>
 
 
 <dt id="arg-cond-exp-outcome-library">cond_exp_outcome_library<a class="anchor" aria-label="anchor" href="#arg-cond-exp-outcome-library"></a></dt>
 <dd><p>A <code>character</code> vector of candidate learners
 used by the SuperLearner estimator of the expected outcome conditional on
-confounders and treatment assignment. Defaults to <code>c("SL.mean", "SL.glm", "SL.earth")</code>.</p></dd>
+confounders and treatment assignment. Defaults to <code>c("SL.glm", "SL.earth", "SL.ranger")</code>.</p></dd>
 
 
 <dt id="arg-cond-exp-sq-outcome-library">cond_exp_sq_outcome_library<a class="anchor" aria-label="anchor" href="#arg-cond-exp-sq-outcome-library"></a></dt>
 <dd><p>A <code>character</code> vector of candidate learners
 used by the SuperLearner estimator of the expected squared outcome
 conditional on confounders and treatment assignment. Defaults to
-<code>c("SL.mean", "SL.glm.gamma.log", "SL.earth.gamma.log")</code>.</p></dd>
+<code>c("SL.glm.interaction", "SL.ranger")</code>.</p></dd>
 
 
 <dt id="arg-num-nuisance-sl-folds">num_nuisance_sl_folds<a class="anchor" aria-label="anchor" href="#arg-num-nuisance-sl-folds"></a></dt>
@@ -163,13 +177,13 @@ confounders.</p>
 positivity, and full exchangeability — <code>cmldiffvar()</code> performs inference
 on the differential variance of the potential outcomes. Differential
 variance is defined on the absolute scale as the difference in potential
-outcome variances of two treatments. On the relative scale, differential
-variance is defined as the ratio of the potential outcome variances. The
-scale of the differential variance estimated by <code>cmldiffvar()</code> is specified
-by the <code>estimand_type</code> parameter.</p>
+outcome standard deviations of two treatments. On the relative scale,
+differential variance is defined as the ratio of the potential outcome
+variances. The scale of the differential variance estimated by
+<code>cmldiffvar()</code> is specified by the <code>estimand_type</code> parameter.</p>
 <p>These differential variance estimands rely on three nuisance parameters:
 the propensity score, the expected outcome conditional on confounders and
-treatment assignment, and the expected squared outcome condition on
+treatment assignment, and the expected squared outcome conditional on
 confounders and treatment assignment.</p>
 <p><code>cmldiffvar()</code> implements cross-fitted one-step and targeted maximum
 likelihood estimators of the differential variance estimands. These
@@ -211,7 +225,7 @@ the <a href="https://future.futureverse.org/reference/future.html" class="extern
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

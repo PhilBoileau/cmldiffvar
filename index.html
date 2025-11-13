@@ -32,6 +32,13 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/using-cmldiffvar.html">Using the cmldiffvar Package</a></li>
+  </ul>
+</li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -53,12 +60,12 @@
 <blockquote>
 <p>Causal Machine Learning Methods for Differential Variance Inference</p>
 </blockquote>
-<p><strong>Authors:</strong> <a href="https://pboileau.ca" class="external-link">Philippe Boileau</a>, <a href="link-to-profile">Hani Zaki</a>, <a href="https://www.mireilleschnitzer.com" class="external-link">Mireille Schnizter</a></p>
+<p><strong>Authors:</strong> <a href="https://pboileau.ca" class="external-link">Philippe Boileau</a>, <a href="https://ca.linkedin.com/in/hani-zaki" class="external-link">Hani Zaki</a>, <a href="https://www.mireilleschnitzer.com" class="external-link">Mireille Schnizter</a></p>
 <hr>
 <div class="section level2">
 <h2 id="whats-cmldiffvar">What’s <code>cmldiffvar</code>?<a class="anchor" aria-label="anchor" href="#whats-cmldiffvar"></a>
 </h2>
-<p><code>cmldiffvar</code> implements causal machine learning methods for differential variance inference. These methods rely on semiparametric efficiency theory and flexible machine learning methods — namely, Super Learner ensembles — to avoid the need for convenience assumptions about data-generating processes (van der Laan and Rose 2011; van der Laan, Polley, and Hubbard 2007).</p>
+<p><code>cmldiffvar</code> implements causal machine learning methods for differential variance inference. These methods rely on semiparametric efficiency theory and flexible machine learning methods — namely, Super Learner ensembles — to avoid the need for convenience assumptions about data-generating processes (van der Laan and Rose 2011; van der Laan, Polley, and Hubbard 2007). Hypothesis tests about differential variance can uncover heterogeneous treatment effects, even when the effect modifiers are excluded from the data. Details on the methodology are provided in Boileau et al. (In preparation).</p>
 <hr>
 </div>
 <div class="section level2">
@@ -72,30 +79,28 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>We estimate the absolute differential variance (ADV) using a cross-fit targeted maximum likelihood estimator from a random sample of the <code>toy_population_tbl</code> data included with the <code>cmldiffvar</code> package. The true ADV in this population is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>8</mn><annotation encoding="application/x-tex">8</annotation></semantics></math>.</p>
+<p>We estimate the absolute differential variance, defined as the difference of the potential outcomes’ standard deviations, on a random sample of the <code>toy_population_tbl</code> data included with the <code>cmldiffvar</code> package. This dataset represents an observational study in which the treatment variable is binary, the outcome is continuous, and a single confounder was measured. The true absolute differential variance in this population is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>2</mn><annotation encoding="application/x-tex">2</annotation></semantics></math>. Because the absolute differential variance is non-zero, the treatment effect is heterogeneous.</p>
+<p>We use a targeted maximum likelihood estimator (van der Laan and Rubin 2006; van der Laan and Rose 2011, 2018), the <code><a href="reference/cmldiffvar.html">cmldiffvar()</a></code> function’s default estimator, to infer the differential variance of this population. The function outputs a point estimate and a <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>95</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">95\%</annotation></semantics></math> confidence interval by default. A p-value corresponding to a test of whether the differential variance is significantly different from zero is also provided. This is equivalent to testing whether the treatment effect is homogeneous.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># load the required packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pboileau.ca/cmldiffvar/">cmldiffvar</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ecpolley/SuperLearner" class="external-link">SuperLearner</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yihui.org/knitr/" class="external-link">knitr</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># set the seed for reproducibility</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">514</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">510</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># random sample from population data</span></span>
-<span><span class="va">sample_tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_sample</a></span><span class="op">(</span><span class="va">toy_population_tbl</span>, n <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
+<span><span class="va">sample_tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_sample</a></span><span class="op">(</span><span class="va">toy_population_tbl</span>, n <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># estimate absolute differential variance</span></span>
 <span><span class="va">dif_var_result_tbl</span> <span class="op">&lt;-</span> <span class="va">sample_tbl</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/cmldiffvar.html">cmldiffvar</a></span><span class="op">(</span></span>
-<span>    confounder_var_names <span class="op">=</span> <span class="st">"confounder"</span>,</span>
+<span>    propensity_score_adj_var_names <span class="op">=</span> <span class="st">"confounder"</span>,</span>
+<span>    cond_exp_outcome_adj_var_names <span class="op">=</span> <span class="st">"confounder"</span>,</span>
 <span>    treatment_var_name <span class="op">=</span> <span class="st">"treatment"</span>,</span>
 <span>    outcome_var_name <span class="op">=</span> <span class="st">"outcome"</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span><span class="co"># print formatted table</span></span>
-<span><span class="va">dif_var_result_tbl</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>, format.args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>nsmall <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="43%">
@@ -115,13 +120,14 @@
 </tr></thead>
 <tbody><tr class="odd">
 <td align="left">absolute differential variance</td>
-<td align="right">7.17</td>
-<td align="right">1.01</td>
-<td align="right">5.19</td>
-<td align="right">9.15</td>
+<td align="right">2.11</td>
+<td align="right">0.29</td>
+<td align="right">1.53</td>
+<td align="right">2.69</td>
 <td align="right">0.00</td>
 </tr></tbody>
 </table>
+<p>The absolute differential variance point estimate is near the ground truth. Additionally, the test correctly rejects the null hypothesis of a homogeneous treatment effect at the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>5</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">5\%</annotation></semantics></math> significance level.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -140,12 +146,12 @@
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p>Please cite the following paper when using the <code>cmldiffvar</code> R software package.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="sc">@</span>article{boileau<span class="sc">-</span>cmldiffvar,</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  author <span class="ot">=</span> {Philippe boileau and Hani Zaki and Mireille Schnizter},</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  journal <span class="ot">=</span> {arXiv preprint},</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  title <span class="ot">=</span> {Causal Machine Learning Methods <span class="cf">for</span> Differential Varance Inference},</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  url <span class="ot">=</span> {<span class="cn">NA</span>},</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  year <span class="ot">=</span> {<span class="dv">2025</span>}</span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="sc">@</span>unpublished{boileau2025,</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a> author <span class="ot">=</span> {Philippe A Boileau and Hani Zaki and Gabriele Lileikyte and Niklas</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>           Nielsen and Patrick R Lawler and Mireille E Schnitzer},</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a> title <span class="ot">=</span> {Assumption<span class="sc">-</span>Lean Differential Variance Inference <span class="cf">for</span> Heterogeneous</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>          Treatment Effect Detection},</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a> year <span class="ot">=</span> {In preparation}</span>
 <span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>}</span></code></pre></div>
 <hr>
 </div>
@@ -160,11 +166,20 @@
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-boileau2025" class="csl-entry">
+Boileau, Philippe A, Hani Zaki, Gabriele Lileikyte, Niklas Nielsen, Patrick R Lawler, and Mireille E Schnitzer. In preparation. “Assumption-Lean Differential Variance Inference for Heterogeneous Treatment Effect Detection.”
+</div>
 <div id="ref-laanSuperLearner2007" class="csl-entry">
 van der Laan, Mark J., Eric C. Polley, and Alan E. Hubbard. 2007. “Super Learner.” <em>Statistical Applications in Genetics and Molecular Biology</em> 6 (1). <a href="https://doi.org/10.2202/1544-6115.1309" class="external-link uri">https://doi.org/10.2202/1544-6115.1309</a>.
 </div>
 <div id="ref-vanderlaanTargetedLearningCausal2011" class="csl-entry">
 van der Laan, Mark J., and Sherri Rose. 2011. <em>Targeted Learning: Causal Inference for Observational and Experimental Data</em>. Springer Series in Statistics. New York, NY: Springer. <a href="https://doi.org/10.1007/978-1-4419-9782-1" class="external-link uri">https://doi.org/10.1007/978-1-4419-9782-1</a>.
+</div>
+<div id="ref-vanderlaanTargetedLearningData2018" class="csl-entry">
+———. 2018. <em>Targeted Learning in Data Science: Causal Inference for Complex Longitudinal Studies</em>. Springer Series in Statistics. Cham: Springer International Publishing. <a href="https://doi.org/10.1007/978-3-319-65304-4" class="external-link uri">https://doi.org/10.1007/978-3-319-65304-4</a>.
+</div>
+<div id="ref-laanTargetedMaximumLikelihood2006" class="csl-entry">
+van der Laan, Mark J., and Daniel Rubin. 2006. “Targeted Maximum Likelihood Learning.” <em>The International Journal of Biostatistics</em> 2 (1). <a href="https://doi.org/10.2202/1557-4679.1043" class="external-link uri">https://doi.org/10.2202/1557-4679.1043</a>.
 </div>
 </div>
 </div>
@@ -218,7 +233,7 @@ van der Laan, Mark J., and Sherri Rose. 2011. <em>Targeted Learning: Causal Infe
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
