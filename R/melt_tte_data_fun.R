@@ -65,14 +65,9 @@ melt_tte_data_fun <- function(
                                .data[[censoring_var_name]] == 1, 1, 0),
           L = dplyr::if_else(cmldiffvar_long_time == .data[[outcome_var_name]] &
                                .data[[censoring_var_name]] == 0, 1, 0),
-          I = dplyr::if_else(cmldiffvar_long_time < .data[[outcome_var_name]],
-                             1, 0),
-          J = dplyr::case_when(
-            I == 1 ~ 1,
-            cmldiffvar_long_time == .data[[outcome_var_name]] &
-              .data[[censoring_var_name]] == 1 ~ 1,
-            .default = 0
-          ),
+          I = dplyr::if_else(
+            cmldiffvar_long_time <= .data[[outcome_var_name]], 1, 0),
+          J = dplyr::if_else(I == 1 & L == 0, 1, 0),
           cmldiffvar_id = obs_idx,
           cmldiffvar_for_nuisance_estimation = if_else(
             cmldiffvar_long_time %in% unique_times, 1, 0)
