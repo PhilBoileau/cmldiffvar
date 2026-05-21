@@ -91,7 +91,9 @@ generate_test_data <- function(
       failure_time_1 <- floor(failure_time_0 * 1.1)
     } else {
       failure_time_0 <- floor(exp(3.5 - 0.4 * w + eps_0))
-      failure_time_1 <- floor(exp(3.5 + 0.4 * w + 0.25 * a + eps_1))
+      failure_time_1 <- floor(
+        exp(3.5 + 0.5 * (w == 1) - 1.15 * (w == 0) + eps_1)
+      )
     }
 
   }
@@ -203,7 +205,7 @@ generate_test_data <- function(
 # ) |>
 #   bind_rows()
 
-# diff_var_ratio_tbl output:
+# add_diff_var_ratio_tbl output:
 #   var_0 var_1 add_diff_var_ratio trunc_value
 #   <dbl> <dbl>              <dbl>       <int>
 # 1  280.  279.              0.997           0
@@ -386,68 +388,68 @@ generate_test_data <- function(
 # 0 when the truncation value is near (1/1.1), indicating a homogeneous but
 # non-null effect
 
-## Heterogeneous treatment effect model ----
+## Heterogeneous treatment effect model with RMSTD of zero ----
 # approximate relevant parameter values at time_cutoff = 100
-set.seed(824563)
-pop_sim_tbl <- generate_test_data(
-  n_obs = 100000, null_marginal = FALSE, hazard_model = FALSE
-)
-time_cutoff <- 100
-pop_params_tbl <- pop_sim_tbl |>
-  mutate(
-    trunc_potential_time_0 = if_else(
-      potential_time_0 > time_cutoff, time_cutoff, potential_time_0
-    ),
-    trunc_potential_time_1 = if_else(
-      potential_time_1 > time_cutoff, time_cutoff, potential_time_1
-    )
-  ) |>
-  summarise(
-    rmst_0 = mean(trunc_potential_time_0),
-    rmst_1 = mean(trunc_potential_time_1),
-    var_0 = var(trunc_potential_time_0),
-    var_1 = var(trunc_potential_time_1),
-    rmst_ratio = rmst_1 / rmst_0,
-    diff_var_ratio = var_1 / var_0
-  )
+# set.seed(824563)
+# pop_sim_tbl <- generate_test_data(
+#   n_obs = 100000, null_marginal = FALSE, hazard_model = FALSE
+# )
+# time_cutoff <- 100
+# pop_params_tbl <- pop_sim_tbl |>
+#   mutate(
+#     trunc_potential_time_0 = if_else(
+#       potential_time_0 > time_cutoff, time_cutoff, potential_time_0
+#     ),
+#     trunc_potential_time_1 = if_else(
+#       potential_time_1 > time_cutoff, time_cutoff, potential_time_1
+#     )
+#   ) |>
+#   summarise(
+#     rmst_0 = mean(trunc_potential_time_0),
+#     rmst_1 = mean(trunc_potential_time_1),
+#     var_0 = var(trunc_potential_time_0),
+#     var_1 = var(trunc_potential_time_1),
+#     rmst_ratio = rmst_1 / rmst_0,
+#     diff_var_ratio = var_1 / var_0
+#   )
 
 # recorded values
 # $ rmst_0         <dbl> 37.12697
-# $ rmst_1         <dbl> 52.82716
+# $ rmst_1         <dbl> 37.08159
 # $ var_0          <dbl> 917.5128
-# $ var_1          <dbl> 1135.992
-# $ rmst_ratio     <dbl> 1.422878
-# $ diff_var_ratio <dbl> 1.238121
+# $ var_1          <dbl> 1163.827
+# $ rmst_ratio     <dbl> 0.9987777
+# $ diff_var_ratio <dbl> 1.268459
 
 # compute the ratios of truncated survival times
-mult_diff_var_ratio_tbl <- lapply(
-  seq(from = 0.6, to = 0.75, by = 0.01),
-  function(trunc_value) {
-
-    # compute the multiplicative diff var ratio under the homogeneous
-    # multiplicative treatment effect assumption
-    mult_diff_var_ratio_tbl <- pop_sim_tbl |>
-      mutate(
-        trunc_trunc_potential_time_0 = if_else(
-          potential_time_0 > (time_cutoff * trunc_value),
-          (time_cutoff * trunc_value), potential_time_0
-        ),
-        trunc_potential_time_1 = if_else(
-          potential_time_1 > time_cutoff, time_cutoff, potential_time_1
-        )
-      ) |>
-      summarise(
-        var_0 = var(trunc_trunc_potential_time_0),
-        var_1 = var(trunc_potential_time_1),
-        mult_diff_var_ratio = var_1 / var_0,
-        standardized_diff_var = mult_diff_var_ratio - (1 / trunc_value)^2
-      ) |>
-      mutate(trunc_value = trunc_value)
-
-    return(mult_diff_var_ratio_tbl)
-  }
-) |>
-  bind_rows()
+# mult_diff_var_ratio_tbl <- lapply(
+#   seq(from = 0.9, to = 1.0, by = 0.01),
+#   function(trunc_value) {
+#
+#     # compute the multiplicative diff var ratio under the homogeneous
+#     # multiplicative treatment effect assumption
+#     mult_diff_var_ratio_tbl <- pop_sim_tbl |>
+#       mutate(
+#         trunc_trunc_potential_time_0 = if_else(
+#           potential_time_0 > (time_cutoff * trunc_value),
+#           (time_cutoff * trunc_value), potential_time_0
+#         ),
+#         trunc_potential_time_1 = if_else(
+#           potential_time_1 > time_cutoff, time_cutoff, potential_time_1
+#         )
+#       ) |>
+#       summarise(
+#         var_0 = var(trunc_trunc_potential_time_0),
+#         var_1 = var(trunc_potential_time_1),
+#         mult_diff_var_ratio = var_1 / var_0,
+#         standardized_diff_var = mult_diff_var_ratio - (1 / trunc_value)^2
+#       ) |>
+#       mutate(trunc_value = trunc_value)
+#
+#     return(mult_diff_var_ratio_tbl)
+#   }
+# ) |>
+#   bind_rows()
 
 # mult_diff_var_ratio_tbl output:
 #    var_0 var_1 mult_diff_var_ratio standardized_diff_var trunc_value
@@ -468,3 +470,41 @@ mult_diff_var_ratio_tbl <- lapply(
 # 14  571. 1136.                1.99                0.113         0.73
 # 15  584. 1136.                1.95                0.120         0.74
 # 16  597. 1136.                1.90                0.126         0.75
+
+# add_diff_var_ratio_tbl <- lapply(
+#   seq(from = 0, to = 5),
+#   function(trunc_value) {
+#
+#     # compute the additive diff var ratio under the homogeneous additive
+#     # treatment effect assumption
+#     add_diff_var_ratio_tbl <- pop_sim_tbl |>
+#       mutate(
+#         trunc_trunc_potential_time_0 = if_else(
+#           potential_time_0 > (time_cutoff - trunc_value),
+#           (time_cutoff - trunc_value), potential_time_0
+#         ),
+#         trunc_potential_time_1 = if_else(
+#           potential_time_1 > time_cutoff, time_cutoff, potential_time_1
+#         )
+#       ) |>
+#       summarise(
+#         var_0 = var(trunc_trunc_potential_time_0),
+#         var_1 = var(trunc_potential_time_1),
+#         add_diff_var_ratio = var_1 / var_0
+#       ) |>
+#       mutate(trunc_value = trunc_value)
+#
+#     return(add_diff_var_ratio_tbl)
+#   }
+# ) |>
+#   bind_rows()
+
+# add_diff_var_ratio_tbl output:
+#   var_0 var_1 add_diff_var_ratio trunc_value
+#   <dbl> <dbl>              <dbl>       <int>
+# 1  918. 1164.               1.27           0
+# 2  905. 1164.               1.29           1
+# 3  892. 1164.               1.30           2
+# 4  880. 1164.               1.32           3
+# 5  867. 1164.               1.34           4
+# 6  855. 1164.               1.36           5
