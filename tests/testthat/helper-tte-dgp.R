@@ -15,7 +15,13 @@ generate_test_data <- function(
 
   # define hazard functions
   max_time <- 100
-  cond_cens_hazard <- function(time, exposure, w) 0.005
+  cond_cens_hazard <- function(time, exposure, w) {
+    if (exposure == 1) {
+      0.005
+    } else {
+      0.008
+    }
+  }
   if (null_marginal) {
     cond_surv_hazard <- function(time, exposure, w) {
       (time < max_time) / (75 + exp(2 * w)) + (time == max_time)
@@ -101,7 +107,7 @@ generate_test_data <- function(
   )
 
   # assemble the data.table
-  wide_tbl <- tibble(
+  wide_tbl <- dplyr::tibble(
     w = w,
     prop_score = prop_score,
     a = a,

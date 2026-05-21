@@ -29,10 +29,6 @@ test_that(paste(
       length()
     expect_equal(sample_size, num_unique_ids)
 
-    # confirm that each observation has one row for each of the possible time
-    # entries up to the cutoff
-    expect_equal(time_cutoff * sample_size, nrow(long_tte_dat_tbl))
-
     # confirm that the nuisance indicator only contains rows associated with
     # any event times prior to the time_cutoff
     unique_times <- wide_tte_dat_tbl |>
@@ -40,9 +36,7 @@ test_that(paste(
       pull(time) |>
       unique() |>
       length()
-    nuisance_estimation_tbl <- long_tte_dat_tbl |>
-      filter(cmldiffvar_for_nuisance_estimation == 1)
-    expect_equal(unique_times * sample_size, nrow(nuisance_estimation_tbl))
+    expect_equal(unique_times * sample_size, nrow(long_tte_dat_tbl))
 
   }
 )

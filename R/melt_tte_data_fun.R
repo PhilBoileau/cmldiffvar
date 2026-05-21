@@ -53,14 +53,14 @@ melt_tte_data_fun <- function(
 
       # extract the observation and repeat it for each time point
       long_obs_tbl <- wide_data_tbl |>
-        dplyr::slice(rep(obs_idx, times = time_cutoff))
+        dplyr::slice(rep(obs_idx, times = length(unique_times)))
 
       # label each entry by the time, create the longitudinal indicators, add an
       # id, and indicate which times have an event associated with them for use
       # in nuisance estimation
       long_obs_tbl <- long_obs_tbl |>
         dplyr::mutate(
-          cmldiffvar_long_time = seq_len(time_cutoff),
+          cmldiffvar_long_time = unique_times,
           R = dplyr::if_else(cmldiffvar_long_time == .data[[outcome_var_name]] &
                                .data[[censoring_var_name]] == 1, 1, 0),
           L = dplyr::if_else(cmldiffvar_long_time == .data[[outcome_var_name]] &
@@ -68,9 +68,7 @@ melt_tte_data_fun <- function(
           I = dplyr::if_else(
             cmldiffvar_long_time <= .data[[outcome_var_name]], 1, 0),
           J = dplyr::if_else(I == 1 & L == 0, 1, 0),
-          cmldiffvar_id = obs_idx,
-          cmldiffvar_for_nuisance_estimation = if_else(
-            cmldiffvar_long_time %in% unique_times, 1, 0)
+          cmldiffvar_id = obs_idx
         )
 
       # retain only the necessary variables
@@ -78,8 +76,7 @@ melt_tte_data_fun <- function(
         dplyr::select(
           dplyr::all_of(
             c("cmldiffvar_id", "cmldiffvar_long_time", baseline_var_names,
-              treatment_var_name, "R", "L", "I", "J",
-              "cmldiffvar_for_nuisance_estimation")
+              treatment_var_name, "R", "L", "I", "J")
           )
         )
     }
