@@ -195,3 +195,173 @@ test_that("conditional expected outcome^2 estimator wrapper learns from data", {
   )
 
 })
+
+
+test_that("conditional event hazard estimator wrapper learns from data", {
+
+  # load required libraries
+  library(SuperLearner)
+  library(dplyr)
+
+  # set seed for reproducibility
+  set.seed(86181)
+
+  # compute negative log loss risks of an adjusted and unadjusted estimator
+  num_iters <- 50
+  neg_log_loss_risk_tbl <- lapply(
+    seq_len(num_iters),
+    function(iter_idx) {
+
+      # grab a sample of the population
+      sample_tbl <- generate_test_data(n_obs = 50) |>
+        melt_tte_data_fun(
+          baseline_var_names = "w",
+          treatment_var_name = "a",
+          outcome_var_name = "time",
+          censoring_var_name = "censoring",
+          time_cutoff = 50
+        )
+
+      # estimate propensity score witch adjusted estimator
+      cond_event_haz_sl_adj_fit <- estimate_cond_event_haz_fun(
+        clean_long_tbl = sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        outcome_var_name = "L",
+        cond_event_haz_library = c("SL.ranger"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # estimate propensity score with unadjusted estimator
+      cond_event_haz_sl_unadj_fit <- estimate_cond_event_haz_fun(
+        clean_long_tbl = sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        outcome_var_name = "L",
+        cond_event_haz_library = c("SL.mean"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # compute negative log likelihood risks
+      outcome_vec <- sample_tbl |>
+        filter(I == 1) |>
+        pull(L)
+      adj_fit_pred_vec <- cond_event_haz_sl_adj_fit$SL.predict |>
+        as.vector()
+      cond_event_haz_sl_adj_fit_risk <- -mean(
+        outcome_vec * log(adj_fit_pred_vec) +
+          (1 - outcome_vec) * log(1 - adj_fit_pred_vec)
+      )
+      unadj_fit_pred_vec <-
+        cond_event_haz_sl_unadj_fit$SL.predict |>
+        as.vector()
+      cond_event_haz_sl_unadj_fit_risk <- -mean(
+        outcome_vec * log(unadj_fit_pred_vec) +
+          (1 - outcome_vec) * log(1 - unadj_fit_pred_vec)
+      )
+
+      # return a tibble row with results
+      return(
+        tibble(
+          "cond_event_haz_sl_adj_fit_risk" =
+            cond_event_haz_sl_adj_fit_risk,
+          "cond_event_haz_sl_unadj_fit_risk" =
+            cond_event_haz_sl_unadj_fit_risk
+        )
+      )
+    }
+  ) |>
+    bind_rows()
+
+  # ensure that adjusted estimator is outperforming unadjusted
+  expect_true(
+    mean(neg_log_loss_risk_tbl$cond_event_haz_sl_adj_fit_risk) <
+      mean(neg_log_loss_risk_tbl$cond_event_haz_sl_unadj_fit_risk)
+  )
+
+})
+
+
+test_that("conditional censoring hazard estimator wrapper learns from data", {
+
+  # load required libraries
+  library(SuperLearner)
+  library(dplyr)
+
+  # set seed for reproducibility
+  set.seed(81345)
+
+  # compute negative log loss risks of an adjusted and unadjusted estimator
+  num_iters <- 50
+  neg_log_loss_risk_tbl <- lapply(
+    seq_len(num_iters),
+    function(iter_idx) {
+
+      # grab a sample of the population
+      sample_tbl <- generate_test_data(n_obs = 50) |>
+        melt_tte_data_fun(
+          baseline_var_names = "w",
+          treatment_var_name = "a",
+          outcome_var_name = "time",
+          censoring_var_name = "censoring",
+          time_cutoff = 50
+        )
+
+      # estimate propensity score witch adjusted estimator
+      cond_censoring_haz_sl_adj_fit <- estimate_cond_censoring_haz_fun(
+        clean_long_tbl = sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        outcome_var_name = "R",
+        cond_censoring_haz_library = c("SL.ranger"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # estimate propensity score with unadjusted estimator
+      cond_censoring_haz_sl_unadj_fit <- estimate_cond_censoring_haz_fun(
+        clean_long_tbl = sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        outcome_var_name = "R",
+        cond_censoring_haz_library = c("SL.mean"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # compute negative log likelihood risks
+      outcome_vec <- sample_tbl |>
+        filter(J == 1) |>
+        pull(R)
+      adj_fit_pred_vec <- cond_censoring_haz_sl_adj_fit$SL.predict |>
+        as.vector()
+      cond_censoring_haz_sl_adj_fit_risk <- -mean(
+        outcome_vec * log(adj_fit_pred_vec) +
+          (1 - outcome_vec) * log(1 - adj_fit_pred_vec)
+      )
+      unadj_fit_pred_vec <-
+        cond_censoring_haz_sl_unadj_fit$SL.predict |>
+        as.vector()
+      cond_censoring_haz_sl_unadj_fit_risk <- -mean(
+        outcome_vec * log(unadj_fit_pred_vec) +
+          (1 - outcome_vec) * log(1 - unadj_fit_pred_vec)
+      )
+
+      # return a tibble row with results
+      return(
+        tibble(
+          "cond_censoring_haz_sl_adj_fit_risk" =
+            cond_censoring_haz_sl_adj_fit_risk,
+          "cond_censoring_haz_sl_unadj_fit_risk" =
+            cond_censoring_haz_sl_unadj_fit_risk
+        )
+      )
+    }
+  ) |>
+    bind_rows()
+
+  # ensure that adjusted estimator is outperforming unadjusted
+  expect_true(
+    mean(neg_log_loss_risk_tbl$cond_censoring_haz_sl_adj_fit_risk) <
+      mean(neg_log_loss_risk_tbl$cond_censoring_haz_sl_unadj_fit_risk)
+  )
+
+})

@@ -136,3 +136,69 @@ estimate_cond_exp_sq_outcome_fun <- function(
   return(cond_exp_sq_outcome_sl_fit)
 
 }
+
+estimate_cond_event_haz_fun <- function(
+  clean_long_tbl,
+  adj_set_var_names,
+  treatment_var_name,
+  outcome_var_name,
+  cond_event_haz_library,
+  num_nuisance_sl_folds
+) {
+
+  # only retain rows at risk of an event at an actual recorded event time
+  clean_long_tbl <- clean_long_tbl |> dplyr::filter(I == 1)
+
+  # extract dependent and independent variables
+  outcome_vec <- clean_long_tbl |>
+    dplyr::select(dplyr::all_of(outcome_var_name)) |>
+    dplyr::pull()
+  covariates_tbl <- clean_long_tbl |>
+    dplyr::select(dplyr::all_of(c(adj_set_var_names, treatment_var_name,
+                                  "cmldiffvar_long_time")))
+
+  # estimate the conditional event hazard rate
+  cond_event_haz_sl_fit <- SuperLearner::SuperLearner(
+    Y = outcome_vec,
+    X = covariates_tbl,
+    family = stats::binomial(),
+    SL.library = cond_event_haz_library,
+    cvControl = list("V" = num_nuisance_sl_folds)
+  )
+
+  return(cond_event_haz_sl_fit)
+
+}
+
+estimate_cond_censoring_haz_fun <- function(
+    clean_long_tbl,
+    adj_set_var_names,
+    treatment_var_name,
+    outcome_var_name,
+    cond_censoring_haz_library,
+    num_nuisance_sl_folds
+) {
+
+  # only retain rows at risk of censoring at an actual recorded event time
+  clean_long_tbl <- clean_long_tbl |> dplyr::filter(J == 1)
+
+  # extract dependent and independent variables
+  outcome_vec <- clean_long_tbl |>
+    dplyr::select(dplyr::all_of(outcome_var_name)) |>
+    dplyr::pull()
+  covariates_tbl <- clean_long_tbl |>
+    dplyr::select(dplyr::all_of(c(adj_set_var_names, treatment_var_name,
+                                  "cmldiffvar_long_time")))
+
+  # estimate the conditional event hazard rate
+  cond_censoring_haz_sl_fit <- SuperLearner::SuperLearner(
+    Y = outcome_vec,
+    X = covariates_tbl,
+    family = stats::binomial(),
+    SL.library = cond_censoring_haz_library,
+    cvControl = list("V" = num_nuisance_sl_folds)
+  )
+
+  return(cond_censoring_haz_sl_fit)
+
+}
