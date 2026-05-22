@@ -365,3 +365,110 @@ test_that("conditional censoring hazard estimator wrapper learns from data", {
   )
 
 })
+
+
+test_that("one-step marginal survival estimator is consistent", {
+
+  # load required libraries
+  library(dplyr)
+  library(SuperLearner)
+
+  # set seed for reproducibility
+  set.seed(1681615)
+
+  # grab a sample of the population and melt their data
+  survival_estimate_vec <- sapply(
+    seq_len(100),
+    function(iter_idx) {
+      sample_tbl <- generate_test_data(n_obs = 500, null_marginal = FALSE)
+      long_sample_tbl <- sample_tbl |>
+        melt_tte_data_fun(
+          baseline_var_names = "w",
+          treatment_var_name = "a",
+          outcome_var_name = "time",
+          censoring_var_name = "censoring",
+          time_cutoff = 50
+        )
+
+      # fit nuisance parameter estimators
+      ps_sl_fit <- estimate_propensity_score_fun(
+        sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        propensity_score_library = c("SL.glm", "SL.mean"),
+        num_nuisance_sl_folds = 5
+      )
+      cond_event_haz_sl_fit <- estimate_cond_event_haz_fun(
+        clean_long_tbl = long_sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        outcome_var_name = "L",
+        cond_event_haz_library = c("SL.glm"),
+        num_nuisance_sl_folds = 5
+      )
+      cond_censoring_haz_sl_fit <- estimate_cond_censoring_haz_fun(
+        clean_long_tbl = long_sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        outcome_var_name = "R",
+        cond_censoring_haz_library = c("SL.glm"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # construct the counterfactual dataset under the treatment group
+      sample_long_treatment_tbl <- generate_long_counterfactural_tbl_fun(
+        clean_long_tbl = long_sample_tbl,
+        treatment_group = 1,
+        propensity_score_adj_var_names = "w",
+        cond_event_haz_adj_var_names = "w",
+        cond_censoring_haz_adj_var_names = "w",
+        treatment_var_name = "a",
+        propensity_score_var_name = NULL,
+        propensity_score_sl_fit = ps_sl_fit,
+        cond_event_haz_sl_fit = cond_event_haz_sl_fit,
+        cond_censoring_haz_sl_fit = cond_censoring_haz_sl_fit
+      )
+
+      # extract the conditional survival time estimate at time = 50 in long
+      # format
+      num_unique_times <- sample_long_treatment_tbl |>
+        pull(cmldiffvar_long_time) |>
+        unique() |>
+        length()
+      cond_surv_at_trunc_est_vec <- sample_long_treatment_tbl |>
+        filter(cmldiffvar_long_time <= 50) |>
+        group_by(cmldiffvar_id) |>
+        slice_tail(n = 1) |>
+        select(cmldiffvar_id, pred_cond_event_survival) |>
+        ungroup() |>
+        slice(rep(1:n(), each = num_unique_times)) |>
+        pull(pred_cond_event_survival)
+
+      # estimate the survival probability among the treated at time = 50
+      one_step_marginal_survival_estimator_fun(
+        treatment_group = 1,
+        cmldiffvar_id = sample_long_treatment_tbl$cmldiffvar_id,
+        cmldiffvar_time_long = sample_long_treatment_tbl$cmldiffvar_long_time,
+        time_cutoff = 50,
+        treatment_vec = sample_long_treatment_tbl$a,
+        ps_est_vec = sample_long_treatment_tbl$pred_propensity_score,
+        cond_survival_est_vec =
+          sample_long_treatment_tbl$pred_cond_event_survival,
+        cond_surv_at_trunc_est_vec = cond_surv_at_trunc_est_vec,
+        cond_censoring_survival_est_vec =
+          sample_long_treatment_tbl$pred_cond_censoring_survival,
+        I_vec = sample_long_treatment_tbl$I,
+        L_vec = sample_long_treatment_tbl$L,
+        cond_event_haz_est_vec = sample_long_treatment_tbl$pred_cond_event_haz
+      )
+    }
+  )
+
+  # approximate true survival probability under treatment at time=50
+  population_tbl <- generate_test_data(n_obs = 10000, null_marginal = FALSE)
+  pop_surv_at_50 <- mean(population_tbl$potential_time_1 >= 50)
+
+  # make sure the empirical bias is small
+  expect_lte(abs(mean(survival_estimate_vec) - pop_surv_at_50), 0.025)
+
+})
