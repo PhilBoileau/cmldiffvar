@@ -472,3 +472,92 @@ test_that("one-step marginal survival estimator is consistent", {
   expect_lte(abs(mean(survival_estimate_vec) - pop_surv_at_50), 0.025)
 
 })
+
+
+test_that("one-step RMST estimator is consistent", {
+
+  # load required libraries
+  library(dplyr)
+  library(SuperLearner)
+
+  # set seed for reproducibility
+  set.seed(51831)
+
+  # grab a sample of the population and melt their data
+  rmst_estimate_vec <- sapply(
+    seq_len(100),
+    function(iter_idx) {
+      sample_tbl <- generate_test_data(n_obs = 500, null_marginal = FALSE)
+      long_sample_tbl <- sample_tbl |>
+        melt_tte_data_fun(
+          baseline_var_names = "w",
+          treatment_var_name = "a",
+          outcome_var_name = "time",
+          censoring_var_name = "censoring",
+          time_cutoff = 50
+        )
+
+      # fit nuisance parameter estimators
+      ps_sl_fit <- estimate_propensity_score_fun(
+        sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        propensity_score_library = c("SL.glm", "SL.mean"),
+        num_nuisance_sl_folds = 5
+      )
+      cond_event_haz_sl_fit <- estimate_cond_event_haz_fun(
+        clean_long_tbl = long_sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        outcome_var_name = "L",
+        cond_event_haz_library = c("SL.glm"),
+        num_nuisance_sl_folds = 5
+      )
+      cond_censoring_haz_sl_fit <- estimate_cond_censoring_haz_fun(
+        clean_long_tbl = long_sample_tbl,
+        adj_set_var_names = "w",
+        treatment_var_name = "a",
+        outcome_var_name = "R",
+        cond_censoring_haz_library = c("SL.glm"),
+        num_nuisance_sl_folds = 5
+      )
+
+      # construct the counterfactual dataset under the treatment group
+      sample_long_treatment_tbl <- generate_long_counterfactural_tbl_fun(
+        clean_long_tbl = long_sample_tbl,
+        treatment_group = 1,
+        propensity_score_adj_var_names = "w",
+        cond_event_haz_adj_var_names = "w",
+        cond_censoring_haz_adj_var_names = "w",
+        treatment_var_name = "a",
+        propensity_score_var_name = NULL,
+        propensity_score_sl_fit = ps_sl_fit,
+        cond_event_haz_sl_fit = cond_event_haz_sl_fit,
+        cond_censoring_haz_sl_fit = cond_censoring_haz_sl_fit
+      )
+
+      # estimate the survival probability among the treated at time = 50
+      one_step_rmst_estimator_fun(
+        counterfactual_long_tbl = sample_long_treatment_tbl,
+        treatment_group = 1,
+        treatment_var_name = "a",
+        time_cutoff = 40
+      )
+    }
+  )
+
+  # approximate true RMST under treatment at time=40
+  population_tbl <- generate_test_data(n_obs = 10000, null_marginal = FALSE)
+  rmst_at_40 <- population_tbl |>
+    mutate(trunc_potential_time_1 = if_else(
+        potential_time_1 > 40, 40, potential_time_1
+      )
+    ) |>
+    summarise(rmst_at_40 = mean(trunc_potential_time_1)) |>
+    pull(rmst_at_40)
+
+  # make sure the empirical bias is small
+  expect_lte(abs(mean(rmst_estimate_vec) - rmst_at_40), 0.1)
+
+})
+
