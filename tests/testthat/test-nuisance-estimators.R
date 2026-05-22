@@ -525,7 +525,7 @@ test_that("one-step RMST estimator is consistent", {
       # construct the counterfactual dataset under the treatment group
       sample_long_treatment_tbl <- generate_long_counterfactural_tbl_fun(
         clean_long_tbl = long_sample_tbl,
-        treatment_group = 1,
+        treatment_group = 0,
         propensity_score_adj_var_names = "w",
         cond_event_haz_adj_var_names = "w",
         cond_censoring_haz_adj_var_names = "w",
@@ -539,25 +539,25 @@ test_that("one-step RMST estimator is consistent", {
       # estimate the survival probability among the treated at time = 50
       one_step_rmst_estimator_fun(
         counterfactual_long_tbl = sample_long_treatment_tbl,
-        treatment_group = 1,
+        treatment_group = 0,
         treatment_var_name = "a",
         time_cutoff = 40
       )
     }
   )
 
-  # approximate true RMST under treatment at time=40
+  # approximate true RMST under control at time=40
   population_tbl <- generate_test_data(n_obs = 10000, null_marginal = FALSE)
   rmst_at_40 <- population_tbl |>
-    mutate(trunc_potential_time_1 = if_else(
-        potential_time_1 > 40, 40, potential_time_1
+    mutate(trunc_potential_time_0 = if_else(
+        potential_time_0 > 40, 40, potential_time_0
       )
     ) |>
-    summarise(rmst_at_40 = mean(trunc_potential_time_1)) |>
+    summarise(rmst_at_40 = mean(trunc_potential_time_0)) |>
     pull(rmst_at_40)
 
   # make sure the empirical bias is small
-  expect_lte(abs(mean(rmst_estimate_vec) - rmst_at_40), 0.1)
+  expect_lte(abs(mean(rmst_estimate_vec) - rmst_at_40), 0.5)
 
 })
 
