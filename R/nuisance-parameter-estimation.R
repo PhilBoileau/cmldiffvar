@@ -137,6 +137,22 @@ estimate_cond_exp_sq_outcome_fun <- function(
 
 }
 
+#' SuperLearned Conditional Event Hazard Rate
+#'
+#' `estimate_cond_event_haz_fun()` estimates the conditional event
+#' hazard rate using a SuperLearner estimator implemented in the
+#' [SuperLearner::SuperLearner()] function.
+#'
+#' @inheritParams generate_long_counterfactural_tbl_fun
+#' @inheritParams estimate_cond_exp_outcome_fun
+#' @param cond_event_haz_library A `character` vector of candidate learners
+#'   used by the SuperLearner estimator.
+#'
+#' @keywords internal
+#'
+#' @returns A [SuperLearner::SuperLearner] class object containing the
+#'   estimated conditional event hazard rate.
+#'
 estimate_cond_event_haz_fun <- function(
   clean_long_tbl,
   adj_set_var_names,
@@ -170,6 +186,22 @@ estimate_cond_event_haz_fun <- function(
 
 }
 
+#' SuperLearned Conditional Cenoring Hazard Rate
+#'
+#' `estimate_cond_censoring_haz_fun()` estimates the conditional censoring
+#' hazard rate using a SuperLearner estimator implemented in the
+#' [SuperLearner::SuperLearner()] function.
+#'
+#' @inheritParams generate_long_counterfactural_tbl_fun
+#' @inheritParams estimate_cond_exp_outcome_fun
+#' @param cond_censoring_haz_library A `character` vector of candidate learners
+#'   used by the SuperLearner estimator.
+#'
+#' @keywords internal
+#'
+#' @returns A [SuperLearner::SuperLearner] class object containing the
+#'   estimated conditional censoring hazard rate.
+#'
 estimate_cond_censoring_haz_fun <- function(
     clean_long_tbl,
     adj_set_var_names,
