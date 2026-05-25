@@ -348,6 +348,14 @@ one_step_tte_var_estimator_fun <- function(
     unique() |>
     sort()
 
+  # estimate the RMST using one-step estimator
+  rmst_est <- one_step_rmst_estimator_fun(
+    counterfactual_long_tbl,
+    treatment_group,
+    treatment_var_name,
+    time_cutoff
+  )
+
   # compute the uncentered marginal survival EIF values at all observed times
   # until the cutoff
   uncentered_eif_marginal_survival_values_tbl <- lapply(
@@ -403,30 +411,28 @@ one_step_tte_var_estimator_fun <- function(
     dplyr::arrange(cmldiffvar_id, cmldiffvar_long_time) |>
     dplyr::group_by(cmldiffvar_id) |>
     dplyr::mutate(
-      partial_weight = (cmldiffvar_long_time - 1) *
-        (cmldiffvar_long_time - 2) / 2,
-      lead_partial_weight = dplyr::lead(
-        partial_weight, default = time_cutoff * (time_cutoff - 1) / 2
-      ),
-      int_weight = lead_partial_weight - partial_weight
+      time_steps_to_add = lead(cmldiffvar_long_time, default = time_cutoff) -
+        cmldiffvar_long_time
+    ) |>
+    tidyr::uncount(weights = time_steps_to_add) |>
+    dplyr::mutate(
+      cmldiffvar_long_time = rep(seq_len(time_cutoff - 1)),
+      int_weight = cmldiffvar_long_time - rmst_est
     ) |>
     dplyr::summarize(
-      integral_term = 2 * sum(int_weight * uncentered_eif_val),
+      integral_term = sum(int_weight * uncentered_eif_val),
       .groups = "drop"
+    ) |>
+    dplyr::mutate(
+      integral_term = integral_term
     )
-
-  # estimate the RMST using one-step estimator
-  rmst_est <- one_step_rmst_estimator_fun(
-    counterfactual_long_tbl,
-    treatment_group,
-    treatment_var_name,
-    time_cutoff
-  )
 
   # construct the uncentered EIF tibble
   uncentered_eif_tbl <- eif_integral_term_tbl |>
+    # NOTE: subtract rmst_est to account for elapsed times between 0 and 1
+    # this is to approximate the continuous integral
     dplyr::mutate(
-      uncentered_eif_val = integral_term + rmst_est * (2 - rmst_est)
+      uncentered_eif_val = 2 * integral_term + rmst_est^2 - rmst_est
     )
 
   # compute the one-step marginal variance estimate
