@@ -329,3 +329,108 @@ unadjusted_var_estimator_fun <- function(
   return(result_ls)
 
 }
+
+
+one_step_tte_var_estimator_fun <- function(
+    counterfactual_long_tbl,
+    treatment_group,
+    treatment_var_name,
+    time_cutoff
+) {
+
+  # only consider observations until time cutoff
+  counterfactual_long_tbl <- counterfactual_long_tbl |>
+    dplyr::filter(cmldiffvar_long_time <= time_cutoff)
+
+  # extract all of the unique observed times
+  unique_times <- counterfactual_long_tbl |>
+    dplyr::pull(cmldiffvar_long_time) |>
+    unique() |>
+    sort()
+
+  # compute the uncentered marginal survival EIF values at all observed times
+  # until the cutoff
+  uncentered_eif_marginal_survival_values_tbl <- lapply(
+    unique_times,
+    function(iter_time) {
+
+      # extract the conditional survival times truncated at the iter_time
+      num_times <- sum(unique_times <= iter_time)
+      cond_surv_at_trunc_est_vec <- counterfactual_long_tbl |>
+        dplyr::filter(cmldiffvar_long_time <= iter_time) |>
+        dplyr::group_by(cmldiffvar_id) |>
+        dplyr::slice_tail(n = 1) |>
+        dplyr::select(cmldiffvar_id, pred_cond_event_survival) |>
+        dplyr::ungroup() |>
+        dplyr::slice(rep(1:dplyr::n(), each = num_times)) |>
+        dplyr::pull(pred_cond_event_survival)
+
+      # restrict the longitudinal counterfactual dataset to the time frame
+      trunc_counterfactual_long_tbl <- counterfactual_long_tbl |>
+        dplyr::filter(cmldiffvar_long_time <= iter_time)
+
+      # compute the uncentered marginal survival EIF values
+      uncentered_eif_tbl <- uncentered_marginal_survival_eif_fun(
+        treatment_group = treatment_group,
+        cmldiffvar_id = trunc_counterfactual_long_tbl$cmldiffvar_id,
+        cmldiffvar_time_long =
+          trunc_counterfactual_long_tbl$cmldiffvar_long_time,
+        time_cutoff = iter_time,
+        treatment_vec = trunc_counterfactual_long_tbl[[treatment_var_name]],
+        ps_est_vec = trunc_counterfactual_long_tbl$pred_propensity_score,
+        cond_survival_est_vec =
+          trunc_counterfactual_long_tbl$pred_cond_event_survival,
+        cond_surv_at_trunc_est_vec = cond_surv_at_trunc_est_vec,
+        cond_censoring_survival_est_vec =
+          trunc_counterfactual_long_tbl$pred_cond_censoring_survival,
+        I_vec = trunc_counterfactual_long_tbl$I,
+        L_vec = trunc_counterfactual_long_tbl$L,
+        cond_event_haz_est_vec =
+          trunc_counterfactual_long_tbl$pred_cond_event_haz
+      )
+
+      # add the time point
+      uncentered_eif_tbl |>
+        dplyr::mutate(cmldiffvar_long_time = iter_time)
+
+    }
+  ) |>
+    dplyr::bind_rows()
+
+  # compute the weighted sum of the uncentered marginal survival EIF values
+  # which equals the integral term in the EIF of the marginal TTE variance
+  eif_integral_term_tbl <- uncentered_eif_marginal_survival_values_tbl |>
+    dplyr::arrange(cmldiffvar_id, cmldiffvar_long_time) |>
+    dplyr::group_by(cmldiffvar_id) |>
+    dplyr::mutate(
+      partial_weight = (cmldiffvar_long_time - 1) *
+        (cmldiffvar_long_time - 2) / 2,
+      lead_partial_weight = dplyr::lead(
+        partial_weight, default = time_cutoff * (time_cutoff - 1) / 2
+      ),
+      int_weight = lead_partial_weight - partial_weight
+    ) |>
+    dplyr::summarize(
+      integral_term = 2 * sum(int_weight * uncentered_eif_val),
+      .groups = "drop"
+    )
+
+  # estimate the RMST using one-step estimator
+  rmst_est <- one_step_rmst_estimator_fun(
+    counterfactual_long_tbl,
+    treatment_group,
+    treatment_var_name,
+    time_cutoff
+  )
+
+  # construct the uncentered EIF tibble
+  uncentered_eif_tbl <- eif_integral_term_tbl |>
+    dplyr::mutate(
+      uncentered_eif_val = integral_term + rmst_est * (2 - rmst_est)
+    )
+
+  # compute the one-step marginal variance estimate
+  mean(uncentered_eif_tbl$uncentered_eif_val)
+
+
+}

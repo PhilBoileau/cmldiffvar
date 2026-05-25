@@ -445,7 +445,7 @@ test_that("one-step marginal survival estimator is consistent", {
         pull(pred_cond_event_survival)
 
       # estimate the survival probability among the treated at time = 50
-      one_step_marginal_survival_estimator_fun(
+      uncentered_eif_tbl <- uncentered_marginal_survival_eif_fun(
         treatment_group = 1,
         cmldiffvar_id = sample_long_treatment_tbl$cmldiffvar_id,
         cmldiffvar_time_long = sample_long_treatment_tbl$cmldiffvar_long_time,
@@ -461,6 +461,7 @@ test_that("one-step marginal survival estimator is consistent", {
         L_vec = sample_long_treatment_tbl$L,
         cond_event_haz_est_vec = sample_long_treatment_tbl$pred_cond_event_haz
       )
+      one_step_marginal_survival_estimator_fun(uncentered_eif_tbl)
     }
   )
 

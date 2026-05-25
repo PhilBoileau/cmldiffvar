@@ -32,7 +32,7 @@ one_step_mean_estimator_fun <- function(
 }
 
 
-one_step_marginal_survival_estimator_fun <- function(
+uncentered_marginal_survival_eif_fun <- function(
   treatment_group,
   cmldiffvar_id,
   cmldiffvar_time_long,
@@ -46,7 +46,6 @@ one_step_marginal_survival_estimator_fun <- function(
   L_vec,
   cond_event_haz_est_vec
 ) {
-
   # uncentered efficient influence function integrand of the marginal survival
   # in long format, without multiplicative factor
   eif_integrand_vec <- (I_vec * (L_vec - cond_event_haz_est_vec)) /
@@ -55,10 +54,10 @@ one_step_marginal_survival_estimator_fun <- function(
   # IPWs
   ipws <- (treatment_vec == treatment_group) /
     ((treatment_group == 1) * ps_est_vec +
-      (treatment_group == 0) * (1 - ps_est_vec))
+       (treatment_group == 0) * (1 - ps_est_vec))
 
   # collapse the uncentered efficient influence function by id
-  eif_tbl <- dplyr::tibble(
+  uncentered_eif_tbl <- dplyr::tibble(
     cmldiffvar_id = cmldiffvar_id,
     cmldiffvar_time_long = cmldiffvar_time_long,
     cond_surv_at_trunc_est_vec = cond_surv_at_trunc_est_vec,
@@ -81,10 +80,16 @@ one_step_marginal_survival_estimator_fun <- function(
     dplyr::mutate(
       uncentered_eif_val = ipws * cond_surv_at_trunc_est_vec *
         uncentered_eif_integral_val + cond_surv_at_trunc_est_vec
-    )
+    ) |>
+    dplyr::select(cmldiffvar_id, uncentered_eif_val)
+
+  return(uncentered_eif_tbl)
+}
+
+one_step_marginal_survival_estimator_fun <- function(uncentered_eif_tbl) {
 
   # compute the one-step marginal survival estimate
-  mean(eif_tbl$uncentered_eif_val)
+  mean(uncentered_eif_tbl$uncentered_eif_val)
 
 }
 
@@ -96,6 +101,7 @@ one_step_rmst_estimator_fun <- function(
     time_cutoff
 ) {
 
+  # only consider observations until time cutoff
   counterfactual_long_tbl <- counterfactual_long_tbl |>
     dplyr::filter(cmldiffvar_long_time <= time_cutoff)
 
@@ -127,7 +133,7 @@ one_step_rmst_estimator_fun <- function(
         dplyr::filter(cmldiffvar_long_time <= iter_time)
 
       # one-step estimator of the marginal survival probabilities
-      one_step_marginal_survival_estimator_fun(
+      uncentered_eif_tbl <- uncentered_marginal_survival_eif_fun(
         treatment_group = treatment_group,
         cmldiffvar_id = trunc_counterfactual_long_tbl$cmldiffvar_id,
         cmldiffvar_time_long =
@@ -145,6 +151,7 @@ one_step_rmst_estimator_fun <- function(
         cond_event_haz_est_vec =
           trunc_counterfactual_long_tbl$pred_cond_event_haz
       )
+      one_step_marginal_survival_estimator_fun(uncentered_eif_tbl)
 
     }
   )
