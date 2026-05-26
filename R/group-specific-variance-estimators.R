@@ -349,7 +349,7 @@ full_uncentered_marginal_survival_eif_tbl_fun <- function(
     sort()
 
   # compute the uncentered marginal survival EIF values at all observed times
-  # until the cutoff
+  # until the cutoff (inner integral)
   uncentered_eif_marginal_survival_values_tbl <- lapply(
     unique_times,
     function(iter_time) {
@@ -397,7 +397,8 @@ full_uncentered_marginal_survival_eif_tbl_fun <- function(
   ) |>
     dplyr::bind_rows()
 
-  # order and expand the uncentered marginal survival EIF values
+  # order and expand the uncentered marginal survival EIF values to obtain the
+  # non-integrated elements of the outer integral
   uncentered_eif_marginal_survival_values_tbl <-
     uncentered_eif_marginal_survival_values_tbl |>
     dplyr::arrange(cmldiffvar_id, cmldiffvar_long_time) |>
@@ -436,7 +437,7 @@ uncentered_marginal_tte_var_eif_fun <- function(
 
   # construct the uncentered EIF tibble
   uncentered_eif_tbl <- eif_integral_term_tbl |>
-    dplyr::mutate(
+    dplyr::transmute(
       uncentered_eif_val = 2 * integral_term + rmst_est^2
     )
 
@@ -451,5 +452,42 @@ one_step_marginal_tte_var_estimator_fun <- function(
   # compute the one-step marginal variance estimate
   mean(uncentered_marginal_tte_var_eif_tbl$uncentered_eif_val)
 
+
+}
+
+tte_var_plugin_estimator_fun <- function(
+  counterfactual_long_tbl,
+  time_cutoff
+) {
+
+  # compute the mean survival times at each time point
+  mean_survival_tbl <- counterfactual_long_tbl |>
+    dplyr::ungroup() |>
+    dplyr::filter(cmldiffvar_long_time < time_cutoff) |>
+    dplyr::group_by(cmldiffvar_long_time) |>
+    dplyr::summarise(
+      mean_event_survival = mean(pred_cond_event_survival),
+      .groups = "drop"
+    )
+
+
+  # compute terms of the plug-in estimator
+  plugin_term_tbl <- mean_survival_tbl |>
+    dplyr::mutate(
+      time_steps_to_add = lead(cmldiffvar_long_time, default = time_cutoff) -
+        cmldiffvar_long_time
+    ) |>
+    tidyr::uncount(weights = time_steps_to_add) |>
+    dplyr::mutate(
+      cmldiffvar_long_time = rep(seq_len(time_cutoff - 1)),
+      int_weight = cmldiffvar_long_time
+    ) |>
+    dplyr::summarise(
+      first_term = sum(2 * int_weight * mean_event_survival),
+      second_term = (sum(mean_event_survival) + 1)^2
+    )
+
+  # compute the plug-in estimate
+  plugin_term_tbl$first_term - plugin_term_tbl$second_term
 
 }

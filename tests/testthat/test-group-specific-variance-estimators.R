@@ -427,7 +427,6 @@ test_that("unadjusted estimators of group-specific are consistent", {
 
 })
 
-
 test_that("One-step TTE variance estimator is consistent", {
 
   # load required libraries
@@ -490,7 +489,7 @@ test_that("One-step TTE variance estimator is consistent", {
         cond_censoring_haz_sl_fit = cond_censoring_haz_sl_fit
       )
 
-      # estimate the survival probability among the treated at time = 50
+      # estimate the marginal variance under treatment at time = 40
       full_uncentered_marginal_survival_eif_tbl <-
         full_uncentered_marginal_survival_eif_tbl_fun(
           counterfactual_long_tbl = sample_long_treatment_tbl,
