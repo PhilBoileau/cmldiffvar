@@ -331,11 +331,11 @@ unadjusted_var_estimator_fun <- function(
 }
 
 
-one_step_tte_var_estimator_fun <- function(
-    counterfactual_long_tbl,
-    treatment_group,
-    treatment_var_name,
-    time_cutoff
+full_uncentered_marginal_survival_eif_tbl_fun <- function(
+  counterfactual_long_tbl,
+  treatment_group,
+  treatment_var_name,
+  time_cutoff
 ) {
 
   # only consider observations until time cutoff
@@ -347,14 +347,6 @@ one_step_tte_var_estimator_fun <- function(
     dplyr::pull(cmldiffvar_long_time) |>
     unique() |>
     sort()
-
-  # estimate the RMST using one-step estimator
-  rmst_est <- one_step_rmst_estimator_fun(
-    counterfactual_long_tbl,
-    treatment_group,
-    treatment_var_name,
-    time_cutoff
-  )
 
   # compute the uncentered marginal survival EIF values at all observed times
   # until the cutoff
@@ -405,9 +397,9 @@ one_step_tte_var_estimator_fun <- function(
   ) |>
     dplyr::bind_rows()
 
-  # compute the weighted sum of the uncentered marginal survival EIF values
-  # which equals the integral term in the EIF of the marginal TTE variance
-  eif_integral_term_tbl <- uncentered_eif_marginal_survival_values_tbl |>
+  # order and expand the uncentered marginal survival EIF values
+  uncentered_eif_marginal_survival_values_tbl <-
+    uncentered_eif_marginal_survival_values_tbl |>
     dplyr::arrange(cmldiffvar_id, cmldiffvar_long_time) |>
     dplyr::group_by(cmldiffvar_id) |>
     dplyr::mutate(
@@ -415,28 +407,49 @@ one_step_tte_var_estimator_fun <- function(
         cmldiffvar_long_time
     ) |>
     tidyr::uncount(weights = time_steps_to_add) |>
-    dplyr::mutate(
-      cmldiffvar_long_time = rep(seq_len(time_cutoff - 1)),
-      int_weight = cmldiffvar_long_time - rmst_est
-    ) |>
+    dplyr::mutate(cmldiffvar_long_time = rep(seq_len(time_cutoff - 1)))
+
+
+  return(uncentered_eif_marginal_survival_values_tbl)
+}
+
+uncentered_marginal_tte_var_eif_fun <- function(
+  full_uncentered_marginal_survival_eif_tbl,
+  time_cutoff,
+  rmst_est
+) {
+
+  # compute the weighted sum of the uncentered marginal survival EIF values
+  # which equals the integral term in the EIF of the marginal TTE variance
+  eif_integral_term_tbl <- full_uncentered_marginal_survival_eif_tbl |>
+    dplyr::filter(cmldiffvar_long_time < time_cutoff) |>
+    dplyr::mutate(int_weight = cmldiffvar_long_time - rmst_est) |>
     dplyr::summarize(
       integral_term = sum(int_weight * uncentered_eif_val),
       .groups = "drop"
     ) |>
+    # NOTE: subtract rmst_est to account for elapsed times between 0 and 1
+    # this is to approximate the continuous integral
     dplyr::mutate(
-      integral_term = integral_term
+      integral_term = integral_term - (rmst_est / 2)
     )
 
   # construct the uncentered EIF tibble
   uncentered_eif_tbl <- eif_integral_term_tbl |>
-    # NOTE: subtract rmst_est to account for elapsed times between 0 and 1
-    # this is to approximate the continuous integral
     dplyr::mutate(
-      uncentered_eif_val = 2 * integral_term + rmst_est^2 - rmst_est
+      uncentered_eif_val = 2 * integral_term + rmst_est^2
     )
 
+  return(uncentered_eif_tbl)
+
+}
+
+one_step_marginal_tte_var_estimator_fun <- function(
+    uncentered_marginal_tte_var_eif_tbl
+) {
+
   # compute the one-step marginal variance estimate
-  mean(uncentered_eif_tbl$uncentered_eif_val)
+  mean(uncentered_marginal_tte_var_eif_tbl$uncentered_eif_val)
 
 
 }

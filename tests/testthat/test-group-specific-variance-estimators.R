@@ -491,11 +491,27 @@ test_that("One-step TTE variance estimator is consistent", {
       )
 
       # estimate the survival probability among the treated at time = 50
-      one_step_tte_var_estimator_fun(
+      full_uncentered_marginal_survival_eif_tbl <-
+        full_uncentered_marginal_survival_eif_tbl_fun(
+          counterfactual_long_tbl = sample_long_treatment_tbl,
+          treatment_group = 1,
+          treatment_var_name = "a",
+          time_cutoff = 50
+        )
+      rmst_est_at_40 <- one_step_rmst_estimator_fun(
         counterfactual_long_tbl = sample_long_treatment_tbl,
         treatment_group = 1,
         treatment_var_name = "a",
         time_cutoff = 40
+      )
+      uncentered_marginal_tte_var_eif_tbl <-
+        uncentered_marginal_tte_var_eif_fun(
+          full_uncentered_marginal_survival_eif_tbl,
+          time_cutoff = 40,
+          rmst_est = rmst_est_at_40
+        )
+      one_step_marginal_tte_var_estimator_fun(
+        uncentered_marginal_tte_var_eif_tbl
       )
     }
   )
