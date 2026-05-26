@@ -226,7 +226,7 @@ one_step_tte_diff_var_estimator_fun <- function(
       ),
       hypothesized_homogeneous_effect = dplyr::case_when(
         homogeneity_type == "additive" ~ max_time_cutoff - time_range,
-        homogeneity_type == "additive" ~ max_time_cutoff / time_range
+        homogeneity_type == "multiplicative" ~ max_time_cutoff / time_range
       )
     ) |>
     dplyr::select(

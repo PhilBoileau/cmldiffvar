@@ -84,14 +84,14 @@ generate_test_data <- function(
     # otherwise use a simple AFT model
     eps_0 <- rnorm(n_obs)
     eps_1 <- rnorm(n_obs)
-    censor_time_0 <- floor(rexp(n_obs, rate = 0.01))
-    censor_time_1 <- floor(rexp(n_obs, rate = 0.01))
+    censor_time_0 <- ceiling(rexp(n_obs, rate = 0.01))
+    censor_time_1 <- ceiling(rexp(n_obs, rate = 0.01))
     if (null_marginal) {
-      failure_time_0 <- floor(exp(3.5 - 0.4 * w + eps_0))
-      failure_time_1 <- floor(failure_time_0 * 1.1)
+      failure_time_0 <- ceiling(exp(3.5 - 0.4 * w + eps_0))
+      failure_time_1 <- ceiling(failure_time_0 * 1.1)
     } else {
-      failure_time_0 <- floor(exp(3.5 - 0.4 * w + eps_0))
-      failure_time_1 <- floor(
+      failure_time_0 <- ceiling(exp(3.5 - 0.4 * w + eps_0))
+      failure_time_1 <- ceiling(
         exp(3.5 + 0.5 * (w == 1) - 1.15 * (w == 0) + eps_1)
       )
     }
@@ -327,12 +327,12 @@ generate_test_data <- function(
 #   )
 
 # recorded values
-# $ rmst_0         <dbl> 36.92097
-# $ rmst_1         <dbl> 39.53811
-# $ var_0          <dbl> 916.7922
-# $ var_1          <dbl> 970.0174
-# $ rmst_ratio     <dbl> 1.070885
-# $ diff_var_ratio <dbl> 1.058056
+# $ rmst_0         <dbl> 37.82105
+# $ rmst_1         <dbl> 40.91098
+# $ var_0          <dbl> 904.2763
+# $ var_1          <dbl> 948.6023
+# $ rmst_ratio     <dbl> 1.081699
+# $ diff_var_ratio <dbl> 1.049018
 
 # compute the ratios of truncated survival times
 # mult_diff_var_ratio_tbl <- lapply(
@@ -367,22 +367,22 @@ generate_test_data <- function(
 # mult_diff_var_ratio_tbl output
 #    var_0 var_1 mult_diff_var_ratio standardized_diff_var trunc_value
 #    <dbl> <dbl>               <dbl>                 <dbl>       <dbl>
-#  1  726.  970.                1.34             -0.0481          0.85
-#  2  739.  970.                1.31             -0.0393          0.86
-#  3  752.  970.                1.29             -0.0308          0.87
-#  4  765.  970.                1.27             -0.0226          0.88
-#  5  777.  970.                1.25             -0.0146          0.89
-#  6  790.  970.                1.23             -0.00681         0.9
-#  7  803.  970.                1.21              0.000655        0.91
-#  8  816.  970.                1.19              0.00787         0.92
-#  9  828.  970.                1.17              0.0149          0.93
-# 10  841.  970.                1.15              0.0216          0.94
-# 11  854.  970.                1.14              0.0281          0.95
-# 12  866.  970.                1.12              0.0344          0.96
-# 13  879.  970.                1.10              0.0406          0.97
-# 14  892.  970.                1.09              0.0466          0.98
-# 15  904.  970.                1.07              0.0524          0.99
-# 16  917.  970.                1.06              0.0581          1
+#  1  713.  949.                1.33            -0.0542           0.85
+#  2  726.  949.                1.31            -0.0456           0.86
+#  3  739.  949.                1.28            -0.0374           0.87
+#  4  752.  949.                1.26            -0.0294           0.88
+#  5  765.  949.                1.24            -0.0217           0.89
+#  6  777.  949.                1.22            -0.0142           0.9
+#  7  790.  949.                1.20            -0.00693          0.91
+#  8  803.  949.                1.18             0.0000899        0.92
+#  9  816.  949.                1.16             0.00689          0.93
+# 10  828.  949.                1.15             0.0135           0.94
+# 11  841.  949.                1.13             0.0198           0.95
+# 12  854.  949.                1.11             0.0260           0.96
+# 13  866.  949.                1.09             0.0320           0.97
+# 14  879.  949.                1.08             0.0378           0.98
+# 15  892.  949.                1.06             0.0435           0.99
+# 16  904.  949.                1.05             0.0490           1
 
 # as expected, the standardized differential variance is approximately equal to
 # 0 when the truncation value is near (1/1.1), indicating a homogeneous but
@@ -414,12 +414,12 @@ generate_test_data <- function(
 #   )
 
 # recorded values
-# $ rmst_0         <dbl> 37.12697
-# $ rmst_1         <dbl> 37.08159
-# $ var_0          <dbl> 917.5128
-# $ var_1          <dbl> 1163.827
-# $ rmst_ratio     <dbl> 0.9987777
-# $ diff_var_ratio <dbl> 1.268459
+# $ rmst_0         <dbl> 38.02664
+# $ rmst_1         <dbl> 37.93872
+# $ var_0          <dbl> 904.9868
+# $ var_1          <dbl> 1145.971
+# $ rmst_ratio     <dbl> 0.9976879
+# $ diff_var_ratio <dbl> 1.266285
 
 # compute the ratios of truncated survival times
 # mult_diff_var_ratio_tbl <- lapply(
@@ -454,17 +454,17 @@ generate_test_data <- function(
 # mult_diff_var_ratio_tbl output:
 #    var_0 var_1 mult_diff_var_ratio standardized_diff_var trunc_value
 #    <dbl> <dbl>               <dbl>                 <dbl>       <dbl>
-#  1  791. 1164.                1.47                 0.237        0.9
-#  2  804. 1164.                1.45                 0.241        0.91
-#  3  816. 1164.                1.43                 0.244        0.92
-#  4  829. 1164.                1.40                 0.247        0.93
-#  5  842. 1164.                1.38                 0.251        0.94
-#  6  855. 1164.                1.36                 0.254        0.95
-#  7  867. 1164.                1.34                 0.257        0.96
-#  8  880. 1164.                1.32                 0.260        0.97
-#  9  892. 1164.                1.30                 0.263        0.98
-# 10  905. 1164.                1.29                 0.266        0.99
-# 11  918. 1164.                1.27                 0.268        1
+#  1  778. 1146.                1.47                 0.238        0.9
+#  2  791. 1146.                1.45                 0.242        0.91
+#  3  804. 1146.                1.43                 0.244        0.92
+#  4  816. 1146.                1.40                 0.247        0.93
+#  5  829. 1146.                1.38                 0.250        0.94
+#  6  842. 1146.                1.36                 0.253        0.95
+#  7  855. 1146.                1.34                 0.256        0.96
+#  8  867. 1146.                1.32                 0.259        0.97
+#  9  880. 1146.                1.30                 0.261        0.98
+# 10  892. 1146.                1.28                 0.264        0.99
+# 11  905. 1146.                1.27                 0.266        1
 
 # add_diff_var_ratio_tbl <- lapply(
 #   seq(from = 0, to = 5),
@@ -497,9 +497,9 @@ generate_test_data <- function(
 # add_diff_var_ratio_tbl output:
 #   var_0 var_1 add_diff_var_ratio trunc_value
 #   <dbl> <dbl>              <dbl>       <int>
-# 1  918. 1164.               1.27           0
-# 2  905. 1164.               1.29           1
-# 3  892. 1164.               1.30           2
-# 4  880. 1164.               1.32           3
-# 5  867. 1164.               1.34           4
-# 6  855. 1164.               1.36           5
+# 1  905. 1146.               1.27           0
+# 2  892. 1146.               1.28           1
+# 3  880. 1146.               1.30           2
+# 4  867. 1146.               1.32           3
+# 5  855. 1146.               1.34           4
+# 6  842. 1146.               1.36           5
