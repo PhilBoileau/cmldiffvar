@@ -32,6 +32,36 @@ one_step_mean_estimator_fun <- function(
 }
 
 
+#' Uncentered Efficient Influence Function of the Marginal Survival Probability
+#'
+#' @param treatment_group A `numeric` indicating the counterfactual treatment
+#'   group assignment.
+#' @param cmldiffvar_id A `numeric` vector corresponding to the observations'
+#'   assigned identifiers.
+#' @param cmldiffvar_time_long A `numeric` vector corresponding to the
+#'   observations' longitudinal times.
+#' @param time_cutoff A `numeric` indicating the time at which to evaluate the
+#'   marginal survival probability.
+#' @param treatment_vec A `numeric` vector corresponding to the observations'
+#'   assigned treatment groups.
+#' @param ps_est_vec A `numeric` vector of the observations' predicted
+#'   propensity scores.
+#' @param cond_survival_est_vec A `numeric` vector of the observations'
+#'   predicted conditional event survival probabilities.
+#' @param cond_surv_at_trunc_est_vec A `numeric` vector of the observations'
+#'   predicted conditional event survival probabilities at `time_cutoff`.
+#' @param cond_censoring_survival_est_vec A `numeric` vector of the
+#'   observations' predicted conditional censoring survival probabilities.
+#' @param I_vec A `numeric` vector of the I indicators.
+#' @param L_vec A `numeric` vector of the J indicators.
+#' @param cond_event_haz_est_vec A `numeric` vector of the observations'
+#'   predicted conditional event hazards.
+#'
+#' @returns A [tibble] containing the uncentered efficient influence function of
+#'   the marginal survival probabilities at time `time_cutoff`.
+#'
+#' @keywords internal
+#'
 uncentered_marginal_survival_eif_fun <- function(
   treatment_group,
   cmldiffvar_id,
@@ -64,24 +94,26 @@ uncentered_marginal_survival_eif_fun <- function(
     ipws = ipws,
     eif_integrand_vec = eif_integrand_vec
   ) |>
-    dplyr::group_by(cmldiffvar_id) |>
+    dplyr::group_by(.data$cmldiffvar_id) |>
     dplyr::mutate(
       int_weight = dplyr::lead(
-        cmldiffvar_time_long, default = time_cutoff
-      ) - cmldiffvar_time_long
+        .data$cmldiffvar_time_long, default = time_cutoff
+      ) - .data$cmldiffvar_time_long
     ) |>
     dplyr::summarize(
-      uncentered_eif_integral_val = sum(int_weight * eif_integrand_vec),
+      uncentered_eif_integral_val = sum(
+        .data$int_weight * .data$eif_integrand_vec
+      ),
       # just to retain one value for final addition at end of calculation
-      cond_surv_at_trunc_est_vec = min(cond_surv_at_trunc_est_vec),
-      ipws = min(ipws),
+      cond_surv_at_trunc_est_vec = min(.data$cond_surv_at_trunc_est_vec),
+      ipws = min(.data$ipws),
       .groups = "drop"
     ) |>
     dplyr::mutate(
-      uncentered_eif_val = ipws * cond_surv_at_trunc_est_vec *
-        uncentered_eif_integral_val + cond_surv_at_trunc_est_vec
+      uncentered_eif_val = .data$ipws * .data$cond_surv_at_trunc_est_vec *
+        .data$uncentered_eif_integral_val + .data$cond_surv_at_trunc_est_vec
     ) |>
-    dplyr::select(cmldiffvar_id, uncentered_eif_val)
+    dplyr::select(.data$cmldiffvar_id, .data$uncentered_eif_val)
 
   return(uncentered_eif_tbl)
 }
@@ -94,6 +126,15 @@ one_step_marginal_survival_estimator_fun <- function(uncentered_eif_tbl) {
 }
 
 
+#' One-Step Estimator of Restricted Mean Survival Time
+#'
+#' @inheritParams generate_long_counterfactural_tbl_fun
+#'
+#' @returns A `numeric` corresponding to the one-step estimate of the restricted
+#'   mean survival time at the specified `time_cutoff`.
+#'
+#' @keywords internal
+#'
 one_step_rmst_estimator_fun <- function(
     counterfactual_long_tbl,
     treatment_group,
@@ -103,11 +144,11 @@ one_step_rmst_estimator_fun <- function(
 
   # only consider observations until time cutoff
   counterfactual_long_tbl <- counterfactual_long_tbl |>
-    dplyr::filter(cmldiffvar_long_time <= time_cutoff)
+    dplyr::filter(.data$cmldiffvar_long_time <= time_cutoff)
 
   # extract all of the unique observed times
   unique_times <- counterfactual_long_tbl |>
-    dplyr::pull(cmldiffvar_long_time) |>
+    dplyr::pull(.data$cmldiffvar_long_time) |>
     unique() |>
     sort()
 
@@ -120,17 +161,17 @@ one_step_rmst_estimator_fun <- function(
       # extract the conditional survival times truncated at the iter_time
       num_times <- sum(unique_times <= iter_time)
       cond_surv_at_trunc_est_vec <- counterfactual_long_tbl |>
-        dplyr::filter(cmldiffvar_long_time <= iter_time) |>
-        dplyr::group_by(cmldiffvar_id) |>
+        dplyr::filter(.data$cmldiffvar_long_time <= iter_time) |>
+        dplyr::group_by(.data$cmldiffvar_id) |>
         dplyr::slice_tail(n = 1) |>
-        dplyr::select(cmldiffvar_id, pred_cond_event_survival) |>
+        dplyr::select(.data$cmldiffvar_id, .data$pred_cond_event_survival) |>
         dplyr::ungroup() |>
         dplyr::slice(rep(1:dplyr::n(), each = num_times)) |>
-        dplyr::pull(pred_cond_event_survival)
+        dplyr::pull(.data$pred_cond_event_survival)
 
       # restrict the longitudinal counterfactual dataset to the timeframe
       trunc_counterfactual_long_tbl <- counterfactual_long_tbl |>
-        dplyr::filter(cmldiffvar_long_time <= iter_time)
+        dplyr::filter(.data$cmldiffvar_long_time <= iter_time)
 
       # one-step estimator of the marginal survival probabilities
       uncentered_eif_tbl <- uncentered_marginal_survival_eif_fun(
@@ -163,16 +204,16 @@ one_step_rmst_estimator_fun <- function(
   ) |>
     dplyr::mutate(
       int_weight = dplyr::lead(
-        cmldiffvar_time_long, default = time_cutoff
-      ) - cmldiffvar_time_long
+        .data$cmldiffvar_time_long, default = time_cutoff
+      ) - .data$cmldiffvar_time_long
     ) |>
     # NOTE: add min(cmldiffvar_time_long) to include survival times between
     # time zero and first recorded event
     dplyr::summarize(
-      rmst_est = sum(int_weight * marginal_survival_estimates_vec) +
-        min(cmldiffvar_time_long)
+      rmst_est = sum(.data$int_weight * .data$marginal_survival_estimates_vec) +
+        min(.data$cmldiffvar_time_long)
     ) |>
-    pull(rmst_est)
+    dplyr::pull(.data$rmst_est)
 
   return(rmst_est)
 }
