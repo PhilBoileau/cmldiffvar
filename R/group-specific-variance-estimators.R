@@ -289,7 +289,7 @@ bound_away_from_0_and_1_fun <- function(unit_interval_vec) {
 }
 
 
-#' Unadjsuted Group-Specific Variance Estimator
+#' Unadjusted Group-Specific Variance Estimator
 #'
 #' @description `unadjusted_var_estimator_fun()` estimates of the group-specific
 #'   variance using an unadjusted plug-in estimator. Note that this estimator is
@@ -331,6 +331,18 @@ unadjusted_var_estimator_fun <- function(
 }
 
 
+#' Full Uncentered Efficient Influence Function of the Marginal Survival Times
+#'
+#' @inheritParams generate_long_counterfactural_tbl_fun
+#' @param counterfactual_long_tbl A counterfactual longitudinal [tibble], with
+#'   the additional of propensity score, conditional event hazard, conditional
+#'   censoring hazard, conditional event survival, and conditional censoring
+#'   survival estimates.
+#' @param time_cutoff A `numeric` integer corresponding to the restriction time.
+#'
+#' @returns A [tibble] containing the uncentered efficient influence function of
+#'   the marginal survival times at all times considered in the dataset.
+#'
 full_uncentered_marginal_survival_eif_tbl_fun <- function(
   counterfactual_long_tbl,
   treatment_group,
@@ -414,6 +426,20 @@ full_uncentered_marginal_survival_eif_tbl_fun <- function(
   return(uncentered_eif_marginal_survival_values_tbl)
 }
 
+#' Uncentered Efficient Influence Function of the Marginal Variance for
+#' Restricted Time-to-Event Outcomes
+#'
+#' @param full_uncentered_marginal_survival_eif_tbl A [tibble] containing the
+#'   uncentered efficient influence function of the marginal survival times at
+#'   all times considered in the dataset.
+#' @param time_cutoff A `numeric` integer corresponding to the restriction time.
+#' @param rmst_est A `numeric` corresponding to the associated one-step
+#'   restricted mean survival time estimate at `time_cutoff`.
+#'
+#' @returns A [tibble] containing the uncentered efficient influence function
+#'   of the marginal variance for restricted time-to-event outcomes up until
+#'   the `time_cutoff`.
+#'
 uncentered_marginal_tte_var_eif_fun <- function(
   full_uncentered_marginal_survival_eif_tbl,
   time_cutoff,
@@ -445,16 +471,33 @@ uncentered_marginal_tte_var_eif_fun <- function(
 
 }
 
+#' Marginal Variance One-Step Estimator for Restricted Time-to-Event Outcomes
+#'
+#' @param uncentered_marginal_tte_var_eif_tbl A [tibble] containing the
+#' uncentered efficient influence functions of the marginal variance of each
+#' observation under a pre-specified treatment condition.
+#'
+#' @returns A `numeric` one-step estimate of the marginal variance under the
+#'   the treatment condition specified in the `counterfactual_long_tbl`.
+#'
 one_step_marginal_tte_var_estimator_fun <- function(
-    uncentered_marginal_tte_var_eif_tbl
+  uncentered_marginal_tte_var_eif_tbl
 ) {
 
   # compute the one-step marginal variance estimate
   mean(uncentered_marginal_tte_var_eif_tbl$uncentered_eif_val)
 
-
 }
 
+#' Marginal Variance Plug-In Estimator for Restricted Time-to-Event Outcomes
+#'
+#' @param counterfactual_long_tbl A [tibble] output by
+#'  `generate_long_counterfactural_tbl_fun()`.
+#' @param time_cutoff A `numeric` integer corresponding to the restriction time.
+#'
+#' @returns A `numeric` plug-in estimate of the marginal variance under the
+#'   the treatment condition specified in the `counterfactual_long_tbl`.
+#'
 tte_var_plugin_estimator_fun <- function(
   counterfactual_long_tbl,
   time_cutoff

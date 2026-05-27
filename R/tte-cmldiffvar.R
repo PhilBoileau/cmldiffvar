@@ -3,9 +3,9 @@
 #' @description
 #' `tte_cmldiffvar()` performs a homogeneous treatment effect hypothesis testing
 #' procedure based on the relative differential variance in datasets with
-#' time-to-event outcomes. Two types of homogeneous treatment hypotheses can be
-#' considered: a homogeneous additive effect, and a homogeneous multiplicative
-#' effect.
+#' right-censored, restricted time-to-event outcomes. Two types of homogeneous
+#' treatment hypotheses can be considered: a homogeneous additive effect, and a
+#' homogeneous multiplicative effect.
 #'
 #' @param data_tbl A [`data.frame`] or [`tibble`][tibble::tibble].
 #' @param restriction_time A `numeric` integer corresponding to the
@@ -177,7 +177,7 @@ tte_cmldiffvar <- function(
     propensity_score_sl_fit = propensity_score_sl_fit,
     cond_event_haz_sl_fit = cond_event_haz_sl_fit,
     cond_censoring_haz_sl_fit = cond_censoring_haz_sl_fit,
-    max_time_cutoff = restriction_time,
+    restriction_time = restriction_time,
     effect_range_vec =
       c(homogeneous_effect_range_min, homogeneous_effect_range_max),
     homogeneity_type = homogeneity_type

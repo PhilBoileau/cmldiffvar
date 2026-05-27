@@ -60,7 +60,7 @@ test_that(
     propensity_score_sl_fit = ps_sl_fit,
     cond_event_haz_sl_fit = cond_event_haz_sl_fit,
     cond_censoring_haz_sl_fit = cond_censoring_haz_sl_fit,
-    max_time_cutoff = 50,
+    restriction_time = 50,
     effect_range_vec = c(-3, 5),
     homogeneity_type = "additive"
   )
@@ -135,7 +135,7 @@ test_that(
       propensity_score_sl_fit = ps_sl_fit,
       cond_event_haz_sl_fit = cond_event_haz_sl_fit,
       cond_censoring_haz_sl_fit = cond_censoring_haz_sl_fit,
-      max_time_cutoff = 40,
+      restriction_time = 40,
       effect_range_vec = c(-3, 5),
       homogeneity_type = "additive"
     )
@@ -213,7 +213,7 @@ test_that(
       propensity_score_sl_fit = ps_sl_fit,
       cond_event_haz_sl_fit = cond_event_haz_sl_fit,
       cond_censoring_haz_sl_fit = cond_censoring_haz_sl_fit,
-      max_time_cutoff = 50,
+      restriction_time = 50,
       effect_range_vec = c(0.95, 1.2),
       homogeneity_type = "multiplicative"
     )
@@ -290,7 +290,7 @@ test_that(
       propensity_score_sl_fit = ps_sl_fit,
       cond_event_haz_sl_fit = cond_event_haz_sl_fit,
       cond_censoring_haz_sl_fit = cond_censoring_haz_sl_fit,
-      max_time_cutoff = 100,
+      restriction_time = 100,
       effect_range_vec = c(0.9, 1.1),
       homogeneity_type = "multiplicative"
     )

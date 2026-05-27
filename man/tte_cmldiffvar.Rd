@@ -95,7 +95,7 @@ treatment effect hypothesis testing procedure.
 \description{
 \code{tte_cmldiffvar()} performs a homogeneous treatment effect hypothesis testing
 procedure based on the relative differential variance in datasets with
-time-to-event outcomes. Two types of homogeneous treatment hypotheses can be
-considered: a homogeneous additive effect, and a homogeneous multiplicative
-effect.
+right-censored, restricted time-to-event outcomes. Two types of homogeneous
+treatment hypotheses can be considered: a homogeneous additive effect, and a
+homogeneous multiplicative effect.
 }

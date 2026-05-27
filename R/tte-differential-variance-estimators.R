@@ -1,3 +1,24 @@
+#' One-Step Estimator of Differential Variance with Restricted Time-to-Event
+#' Outcomes
+#'
+#' `one_step_tte_diff_var_estimator_fun()` performs a homogeneous treatment
+#' effect hypothesis testing procedure based on the one-step estimator of the
+#' differential variance fort the right-censored restricted time-to-event
+#' outcome setting.
+#'
+#' @inheritParams generate_long_counterfactural_tbl_fun
+#' @param restriction_time A `numeric` integer corresponding to the
+#'   time-to-event outcomes restriction time.
+#' @param effect_range_vec A `numeric` vector of two elements providing the
+#'   range of possible effects.
+#' @param homogeneity_type A `character` indicating the type of homogeneous
+#'   treatment effect under the null hypothesis: `"additive"` or
+#'   `"multiplicative"`.
+#'
+#' @returns A [tibble][tibble::tibble] reporting the differential variance
+#'   estimates and associated p-values considered for the homogeneous treatment
+#'   effect hypothesis testing procedure.
+#'
 one_step_tte_diff_var_estimator_fun <- function(
   clean_long_tbl,
   propensity_score_adj_var_names,
@@ -8,7 +29,7 @@ one_step_tte_diff_var_estimator_fun <- function(
   propensity_score_sl_fit,
   cond_event_haz_sl_fit,
   cond_censoring_haz_sl_fit,
-  max_time_cutoff,
+  restriction_time,
   effect_range_vec,
   homogeneity_type
 ) {
@@ -45,25 +66,25 @@ one_step_tte_diff_var_estimator_fun <- function(
       counterfactual_long_tbl = clean_long_treatment_tbl,
       treatment_group = 1,
       treatment_var_name = treatment_var_name,
-      time_cutoff = max_time_cutoff
+      time_cutoff = restriction_time
     )
   full_uncentered_marginal_survival_eif_control_tbl <-
     full_uncentered_marginal_survival_eif_tbl_fun(
       counterfactual_long_tbl = clean_long_treatment_tbl,
       treatment_group = 0,
       treatment_var_name = treatment_var_name,
-      time_cutoff = max_time_cutoff
+      time_cutoff = restriction_time
     )
 
   # compute the range of possible truncation times based on the provided range
   # of effects and the selected homogeneity model
   if (homogeneity_type == "additive") {
-    time_range_vec <- max_time_cutoff -
+    time_range_vec <- restriction_time -
       seq(effect_range_vec[1], effect_range_vec[2])
   } else if (homogeneity_type == "multiplicative") {
     time_range_vec <- seq(
-      floor(1 / effect_range_vec[2] * max_time_cutoff),
-      ceiling(1 / effect_range_vec[1] * max_time_cutoff)
+      floor(1 / effect_range_vec[2] * restriction_time),
+      ceiling(1 / effect_range_vec[1] * restriction_time)
     )
   }
 
@@ -71,12 +92,12 @@ one_step_tte_diff_var_estimator_fun <- function(
   trunc_tbl <- dplyr::tibble(time_range = time_range_vec) |>
     dplyr::mutate(
       trunc_time_treatment = dplyr::if_else(
-        max_time_cutoff - time_range > 0, max_time_cutoff,
-        2 * max_time_cutoff - time_range
+        restriction_time - time_range > 0, restriction_time,
+        2 * restriction_time - time_range
       ),
       trunc_time_control = dplyr::if_else(
-        max_time_cutoff - time_range > 0, time_range,
-        max_time_cutoff
+        restriction_time - time_range > 0, time_range,
+        restriction_time
       )
     )
 
@@ -89,7 +110,7 @@ one_step_tte_diff_var_estimator_fun <- function(
       counterfactual_long_tbl = clean_long_treatment_tbl,
       treatment_group = 1,
       treatment_var_name = treatment_var_name,
-      time_cutoff = max_time_cutoff
+      time_cutoff = restriction_time
     )
   tte_var_treatment_tbl <- lapply(
     unique_trunc_time_treament_vec,
@@ -145,7 +166,7 @@ one_step_tte_diff_var_estimator_fun <- function(
       counterfactual_long_tbl = clean_long_control_tbl,
       treatment_group = 0,
       treatment_var_name = treatment_var_name,
-      time_cutoff = max_time_cutoff
+      time_cutoff = restriction_time
     )
   tte_var_control_tbl <- lapply(
     unique_trunc_time_control_vec,
@@ -218,15 +239,15 @@ one_step_tte_diff_var_estimator_fun <- function(
       test_statistic = dplyr::case_when(
         homogeneity_type == "additive" ~ (diff_var_est - 1) / se_diff_var,
         homogeneity_type == "multiplicative" ~
-          (diff_var_est - (max_time_cutoff / time_range)^2) / se_diff_var
+          (diff_var_est - (restriction_time / time_range)^2) / se_diff_var
       ),
       p_value = 2 * pmin(
         pnorm(test_statistic, lower.tail = TRUE),
         pnorm(test_statistic, lower.tail = FALSE)
       ),
       hypothesized_homogeneous_effect = dplyr::case_when(
-        homogeneity_type == "additive" ~ max_time_cutoff - time_range,
-        homogeneity_type == "multiplicative" ~ max_time_cutoff / time_range
+        homogeneity_type == "additive" ~ restriction_time - time_range,
+        homogeneity_type == "multiplicative" ~ restriction_time / time_range
       )
     ) |>
     dplyr::select(

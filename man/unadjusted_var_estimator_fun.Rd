@@ -2,7 +2,7 @@
 % Please edit documentation in R/group-specific-variance-estimators.R
 \name{unadjusted_var_estimator_fun}
 \alias{unadjusted_var_estimator_fun}
-\title{Unadjsuted Group-Specific Variance Estimator}
+\title{Unadjusted Group-Specific Variance Estimator}
 \usage{
 unadjusted_var_estimator_fun(
   treatment_group,
