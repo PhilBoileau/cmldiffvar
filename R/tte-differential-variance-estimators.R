@@ -15,6 +15,11 @@
 #'   treatment effect under the null hypothesis: `"additive"` or
 #'   `"multiplicative"`.
 #'
+#' @importFrom purrr map_dbl pmap
+#' @importFrom stats pnorm var
+#'
+#' @keywords internal
+#'
 #' @returns A [tibble][tibble::tibble] reporting the differential variance
 #'   estimates and associated p-values considered for the homogeneous treatment
 #'   effect hypothesis testing procedure.
@@ -92,18 +97,18 @@ one_step_tte_diff_var_estimator_fun <- function(
   trunc_tbl <- dplyr::tibble(time_range = time_range_vec) |>
     dplyr::mutate(
       trunc_time_treatment = dplyr::if_else(
-        restriction_time - time_range > 0, restriction_time,
-        2 * restriction_time - time_range
+        restriction_time - .data$time_range > 0, restriction_time,
+        2 * restriction_time - .data$time_range
       ),
       trunc_time_control = dplyr::if_else(
-        restriction_time - time_range > 0, time_range,
+        restriction_time - .data$time_range > 0, .data$time_range,
         restriction_time
       )
     )
 
   # estimate the marginal tte variance under treatment at all the required times
   unique_trunc_time_treament_vec <- trunc_tbl |>
-    dplyr::pull(trunc_time_treatment) |>
+    dplyr::pull(.data$trunc_time_treatment) |>
     unique()
   full_uncentered_marginal_survival_eif_treatment_tbl <-
     full_uncentered_marginal_survival_eif_tbl_fun(
@@ -159,7 +164,7 @@ one_step_tte_diff_var_estimator_fun <- function(
 
   # estimate the marginal tte variance under control at all the required times
   unique_trunc_time_control_vec <- trunc_tbl |>
-    dplyr::pull(trunc_time_control) |>
+    dplyr::pull(.data$trunc_time_control) |>
     unique()
   full_uncentered_marginal_survival_eif_control_tbl <-
     full_uncentered_marginal_survival_eif_tbl_fun(
@@ -221,45 +226,49 @@ one_step_tte_diff_var_estimator_fun <- function(
   # compute the differential variance estimates, standard errors,
   # test statistics, and p-values
   num_obs <- clean_long_tbl |>
-    dplyr::pull(cmldiffvar_id) |>
+    dplyr::pull(.data$cmldiffvar_id) |>
     unique() |>
     length()
   inference_tbl <- estimates_tbl |>
     dplyr::mutate(
-      diff_var_est = one_step_est_treatment / one_step_est_control,
+      diff_var_est = .data$one_step_est_treatment / .data$one_step_est_control,
       eif_diff_var = purrr::pmap(
         list(
-          eif_treatment, one_step_est_treatment, eif_control,
-          one_step_est_control
+          .data$eif_treatment, .data$one_step_est_treatment, .data$eif_control,
+          .data$one_step_est_control
         ),
         ~ ..1 / ..4 - ..3 * ..2 / ..4^2
       ),
-      var_eif_diff_var = purrr::map_dbl(eif_diff_var, var),
-      se_diff_var = sqrt(var_eif_diff_var / num_obs),
+      var_eif_diff_var = purrr::map_dbl(.data$eif_diff_var, stats::var),
+      se_diff_var = sqrt(.data$var_eif_diff_var / num_obs),
       test_statistic = dplyr::case_when(
-        homogeneity_type == "additive" ~ (diff_var_est - 1) / se_diff_var,
+        homogeneity_type == "additive" ~
+          (.data$diff_var_est - 1) / .data$se_diff_var,
         homogeneity_type == "multiplicative" ~
-          (diff_var_est - (restriction_time / time_range)^2) / se_diff_var
+          (.data$diff_var_est - (restriction_time / .data$time_range)^2) /
+          .data$se_diff_var
       ),
       p_value = 2 * pmin(
-        pnorm(test_statistic, lower.tail = TRUE),
-        pnorm(test_statistic, lower.tail = FALSE)
+        stats::pnorm(.data$test_statistic, lower.tail = TRUE),
+        stats::pnorm(.data$test_statistic, lower.tail = FALSE)
       ),
       hypothesized_homogeneous_effect = dplyr::case_when(
-        homogeneity_type == "additive" ~ restriction_time - time_range,
-        homogeneity_type == "multiplicative" ~ restriction_time / time_range
+        homogeneity_type == "additive" ~
+          restriction_time - .data$time_range,
+        homogeneity_type == "multiplicative" ~
+          restriction_time / .data$time_range
       )
     ) |>
     dplyr::select(
-      hypothesized_homogeneous_effect,
-      one_step_est_treatment,
-      one_step_est_control,
-      diff_var_est,
-      se_diff_var,
-      test_statistic,
-      p_value
+      .data$hypothesized_homogeneous_effect,
+      .data$one_step_est_treatment,
+      .data$one_step_est_control,
+      .data$diff_var_est,
+      .data$se_diff_var,
+      .data$test_statistic,
+      .data$p_value
     ) |>
-    dplyr::arrange(hypothesized_homogeneous_effect)
+    dplyr::arrange(.data$hypothesized_homogeneous_effect)
 
 
   return(inference_tbl)

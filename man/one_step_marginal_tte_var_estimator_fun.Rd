@@ -18,3 +18,4 @@ the treatment condition specified in the \code{counterfactual_long_tbl}.
 \description{
 Marginal Variance One-Step Estimator for Restricted Time-to-Event Outcomes
 }
+\keyword{internal}

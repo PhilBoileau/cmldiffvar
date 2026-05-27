@@ -38,7 +38,7 @@
 #'   time-to-event outcome variable stored in `data_tbl`.
 #' @param censoring_var_name A `character` providing the column name of the
 #'   censoring indicator stored in `data_tbl`.
-#' @param propensity_score_library A `character` vector of candidate learners
+#' @param propensity_score_sl_library A `character` vector of candidate learners
 #'   used by the SuperLearner estimator of the propensity score. Defaults to
 #'   `c("SL.glm", "SL.earth", "SL.ranger")`.
 #' @param cond_event_haz_sl_library A `character` vector of candidate learners
@@ -72,9 +72,9 @@ tte_cmldiffvar <- function(
   propensity_score_var_name = NULL,
   outcome_var_name,
   censoring_var_name,
-  propensity_score_sl_library = c("SL.glm", "SL.earth", "SL.glmnet"),
-  cond_event_haz_sl_library = c("SL.glm", "SL.earth", "SL.glmnet"),
-  cond_censoring_haz_sl_library = c("SL.glm", "SL.earth", "SL.glmnet"),
+  propensity_score_sl_library = c("SL.glm", "SL.ranger"),
+  cond_event_haz_sl_library = c("SL.glm", "SL.ranger"),
+  cond_censoring_haz_sl_library = c("SL.glm", "SL.ranger"),
   num_nuisance_sl_folds = 5
 ) {
 
@@ -189,7 +189,7 @@ tte_cmldiffvar <- function(
       hypothesis_type = paste(
         "homogeneous", homogeneity_type, "treatment effect"
         ),
-      p_value = inference_tbl |> pull(p_value) |> max()
+      p_value = inference_tbl |> dplyr::pull(.data$p_value) |> max()
     ),
     "inference_tbl" = inference_tbl
   )

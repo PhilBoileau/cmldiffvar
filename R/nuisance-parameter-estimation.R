@@ -199,6 +199,8 @@ estimate_cond_event_haz_fun <- function(
 #'
 #' @keywords internal
 #'
+#' @importFrom rlang .data
+#'
 #' @returns A [SuperLearner::SuperLearner] class object containing the
 #'   estimated conditional censoring hazard rate.
 #'
@@ -212,7 +214,7 @@ estimate_cond_censoring_haz_fun <- function(
 ) {
 
   # only retain rows at risk of censoring at an actual recorded event time
-  clean_long_tbl <- clean_long_tbl |> dplyr::filter(J == 1)
+  clean_long_tbl <- clean_long_tbl |> dplyr::filter(.data$J == 1)
 
   # extract dependent and independent variables
   outcome_vec <- clean_long_tbl |>

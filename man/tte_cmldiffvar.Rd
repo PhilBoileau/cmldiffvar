@@ -17,9 +17,9 @@ tte_cmldiffvar(
   propensity_score_var_name = NULL,
   outcome_var_name,
   censoring_var_name,
-  propensity_score_sl_library = c("SL.glm", "SL.earth", "SL.glmnet"),
-  cond_event_haz_sl_library = c("SL.glm", "SL.earth", "SL.glmnet"),
-  cond_censoring_haz_sl_library = c("SL.glm", "SL.earth", "SL.glmnet"),
+  propensity_score_sl_library = c("SL.glm", "SL.ranger"),
+  cond_event_haz_sl_library = c("SL.glm", "SL.ranger"),
+  cond_censoring_haz_sl_library = c("SL.glm", "SL.ranger"),
   num_nuisance_sl_folds = 5
 )
 }
@@ -67,6 +67,10 @@ time-to-event outcome variable stored in \code{data_tbl}.}
 \item{censoring_var_name}{A \code{character} providing the column name of the
 censoring indicator stored in \code{data_tbl}.}
 
+\item{propensity_score_sl_library}{A \code{character} vector of candidate learners
+used by the SuperLearner estimator of the propensity score. Defaults to
+\code{c("SL.glm", "SL.earth", "SL.ranger")}.}
+
 \item{cond_event_haz_sl_library}{A \code{character} vector of candidate learners
 used by the SuperLearner estimator of the conditional event hazard rate.
 Defaults to \code{c("SL.glm", "SL.earth", "SL.ranger")}.}
@@ -77,10 +81,6 @@ Defaults to \code{c("SL.glm", "SL.earth", "SL.ranger")}.}
 
 \item{num_nuisance_sl_folds}{A \code{numeric} indicating the number of folds to
 use in cross-validated SuperLearner estimators. Defaults to \code{5}.}
-
-\item{propensity_score_library}{A \code{character} vector of candidate learners
-used by the SuperLearner estimator of the propensity score. Defaults to
-\code{c("SL.glm", "SL.earth", "SL.ranger")}.}
 }
 \value{
 A \code{list} containing two items:

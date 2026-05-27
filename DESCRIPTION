@@ -41,9 +41,11 @@ Imports:
     earth,
     gam,
     origami,
+    purrr,
     rlang,
     stats,
     SuperLearner,
+    tidyr,
     torch
 URL: https://pboileau.ca/cmldiffvar/
 VignetteBuilder: knitr

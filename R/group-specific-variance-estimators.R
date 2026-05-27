@@ -340,6 +340,10 @@ unadjusted_var_estimator_fun <- function(
 #'   survival estimates.
 #' @param time_cutoff A `numeric` integer corresponding to the restriction time.
 #'
+#' @importFrom tidyr uncount
+#'
+#' @keywords internal
+#'
 #' @returns A [tibble] containing the uncentered efficient influence function of
 #'   the marginal survival times at all times considered in the dataset.
 #'
@@ -352,11 +356,11 @@ full_uncentered_marginal_survival_eif_tbl_fun <- function(
 
   # only consider observations until time cutoff
   counterfactual_long_tbl <- counterfactual_long_tbl |>
-    dplyr::filter(cmldiffvar_long_time <= time_cutoff)
+    dplyr::filter(.data$cmldiffvar_long_time <= time_cutoff)
 
   # extract all of the unique observed times
   unique_times <- counterfactual_long_tbl |>
-    dplyr::pull(cmldiffvar_long_time) |>
+    dplyr::pull(.data$cmldiffvar_long_time) |>
     unique() |>
     sort()
 
@@ -369,17 +373,17 @@ full_uncentered_marginal_survival_eif_tbl_fun <- function(
       # extract the conditional survival times truncated at the iter_time
       num_times <- sum(unique_times <= iter_time)
       cond_surv_at_trunc_est_vec <- counterfactual_long_tbl |>
-        dplyr::filter(cmldiffvar_long_time <= iter_time) |>
-        dplyr::group_by(cmldiffvar_id) |>
+        dplyr::filter(.data$cmldiffvar_long_time <= iter_time) |>
+        dplyr::group_by(.data$cmldiffvar_id) |>
         dplyr::slice_tail(n = 1) |>
-        dplyr::select(cmldiffvar_id, pred_cond_event_survival) |>
+        dplyr::select(.data$cmldiffvar_id, .data$pred_cond_event_survival) |>
         dplyr::ungroup() |>
         dplyr::slice(rep(1:dplyr::n(), each = num_times)) |>
-        dplyr::pull(pred_cond_event_survival)
+        dplyr::pull(.data$pred_cond_event_survival)
 
       # restrict the longitudinal counterfactual dataset to the time frame
       trunc_counterfactual_long_tbl <- counterfactual_long_tbl |>
-        dplyr::filter(cmldiffvar_long_time <= iter_time)
+        dplyr::filter(.data$cmldiffvar_long_time <= iter_time)
 
       # compute the uncentered marginal survival EIF values
       uncentered_eif_tbl <- uncentered_marginal_survival_eif_fun(
@@ -413,13 +417,14 @@ full_uncentered_marginal_survival_eif_tbl_fun <- function(
   # non-integrated elements of the outer integral
   uncentered_eif_marginal_survival_values_tbl <-
     uncentered_eif_marginal_survival_values_tbl |>
-    dplyr::arrange(cmldiffvar_id, cmldiffvar_long_time) |>
-    dplyr::group_by(cmldiffvar_id) |>
+    dplyr::arrange(.data$cmldiffvar_id, .data$cmldiffvar_long_time) |>
+    dplyr::group_by(.data$cmldiffvar_id) |>
     dplyr::mutate(
-      time_steps_to_add = lead(cmldiffvar_long_time, default = time_cutoff) -
-        cmldiffvar_long_time
+      time_steps_to_add =
+        dplyr::lead(.data$cmldiffvar_long_time, default = time_cutoff) -
+        .data$cmldiffvar_long_time
     ) |>
-    tidyr::uncount(weights = time_steps_to_add) |>
+    tidyr::uncount(weights = .data$time_steps_to_add) |>
     dplyr::mutate(cmldiffvar_long_time = rep(seq_len(time_cutoff - 1)))
 
 
@@ -436,6 +441,8 @@ full_uncentered_marginal_survival_eif_tbl_fun <- function(
 #' @param rmst_est A `numeric` corresponding to the associated one-step
 #'   restricted mean survival time estimate at `time_cutoff`.
 #'
+#' @keywords internal
+#'
 #' @returns A [tibble] containing the uncentered efficient influence function
 #'   of the marginal variance for restricted time-to-event outcomes up until
 #'   the `time_cutoff`.
@@ -449,22 +456,22 @@ uncentered_marginal_tte_var_eif_fun <- function(
   # compute the weighted sum of the uncentered marginal survival EIF values
   # which equals the integral term in the EIF of the marginal TTE variance
   eif_integral_term_tbl <- full_uncentered_marginal_survival_eif_tbl |>
-    dplyr::filter(cmldiffvar_long_time < time_cutoff) |>
-    dplyr::mutate(int_weight = cmldiffvar_long_time - rmst_est) |>
+    dplyr::filter(.data$cmldiffvar_long_time < time_cutoff) |>
+    dplyr::mutate(int_weight = .data$cmldiffvar_long_time - rmst_est) |>
     dplyr::summarize(
-      integral_term = sum(int_weight * uncentered_eif_val),
+      integral_term = sum(.data$int_weight * .data$uncentered_eif_val),
       .groups = "drop"
     ) |>
     # NOTE: subtract rmst_est to account for elapsed times between 0 and 1
     # this is to approximate the continuous integral
     dplyr::mutate(
-      integral_term = integral_term - (rmst_est / 2)
+      integral_term = .data$integral_term - (rmst_est / 2)
     )
 
   # construct the uncentered EIF tibble
   uncentered_eif_tbl <- eif_integral_term_tbl |>
     dplyr::transmute(
-      uncentered_eif_val = 2 * integral_term + rmst_est^2
+      uncentered_eif_val = 2 * .data$integral_term + rmst_est^2
     )
 
   return(uncentered_eif_tbl)
@@ -476,6 +483,8 @@ uncentered_marginal_tte_var_eif_fun <- function(
 #' @param uncentered_marginal_tte_var_eif_tbl A [tibble] containing the
 #' uncentered efficient influence functions of the marginal variance of each
 #' observation under a pre-specified treatment condition.
+#'
+#' @keywords internal
 #'
 #' @returns A `numeric` one-step estimate of the marginal variance under the
 #'   the treatment condition specified in the `counterfactual_long_tbl`.
@@ -495,6 +504,8 @@ one_step_marginal_tte_var_estimator_fun <- function(
 #'  `generate_long_counterfactural_tbl_fun()`.
 #' @param time_cutoff A `numeric` integer corresponding to the restriction time.
 #'
+#' @keywords internal
+#'
 #' @returns A `numeric` plug-in estimate of the marginal variance under the
 #'   the treatment condition specified in the `counterfactual_long_tbl`.
 #'
@@ -506,10 +517,10 @@ tte_var_plugin_estimator_fun <- function(
   # compute the mean survival times at each time point
   mean_survival_tbl <- counterfactual_long_tbl |>
     dplyr::ungroup() |>
-    dplyr::filter(cmldiffvar_long_time < time_cutoff) |>
-    dplyr::group_by(cmldiffvar_long_time) |>
+    dplyr::filter(.data$cmldiffvar_long_time < time_cutoff) |>
+    dplyr::group_by(.data$cmldiffvar_long_time) |>
     dplyr::summarise(
-      mean_event_survival = mean(pred_cond_event_survival),
+      mean_event_survival = mean(.data$pred_cond_event_survival),
       .groups = "drop"
     )
 
@@ -517,17 +528,18 @@ tte_var_plugin_estimator_fun <- function(
   # compute terms of the plug-in estimator
   plugin_term_tbl <- mean_survival_tbl |>
     dplyr::mutate(
-      time_steps_to_add = lead(cmldiffvar_long_time, default = time_cutoff) -
-        cmldiffvar_long_time
+      time_steps_to_add = dplyr::lead(
+        .data$cmldiffvar_long_time, default = time_cutoff
+      ) - .data$cmldiffvar_long_time
     ) |>
-    tidyr::uncount(weights = time_steps_to_add) |>
+    tidyr::uncount(weights = .data$time_steps_to_add) |>
     dplyr::mutate(
       cmldiffvar_long_time = rep(seq_len(time_cutoff - 1)),
-      int_weight = cmldiffvar_long_time
+      int_weight = .data$cmldiffvar_long_time
     ) |>
     dplyr::summarise(
-      first_term = sum(2 * int_weight * mean_event_survival),
-      second_term = (sum(mean_event_survival) + 1)^2
+      first_term = sum(2 * .data$int_weight * .data$mean_event_survival),
+      second_term = (sum(.data$mean_event_survival) + 1)^2
     )
 
   # compute the plug-in estimate

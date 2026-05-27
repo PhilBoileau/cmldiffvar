@@ -61,13 +61,15 @@ melt_tte_data_fun <- function(
       long_obs_tbl <- long_obs_tbl |>
         dplyr::mutate(
           cmldiffvar_long_time = unique_times,
-          R = dplyr::if_else(cmldiffvar_long_time == .data[[outcome_var_name]] &
-                               .data[[censoring_var_name]] == 1, 1, 0),
-          L = dplyr::if_else(cmldiffvar_long_time == .data[[outcome_var_name]] &
-                               .data[[censoring_var_name]] == 0, 1, 0),
+          R = dplyr::if_else(
+            .data$cmldiffvar_long_time == .data[[outcome_var_name]] &
+            .data[[censoring_var_name]] == 1, 1, 0),
+          L = dplyr::if_else(
+            .data$cmldiffvar_long_time == .data[[outcome_var_name]] &
+            .data[[censoring_var_name]] == 0, 1, 0),
           I = dplyr::if_else(
-            cmldiffvar_long_time <= .data[[outcome_var_name]], 1, 0),
-          J = dplyr::if_else(I == 1 & L == 0, 1, 0),
+            .data$cmldiffvar_long_time <= .data[[outcome_var_name]], 1, 0),
+          J = dplyr::if_else(.data$I == 1 & .data$L == 0, 1, 0),
           cmldiffvar_id = obs_idx
         )
 

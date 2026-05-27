@@ -19,3 +19,4 @@ the treatment condition specified in the \code{counterfactual_long_tbl}.
 \description{
 Marginal Variance Plug-In Estimator for Restricted Time-to-Event Outcomes
 }
+\keyword{internal}

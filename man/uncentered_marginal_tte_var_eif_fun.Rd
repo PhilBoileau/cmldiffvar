@@ -30,3 +30,4 @@ the \code{time_cutoff}.
 Uncentered Efficient Influence Function of the Marginal Variance for
 Restricted Time-to-Event Outcomes
 }
+\keyword{internal}

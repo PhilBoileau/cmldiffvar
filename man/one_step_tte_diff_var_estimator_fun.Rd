@@ -72,3 +72,4 @@ effect hypothesis testing procedure based on the one-step estimator of the
 differential variance fort the right-censored restricted time-to-event
 outcome setting.
 }
+\keyword{internal}

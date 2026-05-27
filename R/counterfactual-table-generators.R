@@ -196,10 +196,10 @@ generate_long_counterfactural_tbl_fun <- function(
       pred_cond_event_haz = as.numeric(pred_cond_event_haz),
       pred_cond_censoring_haz = as.numeric(pred_cond_censoring_haz)
     ) |>
-    dplyr::group_by(cmldiffvar_id) |>
+    dplyr::group_by(.data$cmldiffvar_id) |>
     dplyr::mutate(
-      pred_cond_event_survival = cumprod(1 - pred_cond_event_haz),
-      pred_cond_censoring_survival = cumprod(1 - pred_cond_censoring_haz)
+      pred_cond_event_survival = cumprod(1 - .data$pred_cond_event_haz),
+      pred_cond_censoring_survival = cumprod(1 - .data$pred_cond_censoring_haz)
     )
 
   # add back true treatment assignment vector for record keeping
