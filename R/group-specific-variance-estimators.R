@@ -413,6 +413,22 @@ full_uncentered_marginal_survival_eif_tbl_fun <- function(
   ) |>
     dplyr::bind_rows()
 
+  # if the first event time does not occur at time 1, then add it artificially,
+  # and set the uncentered_eif_val to 1
+  if (min(unique_times) != 1) {
+    time_1_uncentered_eif_marginal_survival_values_tbl <-
+      uncentered_eif_marginal_survival_values_tbl |>
+      dplyr::select(.data$cmldiffvar_id) |>
+      dplyr::distinct() |>
+      dplyr::mutate(
+        uncentered_eif_val = 1,
+        cmldiffvar_long_time = 1
+      )
+    uncentered_eif_marginal_survival_values_tbl <-
+      uncentered_eif_marginal_survival_values_tbl |>
+      dplyr::bind_rows(time_1_uncentered_eif_marginal_survival_values_tbl)
+  }
+
   # order and expand the uncentered marginal survival EIF values to obtain the
   # non-integrated elements of the outer integral
   uncentered_eif_marginal_survival_values_tbl <-
@@ -425,7 +441,8 @@ full_uncentered_marginal_survival_eif_tbl_fun <- function(
         .data$cmldiffvar_long_time
     ) |>
     tidyr::uncount(weights = .data$time_steps_to_add) |>
-    dplyr::mutate(cmldiffvar_long_time = rep(seq_len(time_cutoff - 1)))
+    dplyr::mutate(cmldiffvar_long_time = rep(seq_len(time_cutoff - 1))) |>
+    dplyr::select(.data$cmldiffvar_id, uncentered_eif_val, cmldiffvar_long_time)
 
 
   return(uncentered_eif_marginal_survival_values_tbl)
@@ -506,6 +523,8 @@ one_step_marginal_tte_var_estimator_fun <- function(
 #'
 #' @keywords internal
 #'
+#' @importFrom dplyr tibble
+#'
 #' @returns A `numeric` plug-in estimate of the marginal variance under the
 #'   the treatment condition specified in the `counterfactual_long_tbl`.
 #'
@@ -524,6 +543,15 @@ tte_var_plugin_estimator_fun <- function(
       .groups = "drop"
     )
 
+  # if the first time isn't 1, add it to the mean_survival_tbl
+  if (min(mean_survival_tbl$cmldiffvar_long_time) != 1) {
+    time_1_mean_survival_tbl <- dplyr::tibble(
+      cmldiffvar_long_time = 1,
+      mean_event_survival = 1
+    )
+    mean_survival_tbl <- time_1_mean_survival_tbl |>
+      dplyr::bind_rows(mean_survival_tbl)
+  }
 
   # compute terms of the plug-in estimator
   plugin_term_tbl <- mean_survival_tbl |>

@@ -20,6 +20,7 @@ test_that(
       treatment_var_name = "a",
       outcome_var_name = "time",
       censoring_var_name = "censoring",
+      propensity_score_var_name = NULL,
       time_cutoff = 50
     )
 
@@ -95,6 +96,7 @@ test_that(
         treatment_var_name = "a",
         outcome_var_name = "time",
         censoring_var_name = "censoring",
+        propensity_score_var_name = NULL,
         time_cutoff = 50
       )
 
@@ -163,7 +165,7 @@ test_that(
 
     # sample a dataset
     sample_tbl <- generate_test_data(
-      n_obs = 500, null_marginal = TRUE, hazard_model = FALSE
+      n_obs = 100, null_marginal = TRUE, hazard_model = FALSE
     )
 
     # produce a clean, longitudinal version
@@ -173,7 +175,8 @@ test_that(
         treatment_var_name = "a",
         outcome_var_name = "time",
         censoring_var_name = "censoring",
-        time_cutoff = 50
+        propensity_score_var_name = NULL,
+        time_cutoff = 90
       )
 
     # fit nuisance parameter estimators
@@ -213,7 +216,7 @@ test_that(
       propensity_score_sl_fit = ps_sl_fit,
       cond_event_haz_sl_fit = cond_event_haz_sl_fit,
       cond_censoring_haz_sl_fit = cond_censoring_haz_sl_fit,
-      restriction_time = 50,
+      restriction_time = 40,
       effect_range_vec = c(0.95, 1.2),
       homogeneity_type = "multiplicative"
     )
