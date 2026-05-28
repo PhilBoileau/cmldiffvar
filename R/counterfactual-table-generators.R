@@ -168,8 +168,8 @@ generate_long_counterfactural_tbl_fun <- function(
     newdata = clean_long_counterfactual_tbl |>
       dplyr::select(
         dplyr::all_of(
-          c("cmldiffvar_long_time", cond_event_haz_adj_var_names,
-            treatment_var_name)
+          c(cond_event_haz_adj_var_names, treatment_var_name,
+            "cmldiffvar_long_time")
         )
       ),
     onlySL = TRUE
@@ -181,8 +181,8 @@ generate_long_counterfactural_tbl_fun <- function(
     newdata = clean_long_counterfactual_tbl |>
       dplyr::select(
         dplyr::all_of(
-          c("cmldiffvar_long_time", cond_censoring_haz_adj_var_names,
-            treatment_var_name)
+          c(cond_censoring_haz_adj_var_names, treatment_var_name,
+            "cmldiffvar_long_time")
         )
       ),
     onlySL = TRUE

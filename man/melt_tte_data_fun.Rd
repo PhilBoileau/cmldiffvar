@@ -10,6 +10,7 @@ melt_tte_data_fun(
   treatment_var_name,
   outcome_var_name,
   censoring_var_name,
+  propensity_score_var_name,
   time_cutoff
 )
 }
@@ -26,6 +27,9 @@ variable.}
 
 \item{censoring_var_name}{A \code{character} indicating the right censoring
 indicator variable.}
+
+\item{propensity_score_var_name}{A \code{character} indicating the propensity
+score variable.}
 
 \item{time_cutoff}{A \code{numeric} representing the time point at which to
 evaluate the time-to-event parameter.}

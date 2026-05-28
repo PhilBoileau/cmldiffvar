@@ -131,6 +131,7 @@ tte_cmldiffvar <- function(
       treatment_var_name = treatment_var_name,
       outcome_var_name = outcome_var_name,
       censoring_var_name = censoring_var_name,
+      propensity_score_var_name = propensity_score_var_name,
       time_cutoff = restriction_time
     )
 

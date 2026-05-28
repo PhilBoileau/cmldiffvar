@@ -12,6 +12,8 @@
 #' @param outcome_var_name A `character` corresponding to the outcome variable.
 #' @param censoring_var_name A `character` indicating the right censoring
 #'   indicator variable.
+#' @param propensity_score_var_name A `character` indicating the propensity
+#'   score variable.
 #' @param time_cutoff A `numeric` representing the time point at which to
 #'   evaluate the time-to-event parameter.
 #'
@@ -27,17 +29,20 @@ melt_tte_data_fun <- function(
   treatment_var_name,
   outcome_var_name,
   censoring_var_name,
+  propensity_score_var_name,
   time_cutoff
 ) {
 
   # remove unnecessary variables
+  if (is.null(propensity_score_var_name)) {
+    vars_to_keep <- c(baseline_var_names, treatment_var_name, outcome_var_name,
+                      censoring_var_name)
+  } else {
+    vars_to_keep <- c(baseline_var_names, treatment_var_name, outcome_var_name,
+                      censoring_var_name, propensity_score_var_name)
+  }
   wide_data_tbl <- wide_data_tbl |>
-    dplyr::select(
-      dplyr::all_of(
-        c(baseline_var_names, treatment_var_name, outcome_var_name,
-          censoring_var_name)
-      )
-    )
+    dplyr::select(dplyr::all_of(vars_to_keep))
 
   # get the unique times in the dataset up to the cutoff time
   unique_times <- wide_data_tbl |>

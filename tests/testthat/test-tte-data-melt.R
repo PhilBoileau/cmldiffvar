@@ -19,6 +19,7 @@ test_that(paste(
       treatment_var_name = "a",
       outcome_var_name = "time",
       censoring_var_name = "censoring",
+      propensity_score_var_name = NULL,
       time_cutoff = time_cutoff
     )
 
