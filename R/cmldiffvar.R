@@ -309,7 +309,8 @@ cmldiffvar <- function(
     se = se,
     ci_low = ci_low,
     ci_high = ci_high,
-    p_value = p_value
+    p_value = p_value,
+    eif = eif
   )
 
 }
